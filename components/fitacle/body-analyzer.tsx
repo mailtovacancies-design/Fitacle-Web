@@ -236,11 +236,11 @@ export function BodyAnalyzer() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="bg-card border border-border rounded-3xl p-8 shadow-sm hover:shadow-lg transition-shadow duration-500"
+            className="bg-card border border-border rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm hover:shadow-lg transition-shadow duration-500"
           >
-            <h3 className="text-xl font-semibold mb-8 flex items-center gap-3 text-foreground">
+            <h3 className="text-lg sm:text-xl font-semibold mb-5 sm:mb-8 flex items-center gap-3 text-foreground">
               <div className="p-2 rounded-xl bg-foreground">
-                <Scale size={20} className="text-background" />
+                <Scale size={18} className="text-background sm:w-5 sm:h-5" />
               </div>
               Your Body Metrics
             </h3>
@@ -248,45 +248,48 @@ export function BodyAnalyzer() {
             <div className="space-y-6">
               {/* Gender */}
               <div>
-                <label className="block text-sm text-muted-foreground mb-3">Gender</label>
-                <div className="grid grid-cols-2 gap-3">
+                <label className="block text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">Gender</label>
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   {["male", "female"].map((g) => (
-                    <button
+                    <motion.button
                       key={g}
                       onClick={() => setFormData({ ...formData, gender: g as "male" | "female" })}
-                      className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 ${
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 text-sm sm:text-base ${
                         formData.gender === g
-                          ? "bg-foreground text-background"
+                          ? "bg-foreground text-background shadow-lg"
                           : "bg-secondary text-muted-foreground hover:bg-secondary/80"
                       }`}
                     >
                       {g.charAt(0).toUpperCase() + g.slice(1)}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </div>
 
-              {/* Age, Height, Weight */}
-              <div className="grid grid-cols-3 gap-4">
+              {/* Age, Height, Weight - Cleaner mobile layout */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 {[
                   { label: "Age", key: "age", suffix: "years", min: 16, max: 80 },
                   { label: "Height", key: "height", suffix: "cm", min: 140, max: 220 },
                   { label: "Weight", key: "weight", suffix: "kg", min: 40, max: 200 },
                 ].map((field) => (
                   <div key={field.key}>
-                    <label className="block text-sm text-muted-foreground mb-2">{field.label}</label>
-                    <div className="relative">
+                    <label className="block text-xs sm:text-sm text-muted-foreground mb-1.5 sm:mb-2">{field.label}</label>
+                    <div className="relative flex items-center">
                       <input
                         type="number"
+                        inputMode="numeric"
                         value={formData[field.key as keyof FormData] as number}
                         onChange={(e) =>
                           setFormData({ ...formData, [field.key]: Number(e.target.value) })
                         }
                         min={field.min}
                         max={field.max}
-                        className="w-full py-3 px-4 bg-secondary border border-border rounded-xl text-foreground text-center font-medium focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                        className="w-full py-3 px-4 pr-14 bg-secondary border border-border rounded-xl text-foreground text-center font-medium focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all text-base"
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground bg-secondary px-1">
                         {field.suffix}
                       </span>
                     </div>
@@ -296,11 +299,11 @@ export function BodyAnalyzer() {
 
               {/* Activity Level */}
               <div>
-                <label className="block text-sm text-muted-foreground mb-3">Activity Level</label>
+                <label className="block text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">Activity Level</label>
                 <select
                   value={formData.activityLevel}
                   onChange={(e) => setFormData({ ...formData, activityLevel: e.target.value })}
-                  className="w-full py-3 px-4 bg-secondary border border-border rounded-xl text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all appearance-none cursor-pointer"
+                  className="w-full py-3 px-4 bg-secondary border border-border rounded-xl text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all appearance-none cursor-pointer text-sm sm:text-base"
                 >
                   {activityLevels.map((level) => (
                     <option key={level.value} value={level.value}>
@@ -310,23 +313,25 @@ export function BodyAnalyzer() {
                 </select>
               </div>
 
-              {/* Goal */}
+              {/* Goal - Better mobile touch targets */}
               <div>
-                <label className="block text-sm text-muted-foreground mb-3">Your Goal</label>
-                <div className="grid grid-cols-3 gap-3">
+                <label className="block text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">Your Goal</label>
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   {goals.map((g) => (
-                    <button
+                    <motion.button
                       key={g.value}
                       onClick={() => setFormData({ ...formData, goal: g.value })}
-                      className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 flex flex-col items-center gap-2 ${
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`py-3 sm:py-4 px-2 sm:px-4 rounded-xl font-medium transition-all duration-300 flex flex-col items-center gap-1.5 sm:gap-2 ${
                         formData.goal === g.value
-                          ? "bg-foreground text-background"
+                          ? "bg-foreground text-background shadow-lg"
                           : "bg-secondary text-muted-foreground hover:bg-secondary/80"
                       }`}
                     >
-                      <g.icon size={20} />
-                      <span className="text-sm">{g.label}</span>
-                    </button>
+                      <g.icon size={18} className="sm:w-5 sm:h-5" />
+                      <span className="text-xs sm:text-sm">{g.label}</span>
+                    </motion.button>
                   ))}
                 </div>
               </div>
