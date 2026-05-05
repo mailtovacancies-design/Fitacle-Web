@@ -2,8 +2,24 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from "framer-motion"
-import { Instagram, Play, ArrowDown, Sparkles, ChevronRight, Mail, ArrowRight, Heart } from "lucide-react"
+import { Instagram, Play, ArrowDown, Sparkles, ChevronRight, Mail, ArrowRight, Heart, Dumbbell, Apple, Leaf, Flame, Timer, Zap, Target, TrendingUp } from "lucide-react"
 import Image from "next/image"
+
+// Floating fitness element data
+const floatingElements = [
+  { icon: Dumbbell, x: "8%", y: "15%", size: 28, delay: 0, duration: 12, rotate: 15 },
+  { icon: Apple, x: "85%", y: "20%", size: 24, delay: 1.5, duration: 14, rotate: -10 },
+  { icon: Leaf, x: "12%", y: "65%", size: 22, delay: 0.8, duration: 11, rotate: 20 },
+  { icon: Flame, x: "92%", y: "55%", size: 26, delay: 2, duration: 13, rotate: -15 },
+  { icon: Timer, x: "5%", y: "40%", size: 20, delay: 1.2, duration: 15, rotate: 10 },
+  { icon: Zap, x: "88%", y: "75%", size: 24, delay: 0.5, duration: 10, rotate: -20 },
+  { icon: Target, x: "15%", y: "85%", size: 26, delay: 2.5, duration: 12, rotate: 15 },
+  { icon: TrendingUp, x: "78%", y: "12%", size: 22, delay: 1.8, duration: 14, rotate: -10 },
+  { icon: Heart, x: "95%", y: "38%", size: 20, delay: 0.3, duration: 11, rotate: 12 },
+  { icon: Dumbbell, x: "82%", y: "88%", size: 24, delay: 1, duration: 13, rotate: -18 },
+  { icon: Apple, x: "3%", y: "78%", size: 22, delay: 2.2, duration: 12, rotate: 8 },
+  { icon: Leaf, x: "72%", y: "45%", size: 18, delay: 0.7, duration: 16, rotate: -12 },
+]
 
 function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
   const [count, setCount] = useState(0)
@@ -220,6 +236,54 @@ export function Hero() {
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
             }}
           />
+          
+          {/* Floating Fitness Elements - Dumbbells, Food, Health Icons */}
+          {floatingElements.map((element, i) => (
+            <motion.div
+              key={`floating-${i}`}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ 
+                opacity: [0.15, 0.35, 0.15],
+                scale: [1, 1.15, 1],
+                y: [0, -30, 0],
+                x: [0, i % 2 === 0 ? 15 : -15, 0],
+                rotate: [0, element.rotate, 0]
+              }}
+              transition={{
+                duration: element.duration,
+                repeat: Infinity,
+                delay: element.delay,
+                ease: "easeInOut"
+              }}
+              className="absolute pointer-events-none"
+              style={{
+                left: element.x,
+                top: element.y
+              }}
+            >
+              <motion.div
+                animate={{
+                  boxShadow: [
+                    "0 0 0 0 rgba(16, 185, 129, 0)",
+                    "0 0 20px 5px rgba(16, 185, 129, 0.15)",
+                    "0 0 0 0 rgba(16, 185, 129, 0)"
+                  ]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  delay: element.delay + 1
+                }}
+                className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/10 backdrop-blur-sm"
+              >
+                <element.icon 
+                  size={element.size} 
+                  className="text-emerald-600/40"
+                  strokeWidth={1.5}
+                />
+              </motion.div>
+            </motion.div>
+          ))}
         </motion.div>
 
         {/* Animated Floating Elements */}
