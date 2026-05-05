@@ -9,7 +9,7 @@ import {
 } from "lucide-react"
 
 type GoalType = "lose" | "maintain" | "gain"
-type CuisineType = "indian" | "gcc" | "asian" | "european"
+type CuisineType = "indian" | "arabic" | "asian" | "european"
 
 interface MealItem {
   name: string
@@ -365,8 +365,8 @@ const indianMealPlans: Record<GoalType, MealPlan> = {
   },
 }
 
-// GCC (Gulf) meal plans by goal
-const gccMealPlans: Record<GoalType, MealPlan> = {
+// Arabic meal plans by goal
+const arabicMealPlans: Record<GoalType, MealPlan> = {
   lose: {
     breakfast: {
       icon: Sun,
@@ -744,7 +744,7 @@ export function DailyPlan() {
   const getMealPlan = () => {
     switch (selectedCuisine) {
       case "indian": return indianMealPlans[selectedGoal]
-      case "gcc": return gccMealPlans[selectedGoal]
+      case "arabic": return arabicMealPlans[selectedGoal]
       case "asian": return asianMealPlans[selectedGoal]
       case "european": return europeanMealPlans[selectedGoal]
       default: return indianMealPlans[selectedGoal]
@@ -825,7 +825,7 @@ export function DailyPlan() {
           <div className="flex gap-1.5 sm:gap-2 p-1 sm:p-1.5 bg-card border border-border rounded-xl sm:rounded-2xl overflow-x-auto no-scrollbar">
             {[
               { value: "indian" as CuisineType, label: "Indian", flag: "🇮🇳" },
-              { value: "gcc" as CuisineType, label: "GCC", flag: "🇦🇪" },
+              { value: "arabic" as CuisineType, label: "Arabic", flag: "🇸🇦" },
               { value: "asian" as CuisineType, label: "Asian", flag: "🇯🇵" },
               { value: "european" as CuisineType, label: "European", flag: "🇪🇺" },
             ].map((cuisine) => (
@@ -860,7 +860,7 @@ export function DailyPlan() {
                 Daily Overview - {goalInfo[selectedGoal].label}
               </h3>
               <p className="text-sm sm:text-base text-muted-foreground">
-                Optimized {selectedCuisine === "indian" ? "Indian" : selectedCuisine === "gcc" ? "Gulf" : selectedCuisine === "asian" ? "Asian" : "European"} cuisine for your goal
+                Optimized {selectedCuisine === "indian" ? "Indian" : selectedCuisine === "arabic" ? "Arabic" : selectedCuisine === "asian" ? "Asian" : "European"} cuisine for your goal
               </p>
             </div>
             <div className="flex gap-6 md:gap-8">

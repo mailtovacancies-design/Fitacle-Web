@@ -5,23 +5,23 @@ import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView 
 import { Instagram, Play, ArrowDown, Sparkles, ChevronRight, Mail, ArrowRight, Heart, Dumbbell, Apple, Leaf, Flame, Timer, Zap, Target, TrendingUp, Footprints, Bike, Salad, Droplets, Activity, Trophy } from "lucide-react"
 import Image from "next/image"
 
-// Floating fitness element data - gym, running, boxing, diet icons
+// Floating fitness element data - gym, running, boxing, diet icons with smooth floating
 const floatingElements = [
-  // Left side - gym & running icons (desktop)
-  { icon: Dumbbell, x: "3%", y: "20%", mobileX: "5%", mobileY: "15%", size: 24, mobileSize: 18, delay: 0, duration: 4 },
-  { icon: Footprints, x: "6%", y: "38%", mobileX: "8%", mobileY: "75%", size: 22, mobileSize: 16, delay: 1.5, duration: 5 },
-  { icon: Heart, x: "4%", y: "55%", mobileX: "85%", mobileY: "18%", size: 20, mobileSize: 16, delay: 3, duration: 4.5 },
-  { icon: Activity, x: "8%", y: "72%", mobileX: "90%", mobileY: "72%", size: 22, mobileSize: 18, delay: 2, duration: 5.5 },
+  // Left side - gym & running icons
+  { icon: Dumbbell, x: "4%", y: "18%", mobileX: "5%", mobileY: "12%", size: 22, mobileSize: 16, delay: 0, duration: 6 },
+  { icon: Footprints, x: "6%", y: "35%", mobileX: "8%", mobileY: "78%", size: 20, mobileSize: 14, delay: 2, duration: 7 },
+  { icon: Heart, x: "3%", y: "52%", mobileX: "88%", mobileY: "15%", size: 18, mobileSize: 14, delay: 4, duration: 5.5 },
+  { icon: Activity, x: "7%", y: "68%", mobileX: "92%", mobileY: "75%", size: 20, mobileSize: 16, delay: 1, duration: 6.5 },
   // Right side - diet & fitness icons
-  { icon: Apple, x: "93%", y: "22%", mobileX: "88%", mobileY: "35%", size: 22, mobileSize: 16, delay: 0.5, duration: 4.5 },
-  { icon: Salad, x: "90%", y: "40%", mobileX: "6%", mobileY: "45%", size: 20, mobileSize: 16, delay: 2.5, duration: 5 },
-  { icon: Droplets, x: "94%", y: "58%", mobileX: "92%", mobileY: "55%", size: 20, mobileSize: 14, delay: 1, duration: 4 },
-  { icon: Flame, x: "91%", y: "75%", mobileX: "10%", mobileY: "85%", size: 24, mobileSize: 18, delay: 3.5, duration: 5.5 },
+  { icon: Apple, x: "94%", y: "20%", mobileX: "90%", mobileY: "32%", size: 20, mobileSize: 14, delay: 1.5, duration: 6 },
+  { icon: Salad, x: "91%", y: "38%", mobileX: "6%", mobileY: "42%", size: 18, mobileSize: 14, delay: 3.5, duration: 7 },
+  { icon: Droplets, x: "95%", y: "55%", mobileX: "4%", mobileY: "58%", size: 18, mobileSize: 12, delay: 0.5, duration: 5.5 },
+  { icon: Flame, x: "92%", y: "72%", mobileX: "10%", mobileY: "88%", size: 22, mobileSize: 16, delay: 2.5, duration: 6.5 },
   // Top & bottom scattered
-  { icon: Bike, x: "20%", y: "8%", mobileX: "25%", mobileY: "10%", size: 20, mobileSize: 14, delay: 0.8, duration: 5 },
-  { icon: Trophy, x: "80%", y: "10%", mobileX: "75%", mobileY: "8%", size: 20, mobileSize: 14, delay: 2.2, duration: 4 },
-  { icon: Target, x: "18%", y: "88%", mobileX: "20%", mobileY: "90%", size: 22, mobileSize: 16, delay: 1.8, duration: 5 },
-  { icon: TrendingUp, x: "82%", y: "85%", mobileX: "78%", mobileY: "88%", size: 22, mobileSize: 16, delay: 2.8, duration: 4.5 },
+  { icon: Bike, x: "18%", y: "6%", mobileX: "22%", mobileY: "8%", size: 18, mobileSize: 12, delay: 3, duration: 6 },
+  { icon: Trophy, x: "82%", y: "8%", mobileX: "78%", mobileY: "6%", size: 18, mobileSize: 12, delay: 1.2, duration: 5.5 },
+  { icon: Target, x: "16%", y: "88%", mobileX: "18%", mobileY: "92%", size: 20, mobileSize: 14, delay: 2.8, duration: 7 },
+  { icon: TrendingUp, x: "84%", y: "86%", mobileX: "82%", mobileY: "90%", size: 20, mobileSize: 14, delay: 0.8, duration: 6 },
 ]
 
 function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
@@ -148,31 +148,32 @@ export function Hero() {
             }}
           />
           
-          {/* Floating Fitness Elements - Fade in/out animation on all devices */}
+          {/* Floating Fitness Elements - Smooth floating with fade effect */}
           <div className="absolute inset-0 pointer-events-none z-10">
+            {/* Desktop floating elements */}
             {floatingElements.map((element, i) => (
               <motion.div
                 key={`floating-${i}`}
-                initial={{ opacity: 0, scale: 0.8 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ 
-                  opacity: [0, 0.9, 0.9, 0],
-                  scale: [0.8, 1, 1, 0.8],
-                  y: [0, -8, -8, 0],
+                  opacity: [0, 1, 1, 0],
+                  y: [20, -20, -25, -10],
+                  x: [0, i % 2 === 0 ? 8 : -8, i % 2 === 0 ? -5 : 5, 0],
                 }}
                 transition={{
                   duration: element.duration,
                   repeat: Infinity,
                   delay: element.delay,
                   ease: "easeInOut",
-                  times: [0, 0.2, 0.8, 1]
+                  times: [0, 0.15, 0.85, 1]
                 }}
-                className="absolute hidden sm:block"
+                className="absolute hidden sm:block will-change-transform"
                 style={{
                   left: element.x,
                   top: element.y,
                 }}
               >
-                <div className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-white/95 border border-emerald-500/25 shadow-sm">
+                <div className="p-2.5 rounded-xl bg-white/95 border border-emerald-500/20 shadow-md backdrop-blur-sm">
                   <element.icon 
                     size={element.size} 
                     className="text-emerald-600"
@@ -181,29 +182,29 @@ export function Hero() {
                 </div>
               </motion.div>
             ))}
-            {/* Mobile floating elements - smaller and repositioned */}
-            {floatingElements.slice(0, 8).map((element, i) => (
+            {/* Mobile floating elements */}
+            {floatingElements.map((element, i) => (
               <motion.div
                 key={`floating-mobile-${i}`}
-                initial={{ opacity: 0, scale: 0.8 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ 
-                  opacity: [0, 0.85, 0.85, 0],
-                  scale: [0.8, 1, 1, 0.8],
+                  opacity: [0, 0.9, 0.9, 0],
+                  y: [15, -15, -18, -5],
                 }}
                 transition={{
-                  duration: element.duration + 1,
+                  duration: element.duration + 0.5,
                   repeat: Infinity,
-                  delay: element.delay + 0.5,
+                  delay: element.delay,
                   ease: "easeInOut",
-                  times: [0, 0.2, 0.8, 1]
+                  times: [0, 0.15, 0.85, 1]
                 }}
-                className="absolute sm:hidden"
+                className="absolute sm:hidden will-change-transform"
                 style={{
                   left: element.mobileX,
                   top: element.mobileY,
                 }}
               >
-                <div className="p-2 rounded-lg bg-white/90 border border-emerald-500/20 shadow-sm">
+                <div className="p-1.5 rounded-lg bg-white/90 border border-emerald-500/15 shadow-sm">
                   <element.icon 
                     size={element.mobileSize} 
                     className="text-emerald-600"
