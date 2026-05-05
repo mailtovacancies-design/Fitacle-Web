@@ -65,7 +65,6 @@ function MagneticButton({ children, className = "", onClick }: { children: React
 
 export function Hero() {
   const [isLoaded, setIsLoaded] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signup")
@@ -101,36 +100,118 @@ export function Hero() {
   return (
     <>
       <section ref={containerRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Premium Image Background with Parallax */}
+        {/* Animated Background with Jaw-Dropping Effects */}
         <motion.div 
           style={{ y, scale }}
           className="absolute inset-0"
         >
-          {/* Loading placeholder with gradient */}
-          <motion.div 
-            initial={{ opacity: 1 }}
-            animate={{ opacity: imageLoaded ? 0 : 1 }}
-            transition={{ duration: 1.5 }}
-            className="absolute inset-0 bg-gradient-to-br from-neutral-100 via-neutral-50 to-neutral-200"
-          >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_oklch(0.95_0.02_90)_0%,_transparent_50%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_oklch(0.92_0.02_180)_0%,_transparent_50%)]" />
-          </motion.div>
+          {/* Base gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral-100 via-neutral-50 to-neutral-200" />
           
-          {/* High-quality fitness hero image */}
-          <Image
-            src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&q=90"
-            alt="Premium fitness gym with modern equipment"
-            fill
-            priority
-            className={`object-cover transition-all duration-[2000ms] ${imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-110'}`}
-            onLoad={() => setImageLoaded(true)}
+          {/* Animated moving shapes and blobs */}
+          <motion.div
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{
+              duration: 15,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-transparent to-transparent"
           />
+          
+          {/* Animated fitness equipment silhouettes */}
+          <motion.div
+            animate={{
+              opacity: [0.2, 0.4, 0.2],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{
+              duration: 12,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_50%,_rgba(16,185,129,0.15)_0%,_transparent_40%)]"
+          />
+          
+          <motion.div
+            animate={{
+              opacity: [0.3, 0.5, 0.3],
+              scale: [1, 1.15, 1]
+            }}
+            transition={{
+              duration: 18,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 2
+            }}
+            className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_30%,_rgba(129,184,255,0.12)_0%,_transparent_50%)]"
+          />
+          
+          {/* Animated light rays */}
+          <motion.div
+            animate={{
+              rotate: [0, 360],
+              opacity: [0.1, 0.3, 0.1]
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+            className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0deg,rgba(16,185,129,0.08)_90deg,transparent_180deg)]"
+          />
+          
+          {/* Floating animated elements */}
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={`shape-${i}`}
+              animate={{
+                y: [0, -50 - i * 10, 0],
+                x: [0, (i % 2 === 0 ? 30 : -30), 0],
+                opacity: [0.1, 0.3, 0.1],
+                scale: [1, 1.5, 1]
+              }}
+              transition={{
+                duration: 8 + i * 1.5,
+                repeat: Infinity,
+                delay: i * 0.5,
+                ease: "easeInOut"
+              }}
+              className={`absolute w-${12 + i * 4} h-${12 + i * 4} rounded-full blur-3xl`}
+              style={{
+                background: `radial-gradient(circle, rgba(${16 + i * 20},${185 - i * 15},${129 + i * 10},0.3) 0%, transparent 70%)`,
+                left: `${15 + i * 10}%`,
+                top: `${20 + i * 8}%`
+              }}
+            />
+          ))}
           
           {/* Premium layered overlays for light theme */}
           <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/60 to-background" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-background/70" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          
+          {/* Animated mesh overlay */}
+          <motion.div
+            animate={{
+              opacity: [0.03, 0.08, 0.03]
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute inset-0 mix-blend-overlay pointer-events-none"
+            style={{
+              backgroundImage: `linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.1) 50%, transparent 100%)`,
+              backgroundSize: '200% 100%'
+            }}
+          />
           
           {/* Grain texture overlay */}
           <div 
