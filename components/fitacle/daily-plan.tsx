@@ -772,23 +772,23 @@ export function DailyPlan() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
           <motion.span 
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-background border border-border text-xs font-medium text-muted-foreground mb-6"
+            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-background border border-border text-[10px] sm:text-xs font-medium text-muted-foreground mb-4 sm:mb-6"
           >
-            <Utensils size={14} />
-            Personalized Nutrition + Workout
+            <Utensils size={12} className="sm:w-3.5 sm:h-3.5" />
+            Nutrition + Workout
           </motion.span>
-          <h2 className="text-4xl md:text-5xl font-semibold mb-4 text-foreground">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-semibold mb-2 sm:mb-4 text-foreground">
             Your Custom Plan
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Tailored meals and workouts designed for your specific goal
+          <p className="text-muted-foreground text-sm sm:text-lg max-w-2xl mx-auto px-2">
+            Tailored meals and workouts for your goal
           </p>
         </motion.div>
 
@@ -798,48 +798,48 @@ export function DailyPlan() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-6 sm:mb-8"
+          className="flex flex-col gap-2.5 sm:gap-4 sm:flex-row justify-center items-center mb-5 sm:mb-8"
         >
           {/* Goal Selector */}
-          <div className="flex gap-1.5 sm:gap-2 p-1 sm:p-1.5 bg-card border border-border rounded-xl sm:rounded-2xl">
+          <div className="flex gap-1 p-1 bg-card border border-border rounded-lg sm:rounded-2xl w-full sm:w-auto justify-center">
             {(Object.keys(goalInfo) as GoalType[]).map((goal) => {
               const info = goalInfo[goal]
               return (
                 <button
                   key={goal}
                   onClick={() => setSelectedGoal(goal)}
-                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 ${
+                  className={`flex items-center justify-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-md sm:rounded-xl font-medium text-[11px] sm:text-sm transition-all duration-300 flex-1 sm:flex-initial ${
                     selectedGoal === goal
-                      ? "bg-foreground text-background shadow-md"
+                      ? "bg-foreground text-background shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <info.icon size={14} className="sm:w-4 sm:h-4" />
-                  {info.label}
+                  <info.icon size={12} className="sm:w-4 sm:h-4" />
+                  <span>{info.label}</span>
                 </button>
               )
             })}
           </div>
 
-          {/* Cuisine Selector - Scrollable on mobile */}
-          <div className="flex gap-1.5 sm:gap-2 p-1 sm:p-1.5 bg-card border border-border rounded-xl sm:rounded-2xl overflow-x-auto no-scrollbar">
+          {/* Cuisine Selector */}
+          <div className="flex gap-1 p-1 bg-card border border-border rounded-lg sm:rounded-2xl w-full sm:w-auto justify-center">
             {[
               { value: "indian" as CuisineType, label: "Indian", flag: "🇮🇳" },
               { value: "arabic" as CuisineType, label: "Arabic", flag: "🇸🇦" },
               { value: "asian" as CuisineType, label: "Asian", flag: "🇯🇵" },
-              { value: "european" as CuisineType, label: "European", flag: "🇪🇺" },
+              { value: "european" as CuisineType, label: "Europe", flag: "🇪🇺" },
             ].map((cuisine) => (
               <button
                 key={cuisine.value}
                 onClick={() => setSelectedCuisine(cuisine.value)}
-                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 whitespace-nowrap ${
+                className={`flex items-center justify-center gap-1 px-2 sm:px-4 py-1.5 sm:py-2.5 rounded-md sm:rounded-xl font-medium text-[11px] sm:text-sm transition-all duration-300 flex-1 sm:flex-initial ${
                   selectedCuisine === cuisine.value
-                    ? "bg-foreground text-background shadow-md"
+                    ? "bg-foreground text-background shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <span>{cuisine.flag}</span>
-                {cuisine.label}
+                <span className="text-sm sm:text-base">{cuisine.flag}</span>
+                <span className="hidden xs:inline sm:inline">{cuisine.label}</span>
               </button>
             ))}
           </div>
@@ -851,44 +851,46 @@ export function DailyPlan() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="bg-card border border-border rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 shadow-sm"
+          className="bg-card border border-border rounded-xl sm:rounded-3xl p-3 sm:p-6 md:p-8 mb-4 sm:mb-8 shadow-sm"
         >
-          <div className="flex flex-col gap-4 sm:gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-6">
             <div className="text-center sm:text-left">
-              <h3 className="text-base sm:text-xl font-semibold mb-1 sm:mb-2 text-foreground flex items-center gap-2 justify-center sm:justify-start">
-                <Sparkles className="text-yellow-500" size={18} />
-                Daily Overview - {goalInfo[selectedGoal].label}
+              <h3 className="text-sm sm:text-xl font-semibold text-foreground flex items-center gap-1.5 sm:gap-2 justify-center sm:justify-start">
+                <Sparkles className="text-yellow-500 w-4 h-4 sm:w-5 sm:h-5" />
+                {goalInfo[selectedGoal].label} Plan
               </h3>
-              <p className="text-xs sm:text-base text-muted-foreground">
-                Optimized {selectedCuisine === "indian" ? "Indian" : selectedCuisine === "arabic" ? "Arabic" : selectedCuisine === "asian" ? "Asian" : "European"} cuisine
+              <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5">
+                {selectedCuisine === "indian" ? "Indian" : selectedCuisine === "arabic" ? "Arabic" : selectedCuisine === "asian" ? "Asian" : "European"} Cuisine
               </p>
             </div>
-            <div className="grid grid-cols-3 gap-3 sm:flex sm:gap-8 sm:justify-center md:justify-end">
+            <div className="flex justify-center gap-4 sm:gap-6 py-2 sm:py-0">
               <div className="text-center">
                 <motion.div 
                   key={totalDayCalories}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="text-lg sm:text-2xl md:text-3xl font-semibold text-foreground"
+                  className="text-base sm:text-2xl md:text-3xl font-bold text-foreground"
                 >
                   {totalDayCalories}
                 </motion.div>
-                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Calories</div>
+                <div className="text-[9px] sm:text-xs text-muted-foreground">cal</div>
               </div>
-              <div className="text-center border-x border-border sm:border-x-0 sm:border-l sm:pl-8">
+              <div className="w-px bg-border" />
+              <div className="text-center">
                 <motion.div 
                   key={totalDayProtein}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="text-lg sm:text-2xl md:text-3xl font-semibold text-foreground"
+                  className="text-base sm:text-2xl md:text-3xl font-bold text-foreground"
                 >
                   {totalDayProtein}g
                 </motion.div>
-                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Protein</div>
+                <div className="text-[9px] sm:text-xs text-muted-foreground">protein</div>
               </div>
-              <div className="text-center sm:border-l sm:border-border sm:pl-8">
-                <div className="text-lg sm:text-2xl md:text-3xl font-semibold text-success">4</div>
-                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Meals</div>
+              <div className="w-px bg-border" />
+              <div className="text-center">
+                <div className="text-base sm:text-2xl md:text-3xl font-bold text-success">4</div>
+                <div className="text-[9px] sm:text-xs text-muted-foreground">meals</div>
               </div>
             </div>
           </div>

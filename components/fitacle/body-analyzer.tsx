@@ -245,38 +245,36 @@ export function BodyAnalyzer() {
               Your Body Metrics
             </h3>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Gender */}
               <div>
-                <label className="block text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">Gender</label>
-                <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                <label className="block text-[11px] sm:text-sm text-muted-foreground mb-1.5 sm:mb-3">Gender</label>
+                <div className="grid grid-cols-2 gap-2">
                   {["male", "female"].map((g) => (
-                    <motion.button
+                    <button
                       key={g}
                       onClick={() => setFormData({ ...formData, gender: g as "male" | "female" })}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`py-3 px-4 rounded-xl font-medium transition-all duration-300 text-sm sm:text-base ${
+                      className={`py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl font-medium transition-all duration-300 text-xs sm:text-base ${
                         formData.gender === g
-                          ? "bg-foreground text-background shadow-lg"
-                          : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                          ? "bg-foreground text-background shadow-md"
+                          : "bg-secondary text-muted-foreground"
                       }`}
                     >
                       {g.charAt(0).toUpperCase() + g.slice(1)}
-                    </motion.button>
+                    </button>
                   ))}
                 </div>
               </div>
 
-              {/* Age, Height, Weight - Cleaner mobile layout */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              {/* Age, Height, Weight */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 {[
-                  { label: "Age", key: "age", suffix: "years", min: 16, max: 80 },
+                  { label: "Age", key: "age", suffix: "yrs", min: 16, max: 80 },
                   { label: "Height", key: "height", suffix: "cm", min: 140, max: 220 },
                   { label: "Weight", key: "weight", suffix: "kg", min: 40, max: 200 },
                 ].map((field) => (
                   <div key={field.key}>
-                    <label className="block text-xs sm:text-sm text-muted-foreground mb-1.5 sm:mb-2">{field.label}</label>
+                    <label className="block text-[11px] sm:text-sm text-muted-foreground mb-1 sm:mb-2">{field.label}</label>
                     <div className="relative flex items-center">
                       <input
                         type="number"
@@ -287,9 +285,9 @@ export function BodyAnalyzer() {
                         }
                         min={field.min}
                         max={field.max}
-                        className="w-full py-3 px-4 pr-14 bg-secondary border border-border rounded-xl text-foreground text-center font-medium focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all text-base"
+                        className="w-full py-2.5 sm:py-3 px-2 sm:px-4 pr-9 sm:pr-14 bg-secondary border border-border rounded-lg sm:rounded-xl text-foreground text-center font-medium focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all text-sm sm:text-base"
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground bg-secondary px-1">
+                      <span className="absolute right-1.5 sm:right-3 top-1/2 -translate-y-1/2 text-[9px] sm:text-xs text-muted-foreground">
                         {field.suffix}
                       </span>
                     </div>
@@ -299,11 +297,11 @@ export function BodyAnalyzer() {
 
               {/* Activity Level */}
               <div>
-                <label className="block text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">Activity Level</label>
+                <label className="block text-[11px] sm:text-sm text-muted-foreground mb-1.5 sm:mb-3">Activity Level</label>
                 <select
                   value={formData.activityLevel}
                   onChange={(e) => setFormData({ ...formData, activityLevel: e.target.value })}
-                  className="w-full py-3 px-4 bg-secondary border border-border rounded-xl text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all appearance-none cursor-pointer text-sm sm:text-base"
+                  className="w-full py-2.5 sm:py-3 px-3 sm:px-4 bg-secondary border border-border rounded-lg sm:rounded-xl text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all appearance-none cursor-pointer text-xs sm:text-base"
                 >
                   {activityLevels.map((level) => (
                     <option key={level.value} value={level.value}>
@@ -313,25 +311,23 @@ export function BodyAnalyzer() {
                 </select>
               </div>
 
-              {/* Goal - Better mobile touch targets */}
+              {/* Goal */}
               <div>
-                <label className="block text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">Your Goal</label>
-                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <label className="block text-[11px] sm:text-sm text-muted-foreground mb-1.5 sm:mb-3">Your Goal</label>
+                <div className="grid grid-cols-3 gap-2">
                   {goals.map((g) => (
-                    <motion.button
+                    <button
                       key={g.value}
                       onClick={() => setFormData({ ...formData, goal: g.value })}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`py-3 sm:py-4 px-2 sm:px-4 rounded-xl font-medium transition-all duration-300 flex flex-col items-center gap-1.5 sm:gap-2 ${
+                      className={`py-2.5 sm:py-4 px-2 rounded-lg sm:rounded-xl font-medium transition-all duration-300 flex flex-col items-center gap-1 sm:gap-2 ${
                         formData.goal === g.value
-                          ? "bg-foreground text-background shadow-lg"
-                          : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                          ? "bg-foreground text-background shadow-md"
+                          : "bg-secondary text-muted-foreground"
                       }`}
                     >
-                      <g.icon size={18} className="sm:w-5 sm:h-5" />
-                      <span className="text-xs sm:text-sm">{g.label}</span>
-                    </motion.button>
+                      <g.icon size={16} className="sm:w-5 sm:h-5" />
+                      <span className="text-[10px] sm:text-sm">{g.label}</span>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -341,7 +337,7 @@ export function BodyAnalyzer() {
                 disabled={isCalculating}
                 whileHover={{ scale: isCalculating ? 1 : 1.01 }}
                 whileTap={{ scale: isCalculating ? 1 : 0.99 }}
-                className="w-full py-4 bg-foreground text-background rounded-xl font-semibold text-lg flex items-center justify-center gap-3 hover:bg-foreground/90 transition-all duration-300 mt-4 disabled:opacity-80 relative overflow-hidden"
+                className="w-full py-3 sm:py-4 bg-foreground text-background rounded-lg sm:rounded-xl font-semibold text-sm sm:text-lg flex items-center justify-center gap-2 sm:gap-3 hover:bg-foreground/90 transition-all duration-300 mt-3 sm:mt-4 disabled:opacity-80 relative overflow-hidden"
               >
                 {isCalculating ? (
                   <>
@@ -349,7 +345,7 @@ export function BodyAnalyzer() {
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                     >
-                      <Sparkles size={20} />
+                      <Sparkles size={18} className="sm:w-5 sm:h-5" />
                     </motion.div>
                     Analyzing...
                     <motion.div 
@@ -360,7 +356,7 @@ export function BodyAnalyzer() {
                   </>
                 ) : (
                   <>
-                    <Sparkles size={20} />
+                    <Sparkles size={18} className="sm:w-5 sm:h-5" />
                     Analyze My Body
                   </>
                 )}
@@ -379,27 +375,27 @@ export function BodyAnalyzer() {
                 className="space-y-3 sm:space-y-6"
               >
                 {/* Fitacle Score Card */}
-                <div className="bg-card border border-border rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm">
-                  <div className="flex flex-col items-center gap-5 sm:gap-8 md:flex-row">
-                    <div className="scale-90 sm:scale-100">
+                <div className="bg-card border border-border rounded-xl sm:rounded-3xl p-4 sm:p-8 shadow-sm">
+                  <div className="flex flex-col items-center gap-4 sm:gap-8 md:flex-row">
+                    <div className="scale-75 sm:scale-100 -my-4 sm:my-0">
                       <CircularProgress score={results.fitacleScore} />
                     </div>
                     <div className="flex-1 text-center md:text-left">
-                      <h3 className="text-xl sm:text-2xl font-semibold mb-1.5 sm:mb-2 text-foreground">Your Fitacle Score</h3>
-                      <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">
+                      <h3 className="text-base sm:text-2xl font-semibold mb-1 sm:mb-2 text-foreground">Your Fitacle Score</h3>
+                      <p className="text-xs sm:text-base text-muted-foreground mb-2.5 sm:mb-4">
                         {results.fitacleScore >= 80
-                          ? "Excellent! You're in peak condition."
+                          ? "Excellent! Peak condition."
                           : results.fitacleScore >= 60
-                          ? "Great progress! Keep pushing."
+                          ? "Great progress! Keep going."
                           : results.fitacleScore >= 40
-                          ? "Good start! Room for improvement."
-                          : "Let's begin your transformation."}
+                          ? "Good start! Room to grow."
+                          : "Let's transform you."}
                       </p>
-                      <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center md:justify-start">
-                        {["Energy", "Consistency", "Health"].map((label, i) => (
+                      <div className="flex gap-1.5 sm:gap-2 justify-center md:justify-start">
+                        {["Energy", "Focus", "Health"].map((label, i) => (
                           <span
                             key={label}
-                            className="px-2.5 sm:px-3 py-1 rounded-full bg-secondary text-[10px] sm:text-xs font-medium text-muted-foreground"
+                            className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-secondary text-[9px] sm:text-xs font-medium text-muted-foreground"
                           >
                             {label}: {Math.max(20, results.fitacleScore - i * 5)}%
                           </span>
@@ -475,30 +471,30 @@ export function BodyAnalyzer() {
                 </div>
 
                 {/* Ideal Weight */}
-                <div className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-secondary">
-                      <Heart size={18} className="text-foreground" />
+                <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                    <div className="p-1.5 sm:p-2 rounded-lg bg-secondary">
+                      <Heart size={14} className="text-foreground sm:w-[18px] sm:h-[18px]" />
                     </div>
-                    <span className="text-sm text-muted-foreground">Ideal Weight Range</span>
+                    <span className="text-xs sm:text-sm text-muted-foreground">Ideal Weight Range</span>
                   </div>
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-2xl font-semibold text-foreground">
+                  <div className="flex items-baseline gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                    <span className="text-lg sm:text-2xl font-semibold text-foreground">
                       <AnimatedNumber value={results.idealWeightMin} decimals={1} />
                     </span>
-                    <span className="text-muted-foreground">—</span>
-                    <span className="text-2xl font-semibold text-foreground">
+                    <span className="text-muted-foreground text-xs sm:text-sm">—</span>
+                    <span className="text-lg sm:text-2xl font-semibold text-foreground">
                       <AnimatedNumber value={results.idealWeightMax} decimals={1} suffix=" kg" />
                     </span>
                   </div>
-                  <span className={`text-sm font-medium ${
+                  <span className={`text-xs sm:text-sm font-medium ${
                     Math.abs(results.weightDiff) <= 2 ? "text-success" : "text-muted-foreground"
                   }`}>
                     {results.weightDiff > 2
                       ? `${results.weightDiff.toFixed(1)} kg to lose`
                       : results.weightDiff < -2
                       ? `${Math.abs(results.weightDiff).toFixed(1)} kg to gain`
-                      : "You're in the ideal range!"}
+                      : "You're in ideal range!"}
                   </span>
                 </div>
               </motion.div>
@@ -509,15 +505,15 @@ export function BodyAnalyzer() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex items-center justify-center bg-card border border-border rounded-3xl p-12"
+              className="flex items-center justify-center bg-card border border-border rounded-xl sm:rounded-3xl p-8 sm:p-12"
             >
               <div className="text-center">
-                <div className="w-24 h-24 rounded-full bg-secondary mx-auto mb-6 flex items-center justify-center">
-                  <Sparkles size={40} className="text-muted-foreground" />
+                <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-secondary mx-auto mb-4 sm:mb-6 flex items-center justify-center">
+                  <Sparkles size={28} className="text-muted-foreground sm:w-10 sm:h-10" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2 text-foreground">Ready to Analyze</h3>
-                <p className="text-muted-foreground max-w-xs">
-                  Fill in your metrics and discover your personalized fitness insights
+                <h3 className="text-base sm:text-xl font-semibold mb-1.5 sm:mb-2 text-foreground">Ready to Analyze</h3>
+                <p className="text-xs sm:text-base text-muted-foreground max-w-xs">
+                  Fill in your metrics to discover personalized insights
                 </p>
               </div>
             </motion.div>
