@@ -94,24 +94,19 @@ export function Navbar() {
             <Image
               src="/images/fitacle-logo.png"
               alt="FITACLE Logo"
-              width={52}
-              height={52}
+              width={60}
+              height={60}
               className="relative rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300"
             />
           </div>
           
           <div className="flex flex-col">
-            <span className="text-2xl font-bold tracking-tight text-foreground flex items-baseline">
+            <span className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-baseline">
               F<span className="text-emerald-600">i</span>tacle
             </span>
-            <motion.span 
-              className="text-[10px] tracking-[0.2em] text-muted-foreground uppercase"
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
+            <span className="text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
               Transform Beyond
-            </motion.span>
+            </span>
           </div>
         </motion.a>
 

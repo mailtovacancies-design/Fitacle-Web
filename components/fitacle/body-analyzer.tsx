@@ -202,7 +202,7 @@ export function BodyAnalyzer() {
   }
 
   return (
-    <section id="analyzer" className="py-24 md:py-32 bg-background relative overflow-hidden">
+    <section id="analyzer" className="py-16 sm:py-24 md:py-32 bg-background relative overflow-hidden">
       {/* Subtle background decoration */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-0 w-96 h-96 bg-accent/50 rounded-full blur-3xl" />

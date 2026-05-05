@@ -9,7 +9,7 @@ import {
 } from "lucide-react"
 
 type GoalType = "lose" | "maintain" | "gain"
-type CuisineType = "international" | "indian"
+type CuisineType = "indian" | "gcc" | "asian" | "european"
 
 interface MealItem {
   name: string
@@ -33,8 +33,8 @@ interface MealPlan {
   snacks: Meal
 }
 
-// International meal plans by goal
-const internationalMealPlans: Record<GoalType, MealPlan> = {
+// European meal plans by goal
+const europeanMealPlans: Record<GoalType, MealPlan> = {
   lose: {
     breakfast: {
       icon: Sun,
@@ -365,6 +365,338 @@ const indianMealPlans: Record<GoalType, MealPlan> = {
   },
 }
 
+// GCC (Gulf) meal plans by goal
+const gccMealPlans: Record<GoalType, MealPlan> = {
+  lose: {
+    breakfast: {
+      icon: Sun,
+      time: "7:00 AM",
+      name: "Light Arabic Start",
+      items: [
+        { name: "Labneh (Low Fat)", calories: 80, protein: 8 },
+        { name: "Whole Wheat Khubz", calories: 90, protein: 3 },
+        { name: "Cucumber & Tomato", calories: 25, protein: 1 },
+        { name: "Arabic Coffee", calories: 5, protein: 0 },
+      ],
+      totalCalories: 200,
+      totalProtein: 12,
+    },
+    lunch: {
+      icon: Cloud,
+      time: "1:00 PM",
+      name: "Lean Gulf Lunch",
+      items: [
+        { name: "Grilled Chicken Shawarma", calories: 280, protein: 38 },
+        { name: "Tabbouleh Salad", calories: 120, protein: 3 },
+        { name: "Hummus (Small)", calories: 80, protein: 4 },
+        { name: "Grilled Vegetables", calories: 60, protein: 2 },
+      ],
+      totalCalories: 540,
+      totalProtein: 47,
+    },
+    dinner: {
+      icon: Moon,
+      time: "7:00 PM",
+      name: "Light Evening",
+      items: [
+        { name: "Grilled Fish (Hammour)", calories: 200, protein: 36 },
+        { name: "Fattoush Salad", calories: 100, protein: 2 },
+        { name: "Steamed Vegetables", calories: 50, protein: 2 },
+        { name: "Lemon Tahini", calories: 40, protein: 1 },
+      ],
+      totalCalories: 390,
+      totalProtein: 41,
+    },
+    snacks: {
+      icon: Coffee,
+      time: "Between Meals",
+      name: "Healthy Gulf Snacks",
+      items: [
+        { name: "Dates (3 pcs)", calories: 70, protein: 1 },
+        { name: "Mixed Nuts", calories: 100, protein: 4 },
+        { name: "Green Tea", calories: 0, protein: 0 },
+        { name: "Fresh Fruits", calories: 60, protein: 1 },
+      ],
+      totalCalories: 230,
+      totalProtein: 6,
+    },
+  },
+  maintain: {
+    breakfast: {
+      icon: Sun,
+      time: "7:30 AM",
+      name: "Traditional Breakfast",
+      items: [
+        { name: "Shakshuka", calories: 280, protein: 16 },
+        { name: "Khubz Arabic", calories: 120, protein: 4 },
+        { name: "Labneh with Olive Oil", calories: 150, protein: 6 },
+        { name: "Chai Karak", calories: 80, protein: 2 },
+      ],
+      totalCalories: 630,
+      totalProtein: 28,
+    },
+    lunch: {
+      icon: Cloud,
+      time: "1:30 PM",
+      name: "Gulf Feast",
+      items: [
+        { name: "Chicken Machboos", calories: 450, protein: 38 },
+        { name: "Mixed Grill (Small)", calories: 280, protein: 32 },
+        { name: "Hummus & Muttabal", calories: 180, protein: 6 },
+        { name: "Arabic Salad", calories: 80, protein: 2 },
+      ],
+      totalCalories: 990,
+      totalProtein: 78,
+    },
+    dinner: {
+      icon: Moon,
+      time: "8:00 PM",
+      name: "Evening Meal",
+      items: [
+        { name: "Lamb Kebab", calories: 320, protein: 28 },
+        { name: "Saffron Rice", calories: 220, protein: 5 },
+        { name: "Grilled Halloumi", calories: 150, protein: 12 },
+        { name: "Yogurt Sauce", calories: 60, protein: 3 },
+      ],
+      totalCalories: 750,
+      totalProtein: 48,
+    },
+    snacks: {
+      icon: Coffee,
+      time: "Between Meals",
+      name: "Arabic Snacks",
+      items: [
+        { name: "Falafel (4 pcs)", calories: 240, protein: 10 },
+        { name: "Dates with Tahini", calories: 180, protein: 4 },
+        { name: "Fresh Juice", calories: 120, protein: 1 },
+        { name: "Baklava (1 pc)", calories: 180, protein: 3 },
+      ],
+      totalCalories: 720,
+      totalProtein: 18,
+    },
+  },
+  gain: {
+    breakfast: {
+      icon: Sun,
+      time: "7:00 AM",
+      name: "Heavy Gulf Start",
+      items: [
+        { name: "Ful Medames", calories: 320, protein: 18 },
+        { name: "Eggs with Ghee (3)", calories: 280, protein: 18 },
+        { name: "Khubz with Honey", calories: 200, protein: 4 },
+        { name: "Full Fat Laban", calories: 180, protein: 8 },
+      ],
+      totalCalories: 980,
+      totalProtein: 48,
+    },
+    lunch: {
+      icon: Cloud,
+      time: "1:00 PM",
+      name: "Feast Lunch",
+      items: [
+        { name: "Lamb Machboos (Large)", calories: 680, protein: 45 },
+        { name: "Mixed Grill Platter", calories: 480, protein: 52 },
+        { name: "Hummus with Meat", calories: 280, protein: 14 },
+        { name: "Arabic Bread (2)", calories: 240, protein: 6 },
+      ],
+      totalCalories: 1680,
+      totalProtein: 117,
+    },
+    dinner: {
+      icon: Moon,
+      time: "8:30 PM",
+      name: "Growth Dinner",
+      items: [
+        { name: "Lamb Shoulder", calories: 520, protein: 42 },
+        { name: "Kabsa Rice", calories: 380, protein: 8 },
+        { name: "Grilled Vegetables", calories: 100, protein: 3 },
+        { name: "Tahini Sauce", calories: 120, protein: 3 },
+      ],
+      totalCalories: 1120,
+      totalProtein: 56,
+    },
+    snacks: {
+      icon: Coffee,
+      time: "Between Meals",
+      name: "Calorie Boosters",
+      items: [
+        { name: "Kunafa", calories: 380, protein: 6 },
+        { name: "Date Shake", calories: 420, protein: 12 },
+        { name: "Cheese Sambusa (3)", calories: 320, protein: 10 },
+        { name: "Nuts & Dates Mix", calories: 280, protein: 8 },
+      ],
+      totalCalories: 1400,
+      totalProtein: 36,
+    },
+  },
+}
+
+// Asian meal plans by goal
+const asianMealPlans: Record<GoalType, MealPlan> = {
+  lose: {
+    breakfast: {
+      icon: Sun,
+      time: "7:00 AM",
+      name: "Light Asian Start",
+      items: [
+        { name: "Miso Soup", calories: 50, protein: 4 },
+        { name: "Steamed Rice (Small)", calories: 100, protein: 2 },
+        { name: "Grilled Fish", calories: 120, protein: 22 },
+        { name: "Green Tea", calories: 0, protein: 0 },
+      ],
+      totalCalories: 270,
+      totalProtein: 28,
+    },
+    lunch: {
+      icon: Cloud,
+      time: "12:30 PM",
+      name: "Lean Asian Lunch",
+      items: [
+        { name: "Chicken Pho", calories: 280, protein: 28 },
+        { name: "Spring Rolls (Fresh)", calories: 80, protein: 4 },
+        { name: "Edamame", calories: 100, protein: 9 },
+        { name: "Green Salad", calories: 40, protein: 2 },
+      ],
+      totalCalories: 500,
+      totalProtein: 43,
+    },
+    dinner: {
+      icon: Moon,
+      time: "6:30 PM",
+      name: "Light Evening",
+      items: [
+        { name: "Steamed Fish (Cantonese)", calories: 180, protein: 32 },
+        { name: "Bok Choy Stir Fry", calories: 60, protein: 3 },
+        { name: "Brown Rice (Small)", calories: 80, protein: 2 },
+        { name: "Ginger Sauce", calories: 20, protein: 0 },
+      ],
+      totalCalories: 340,
+      totalProtein: 37,
+    },
+    snacks: {
+      icon: Coffee,
+      time: "Between Meals",
+      name: "Healthy Asian Snacks",
+      items: [
+        { name: "Seaweed Snacks", calories: 30, protein: 2 },
+        { name: "Edamame Pods", calories: 80, protein: 7 },
+        { name: "Green Tea", calories: 0, protein: 0 },
+        { name: "Fresh Fruit", calories: 60, protein: 1 },
+      ],
+      totalCalories: 170,
+      totalProtein: 10,
+    },
+  },
+  maintain: {
+    breakfast: {
+      icon: Sun,
+      time: "7:30 AM",
+      name: "Traditional Asian",
+      items: [
+        { name: "Congee with Chicken", calories: 280, protein: 18 },
+        { name: "Dim Sum (3 pcs)", calories: 180, protein: 10 },
+        { name: "Soy Milk", calories: 100, protein: 7 },
+        { name: "Pickled Vegetables", calories: 20, protein: 1 },
+      ],
+      totalCalories: 580,
+      totalProtein: 36,
+    },
+    lunch: {
+      icon: Cloud,
+      time: "1:00 PM",
+      name: "Asian Fusion",
+      items: [
+        { name: "Teriyaki Chicken", calories: 380, protein: 42 },
+        { name: "Jasmine Rice", calories: 220, protein: 4 },
+        { name: "Miso Soup", calories: 50, protein: 4 },
+        { name: "Vegetable Tempura", calories: 180, protein: 4 },
+      ],
+      totalCalories: 830,
+      totalProtein: 54,
+    },
+    dinner: {
+      icon: Moon,
+      time: "7:30 PM",
+      name: "Evening Feast",
+      items: [
+        { name: "Korean BBQ Beef", calories: 350, protein: 38 },
+        { name: "Kimchi Fried Rice", calories: 280, protein: 8 },
+        { name: "Banchan (Side Dishes)", calories: 120, protein: 5 },
+        { name: "Seaweed Soup", calories: 40, protein: 3 },
+      ],
+      totalCalories: 790,
+      totalProtein: 54,
+    },
+    snacks: {
+      icon: Coffee,
+      time: "Between Meals",
+      name: "Asian Snacks",
+      items: [
+        { name: "Onigiri (Rice Ball)", calories: 180, protein: 5 },
+        { name: "Mochi (2 pcs)", calories: 140, protein: 2 },
+        { name: "Bubble Tea", calories: 200, protein: 2 },
+        { name: "Dried Fruits", calories: 120, protein: 1 },
+      ],
+      totalCalories: 640,
+      totalProtein: 10,
+    },
+  },
+  gain: {
+    breakfast: {
+      icon: Sun,
+      time: "7:00 AM",
+      name: "Heavy Asian Start",
+      items: [
+        { name: "Nasi Lemak", calories: 520, protein: 18 },
+        { name: "Eggs (3)", calories: 210, protein: 18 },
+        { name: "Fried Chicken", calories: 280, protein: 22 },
+        { name: "Teh Tarik", calories: 120, protein: 3 },
+      ],
+      totalCalories: 1130,
+      totalProtein: 61,
+    },
+    lunch: {
+      icon: Cloud,
+      time: "12:30 PM",
+      name: "Muscle Fuel",
+      items: [
+        { name: "Char Siu Pork (Large)", calories: 480, protein: 42 },
+        { name: "Fried Rice (Large)", calories: 420, protein: 12 },
+        { name: "Gyoza (6 pcs)", calories: 280, protein: 14 },
+        { name: "Ramen Soup", calories: 180, protein: 8 },
+      ],
+      totalCalories: 1360,
+      totalProtein: 76,
+    },
+    dinner: {
+      icon: Moon,
+      time: "8:00 PM",
+      name: "Growth Dinner",
+      items: [
+        { name: "Korean BBQ Platter", calories: 620, protein: 58 },
+        { name: "Bibimbap", calories: 480, protein: 18 },
+        { name: "Korean Fried Chicken", calories: 380, protein: 28 },
+        { name: "Rice (Large)", calories: 280, protein: 5 },
+      ],
+      totalCalories: 1760,
+      totalProtein: 109,
+    },
+    snacks: {
+      icon: Coffee,
+      time: "Between Meals",
+      name: "Calorie Boosters",
+      items: [
+        { name: "Pork Buns (2)", calories: 380, protein: 14 },
+        { name: "Mango Sticky Rice", calories: 320, protein: 4 },
+        { name: "Thai Milk Tea", calories: 280, protein: 4 },
+        { name: "Spring Rolls (4)", calories: 320, protein: 8 },
+      ],
+      totalCalories: 1300,
+      totalProtein: 30,
+    },
+  },
+}
+
 // Workout plans by goal
 const workoutPlans: Record<GoalType, { title: string; exercises: { name: string; sets: string; focus: string }[] }> = {
   lose: {
@@ -409,9 +741,17 @@ export function DailyPlan() {
   const [selectedGoal, setSelectedGoal] = useState<GoalType>("maintain")
   const [selectedCuisine, setSelectedCuisine] = useState<CuisineType>("indian")
 
-  const mealPlan = selectedCuisine === "indian" 
-    ? indianMealPlans[selectedGoal] 
-    : internationalMealPlans[selectedGoal]
+  const getMealPlan = () => {
+    switch (selectedCuisine) {
+      case "indian": return indianMealPlans[selectedGoal]
+      case "gcc": return gccMealPlans[selectedGoal]
+      case "asian": return asianMealPlans[selectedGoal]
+      case "european": return europeanMealPlans[selectedGoal]
+      default: return indianMealPlans[selectedGoal]
+    }
+  }
+  
+  const mealPlan = getMealPlan()
   
   const workout = workoutPlans[selectedGoal]
 
@@ -419,22 +759,14 @@ export function DailyPlan() {
   const totalDayProtein = Object.values(mealPlan).reduce((acc, meal) => acc + meal.totalProtein, 0)
 
   return (
-    <section id="plan" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden">
-      {/* Background decoration */}
+    <section id="plan" className="py-16 sm:py-24 md:py-32 bg-secondary/30 relative overflow-hidden">
+      {/* Background decoration - static for performance */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div 
-          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 8, repeat: Infinity }}
-          className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-accent/30 rounded-full blur-3xl" 
-        />
-        <motion.div 
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 10, repeat: Infinity }}
-          className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-background/50 rounded-full blur-3xl" 
-        />
+        <div className="absolute top-0 left-1/4 w-[400px] h-[400px] bg-accent/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-[350px] h-[350px] bg-background/40 rounded-full blur-3xl" />
       </div>
       
-      <div className="mx-auto max-w-7xl px-6 relative">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 relative">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -466,51 +798,49 @@ export function DailyPlan() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8"
+          className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-6 sm:mb-8"
         >
           {/* Goal Selector */}
-          <div className="flex gap-2 p-1.5 bg-card border border-border rounded-2xl">
+          <div className="flex gap-1.5 sm:gap-2 p-1 sm:p-1.5 bg-card border border-border rounded-xl sm:rounded-2xl">
             {(Object.keys(goalInfo) as GoalType[]).map((goal) => {
               const info = goalInfo[goal]
               return (
-                <motion.button
+                <button
                   key={goal}
                   onClick={() => setSelectedGoal(goal)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 ${
+                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 ${
                     selectedGoal === goal
-                      ? "bg-foreground text-background shadow-lg"
+                      ? "bg-foreground text-background shadow-md"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <info.icon size={16} />
+                  <info.icon size={14} className="sm:w-4 sm:h-4" />
                   {info.label}
-                </motion.button>
+                </button>
               )
             })}
           </div>
 
-          {/* Cuisine Selector */}
-          <div className="flex gap-2 p-1.5 bg-card border border-border rounded-2xl">
+          {/* Cuisine Selector - Scrollable on mobile */}
+          <div className="flex gap-1.5 sm:gap-2 p-1 sm:p-1.5 bg-card border border-border rounded-xl sm:rounded-2xl overflow-x-auto no-scrollbar">
             {[
               { value: "indian" as CuisineType, label: "Indian", flag: "🇮🇳" },
-              { value: "international" as CuisineType, label: "International", flag: "🌍" },
+              { value: "gcc" as CuisineType, label: "GCC", flag: "🇦🇪" },
+              { value: "asian" as CuisineType, label: "Asian", flag: "🇯🇵" },
+              { value: "european" as CuisineType, label: "European", flag: "🇪🇺" },
             ].map((cuisine) => (
-              <motion.button
+              <button
                 key={cuisine.value}
                 onClick={() => setSelectedCuisine(cuisine.value)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 ${
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 whitespace-nowrap ${
                   selectedCuisine === cuisine.value
-                    ? "bg-foreground text-background shadow-lg"
+                    ? "bg-foreground text-background shadow-md"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <span>{cuisine.flag}</span>
                 {cuisine.label}
-              </motion.button>
+              </button>
             ))}
           </div>
         </motion.div>
@@ -529,7 +859,9 @@ export function DailyPlan() {
                 <Sparkles className="text-yellow-500" size={20} />
                 Daily Overview - {goalInfo[selectedGoal].label}
               </h3>
-              <p className="text-muted-foreground">Optimized {selectedCuisine === "indian" ? "Indian" : "International"} cuisine for your goal</p>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                Optimized {selectedCuisine === "indian" ? "Indian" : selectedCuisine === "gcc" ? "Gulf" : selectedCuisine === "asian" ? "Asian" : "European"} cuisine for your goal
+              </p>
             </div>
             <div className="flex gap-6 md:gap-8">
               <div className="text-center">

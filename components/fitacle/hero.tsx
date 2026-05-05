@@ -5,24 +5,23 @@ import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView 
 import { Instagram, Play, ArrowDown, Sparkles, ChevronRight, Mail, ArrowRight, Heart, Dumbbell, Apple, Leaf, Flame, Timer, Zap, Target, TrendingUp, Footprints, Bike, Salad, Droplets, Activity, Trophy } from "lucide-react"
 import Image from "next/image"
 
-// Floating fitness element data - positioned around the headline area with fitness icons
+// Floating fitness element data - gym, running, boxing, diet icons
 const floatingElements = [
-  // Left side - gym & running icons
-  { icon: Dumbbell, x: "4%", y: "22%", size: 26, delay: 0, duration: 6 },
-  { icon: Footprints, x: "8%", y: "40%", size: 22, delay: 0.4, duration: 7 },
-  { icon: Heart, x: "3%", y: "55%", size: 20, delay: 0.8, duration: 5.5 },
-  { icon: Activity, x: "10%", y: "70%", size: 24, delay: 1.2, duration: 6.5 },
+  // Left side - gym & running icons (desktop)
+  { icon: Dumbbell, x: "3%", y: "20%", mobileX: "5%", mobileY: "15%", size: 24, mobileSize: 18, delay: 0, duration: 4 },
+  { icon: Footprints, x: "6%", y: "38%", mobileX: "8%", mobileY: "75%", size: 22, mobileSize: 16, delay: 1.5, duration: 5 },
+  { icon: Heart, x: "4%", y: "55%", mobileX: "85%", mobileY: "18%", size: 20, mobileSize: 16, delay: 3, duration: 4.5 },
+  { icon: Activity, x: "8%", y: "72%", mobileX: "90%", mobileY: "72%", size: 22, mobileSize: 18, delay: 2, duration: 5.5 },
   // Right side - diet & fitness icons
-  { icon: Apple, x: "92%", y: "25%", size: 24, delay: 0.3, duration: 6 },
-  { icon: Salad, x: "88%", y: "42%", size: 22, delay: 0.7, duration: 5.5 },
-  { icon: Droplets, x: "94%", y: "58%", size: 20, delay: 1.1, duration: 7 },
-  { icon: Flame, x: "90%", y: "72%", size: 26, delay: 0.5, duration: 6 },
-  // Top scattered
-  { icon: Bike, x: "22%", y: "8%", size: 22, delay: 0.2, duration: 6.5 },
-  { icon: Trophy, x: "78%", y: "10%", size: 20, delay: 0.6, duration: 5.5 },
-  // Bottom scattered
-  { icon: Target, x: "18%", y: "85%", size: 22, delay: 1, duration: 6 },
-  { icon: TrendingUp, x: "82%", y: "88%", size: 24, delay: 0.9, duration: 7 },
+  { icon: Apple, x: "93%", y: "22%", mobileX: "88%", mobileY: "35%", size: 22, mobileSize: 16, delay: 0.5, duration: 4.5 },
+  { icon: Salad, x: "90%", y: "40%", mobileX: "6%", mobileY: "45%", size: 20, mobileSize: 16, delay: 2.5, duration: 5 },
+  { icon: Droplets, x: "94%", y: "58%", mobileX: "92%", mobileY: "55%", size: 20, mobileSize: 14, delay: 1, duration: 4 },
+  { icon: Flame, x: "91%", y: "75%", mobileX: "10%", mobileY: "85%", size: 24, mobileSize: 18, delay: 3.5, duration: 5.5 },
+  // Top & bottom scattered
+  { icon: Bike, x: "20%", y: "8%", mobileX: "25%", mobileY: "10%", size: 20, mobileSize: 14, delay: 0.8, duration: 5 },
+  { icon: Trophy, x: "80%", y: "10%", mobileX: "75%", mobileY: "8%", size: 20, mobileSize: 14, delay: 2.2, duration: 4 },
+  { icon: Target, x: "18%", y: "88%", mobileX: "20%", mobileY: "90%", size: 22, mobileSize: 16, delay: 1.8, duration: 5 },
+  { icon: TrendingUp, x: "82%", y: "85%", mobileX: "78%", mobileY: "88%", size: 22, mobileSize: 16, delay: 2.8, duration: 4.5 },
 ]
 
 function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
@@ -149,31 +148,64 @@ export function Hero() {
             }}
           />
           
-          {/* Floating Fitness Elements - Running, Boxing, Gym, Diet Icons */}
-          <div className="absolute inset-0 pointer-events-none z-10 hidden sm:block">
+          {/* Floating Fitness Elements - Fade in/out animation on all devices */}
+          <div className="absolute inset-0 pointer-events-none z-10">
             {floatingElements.map((element, i) => (
               <motion.div
                 key={`floating-${i}`}
-                initial={{ opacity: 0 }}
+                initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ 
-                  opacity: [0.5, 0.8, 0.5],
-                  y: [0, -15, 0],
+                  opacity: [0, 0.9, 0.9, 0],
+                  scale: [0.8, 1, 1, 0.8],
+                  y: [0, -8, -8, 0],
                 }}
                 transition={{
                   duration: element.duration,
                   repeat: Infinity,
                   delay: element.delay,
-                  ease: "easeInOut"
+                  ease: "easeInOut",
+                  times: [0, 0.2, 0.8, 1]
                 }}
-                className="absolute"
+                className="absolute hidden sm:block"
                 style={{
                   left: element.x,
                   top: element.y,
                 }}
               >
-                <div className="p-3 rounded-xl bg-white/90 border border-emerald-500/20 shadow-md">
+                <div className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-white/95 border border-emerald-500/25 shadow-sm">
                   <element.icon 
                     size={element.size} 
+                    className="text-emerald-600"
+                    strokeWidth={1.5}
+                  />
+                </div>
+              </motion.div>
+            ))}
+            {/* Mobile floating elements - smaller and repositioned */}
+            {floatingElements.slice(0, 8).map((element, i) => (
+              <motion.div
+                key={`floating-mobile-${i}`}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ 
+                  opacity: [0, 0.85, 0.85, 0],
+                  scale: [0.8, 1, 1, 0.8],
+                }}
+                transition={{
+                  duration: element.duration + 1,
+                  repeat: Infinity,
+                  delay: element.delay + 0.5,
+                  ease: "easeInOut",
+                  times: [0, 0.2, 0.8, 1]
+                }}
+                className="absolute sm:hidden"
+                style={{
+                  left: element.mobileX,
+                  top: element.mobileY,
+                }}
+              >
+                <div className="p-2 rounded-lg bg-white/90 border border-emerald-500/20 shadow-sm">
+                  <element.icon 
+                    size={element.mobileSize} 
                     className="text-emerald-600"
                     strokeWidth={1.5}
                   />
