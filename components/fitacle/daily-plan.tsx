@@ -851,46 +851,44 @@ export function DailyPlan() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="bg-card border border-border rounded-3xl p-6 md:p-8 mb-8 shadow-sm"
+          className="bg-card border border-border rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 shadow-sm"
         >
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="text-center md:text-left">
-              <h3 className="text-xl font-semibold mb-2 text-foreground flex items-center gap-2 justify-center md:justify-start">
-                <Sparkles className="text-yellow-500" size={20} />
+          <div className="flex flex-col gap-4 sm:gap-6">
+            <div className="text-center sm:text-left">
+              <h3 className="text-base sm:text-xl font-semibold mb-1 sm:mb-2 text-foreground flex items-center gap-2 justify-center sm:justify-start">
+                <Sparkles className="text-yellow-500" size={18} />
                 Daily Overview - {goalInfo[selectedGoal].label}
               </h3>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                Optimized {selectedCuisine === "indian" ? "Indian" : selectedCuisine === "arabic" ? "Arabic" : selectedCuisine === "asian" ? "Asian" : "European"} cuisine for your goal
+              <p className="text-xs sm:text-base text-muted-foreground">
+                Optimized {selectedCuisine === "indian" ? "Indian" : selectedCuisine === "arabic" ? "Arabic" : selectedCuisine === "asian" ? "Asian" : "European"} cuisine
               </p>
             </div>
-            <div className="flex gap-6 md:gap-8">
+            <div className="grid grid-cols-3 gap-3 sm:flex sm:gap-8 sm:justify-center md:justify-end">
               <div className="text-center">
                 <motion.div 
                   key={totalDayCalories}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="text-2xl md:text-3xl font-semibold text-foreground"
+                  className="text-lg sm:text-2xl md:text-3xl font-semibold text-foreground"
                 >
                   {totalDayCalories}
                 </motion.div>
-                <div className="text-xs md:text-sm text-muted-foreground">Total Calories</div>
+                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Calories</div>
               </div>
-              <div className="w-px bg-border" />
-              <div className="text-center">
+              <div className="text-center border-x border-border sm:border-x-0 sm:border-l sm:pl-8">
                 <motion.div 
                   key={totalDayProtein}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="text-2xl md:text-3xl font-semibold text-foreground"
+                  className="text-lg sm:text-2xl md:text-3xl font-semibold text-foreground"
                 >
                   {totalDayProtein}g
                 </motion.div>
-                <div className="text-xs md:text-sm text-muted-foreground">Total Protein</div>
+                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Protein</div>
               </div>
-              <div className="w-px bg-border" />
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-semibold text-success">4</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Meals</div>
+              <div className="text-center sm:border-l sm:border-border sm:pl-8">
+                <div className="text-lg sm:text-2xl md:text-3xl font-semibold text-success">4</div>
+                <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Meals</div>
               </div>
             </div>
           </div>
@@ -904,61 +902,54 @@ export function DailyPlan() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
-            className="grid md:grid-cols-2 gap-4 md:gap-6 mb-12"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-8 sm:mb-12"
           >
             {Object.entries(mealPlan).map(([key, meal], index) => (
               <motion.div
                 key={key}
-                initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -6, scale: 1.01 }}
-                className="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-xl transition-all duration-500 group"
+                transition={{ duration: 0.4, delay: index * 0.08 }}
+                className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 shadow-sm"
               >
-                <div className="flex items-center justify-between mb-4 md:mb-6">
-                  <div className="flex items-center gap-3 md:gap-4">
-                    <motion.div 
-                      whileHover={{ rotate: 10, scale: 1.1 }}
-                      className="p-2.5 md:p-3 rounded-xl bg-foreground group-hover:scale-105 transition-transform duration-300"
-                    >
-                      <meal.icon size={20} className="text-background md:w-6 md:h-6" />
-                    </motion.div>
+                <div className="flex items-center justify-between mb-3 sm:mb-4 md:mb-6">
+                  <div className="flex items-center gap-2.5 sm:gap-3 md:gap-4">
+                    <div className="p-2 sm:p-2.5 md:p-3 rounded-lg sm:rounded-xl bg-foreground">
+                      <meal.icon size={16} className="text-background sm:w-5 sm:h-5 md:w-6 md:h-6" />
+                    </div>
                     <div>
-                      <h3 className="font-semibold text-base md:text-lg text-foreground">{meal.name}</h3>
-                      <p className="text-xs md:text-sm text-muted-foreground">{meal.time}</p>
+                      <h3 className="font-semibold text-sm sm:text-base md:text-lg text-foreground">{meal.name}</h3>
+                      <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">{meal.time}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg md:text-xl font-semibold text-foreground">{meal.totalCalories}</div>
-                    <div className="text-xs text-muted-foreground">calories</div>
+                    <div className="text-base sm:text-lg md:text-xl font-semibold text-foreground">{meal.totalCalories}</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">cal</div>
                   </div>
                 </div>
 
-                <div className="space-y-2 md:space-y-3">
+                <div className="space-y-1.5 sm:space-y-2 md:space-y-3">
                   {meal.items.map((item, i) => (
-                    <motion.div
+                    <div
                       key={i}
-                      initial={{ opacity: 0, x: -10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
+                      className="flex items-center justify-between py-1.5 sm:py-2 border-b border-border/50 last:border-0"
                     >
-                      <span className="text-xs md:text-sm text-foreground">{item.name}</span>
-                      <div className="flex items-center gap-3 md:gap-4 text-xs md:text-sm">
-                        <span className="text-muted-foreground flex items-center gap-1">
-                          <Flame size={10} className="md:w-3 md:h-3" />
+                      <span className="text-[11px] sm:text-xs md:text-sm text-foreground truncate max-w-[55%]">{item.name}</span>
+                      <div className="flex items-center gap-2 sm:gap-3 md:gap-4 text-[10px] sm:text-xs md:text-sm">
+                        <span className="text-muted-foreground flex items-center gap-0.5 sm:gap-1">
+                          <Flame size={8} className="sm:w-2.5 sm:h-2.5 md:w-3 md:h-3" />
                           {item.calories}
                         </span>
                         <span className="text-foreground font-medium">{item.protein}g</span>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
 
-                <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-border flex items-center justify-between">
-                  <span className="text-xs md:text-sm text-muted-foreground">Total Protein</span>
-                  <span className="font-semibold text-foreground">{meal.totalProtein}g</span>
+                <div className="mt-2.5 sm:mt-3 md:mt-4 pt-2.5 sm:pt-3 md:pt-4 border-t border-border flex items-center justify-between">
+                  <span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Total Protein</span>
+                  <span className="font-semibold text-sm sm:text-base text-foreground">{meal.totalProtein}g</span>
                 </div>
               </motion.div>
             ))}

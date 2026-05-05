@@ -209,27 +209,27 @@ export function BodyAnalyzer() {
         <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-secondary/50 rounded-full blur-3xl" />
       </div>
       
-      <div className="mx-auto max-w-7xl px-6 relative">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 relative">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary text-xs font-medium text-muted-foreground mb-6">
-            <Calculator size={14} />
+          <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-secondary text-[10px] sm:text-xs font-medium text-muted-foreground mb-4 sm:mb-6">
+            <Calculator size={12} className="sm:w-3.5 sm:h-3.5" />
             Premium Body Analysis
           </span>
-          <h2 className="text-4xl md:text-5xl font-semibold mb-4 text-foreground">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-semibold mb-3 sm:mb-4 text-foreground px-2">
             Unlock Your Body Intelligence
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-sm sm:text-lg max-w-2xl mx-auto px-2">
             Get personalized insights powered by advanced algorithms
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {/* Input Form */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -376,15 +376,17 @@ export function BodyAnalyzer() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 30 }}
                 transition={{ duration: 0.8 }}
-                className="space-y-6"
+                className="space-y-3 sm:space-y-6"
               >
                 {/* Fitacle Score Card */}
-                <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
-                  <div className="flex flex-col md:flex-row items-center gap-8">
-                    <CircularProgress score={results.fitacleScore} />
+                <div className="bg-card border border-border rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm">
+                  <div className="flex flex-col items-center gap-5 sm:gap-8 md:flex-row">
+                    <div className="scale-90 sm:scale-100">
+                      <CircularProgress score={results.fitacleScore} />
+                    </div>
                     <div className="flex-1 text-center md:text-left">
-                      <h3 className="text-2xl font-semibold mb-2 text-foreground">Your Fitacle Score</h3>
-                      <p className="text-muted-foreground mb-4">
+                      <h3 className="text-xl sm:text-2xl font-semibold mb-1.5 sm:mb-2 text-foreground">Your Fitacle Score</h3>
+                      <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">
                         {results.fitacleScore >= 80
                           ? "Excellent! You're in peak condition."
                           : results.fitacleScore >= 60
@@ -393,11 +395,11 @@ export function BodyAnalyzer() {
                           ? "Good start! Room for improvement."
                           : "Let's begin your transformation."}
                       </p>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center md:justify-start">
                         {["Energy", "Consistency", "Health"].map((label, i) => (
                           <span
                             key={label}
-                            className="px-3 py-1 rounded-full bg-secondary text-xs font-medium text-muted-foreground"
+                            className="px-2.5 sm:px-3 py-1 rounded-full bg-secondary text-[10px] sm:text-xs font-medium text-muted-foreground"
                           >
                             {label}: {Math.max(20, results.fitacleScore - i * 5)}%
                           </span>
@@ -408,58 +410,58 @@ export function BodyAnalyzer() {
                 </div>
 
                 {/* BMI & Calories */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-2 rounded-lg bg-secondary">
-                        <Scale size={18} className="text-foreground" />
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                      <div className="p-1.5 sm:p-2 rounded-lg bg-secondary">
+                        <Scale size={14} className="text-foreground sm:w-[18px] sm:h-[18px]" />
                       </div>
-                      <span className="text-sm text-muted-foreground">BMI Score</span>
+                      <span className="text-xs sm:text-sm text-muted-foreground">BMI</span>
                     </div>
-                    <div className="text-3xl font-semibold text-foreground mb-1">
+                    <div className="text-xl sm:text-3xl font-semibold text-foreground mb-0.5 sm:mb-1">
                       <AnimatedNumber value={results.bmi} decimals={1} />
                     </div>
-                    <span className={`text-sm font-medium ${
+                    <span className={`text-xs sm:text-sm font-medium ${
                       results.bmiCategory === "Normal" ? "text-success" : "text-muted-foreground"
                     }`}>
                       {results.bmiCategory}
                     </span>
                   </div>
 
-                  <div className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-2 rounded-lg bg-secondary">
-                        <Flame size={18} className="text-foreground" />
+                  <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                      <div className="p-1.5 sm:p-2 rounded-lg bg-secondary">
+                        <Flame size={14} className="text-foreground sm:w-[18px] sm:h-[18px]" />
                       </div>
-                      <span className="text-sm text-muted-foreground">Daily Calories</span>
+                      <span className="text-xs sm:text-sm text-muted-foreground">Calories</span>
                     </div>
-                    <div className="text-3xl font-semibold text-foreground mb-1">
-                      <AnimatedNumber value={results.dailyCalories} suffix=" kcal" />
+                    <div className="text-xl sm:text-3xl font-semibold text-foreground mb-0.5 sm:mb-1">
+                      <AnimatedNumber value={results.dailyCalories} suffix="" />
                     </div>
-                    <span className="text-sm text-muted-foreground">Target intake</span>
+                    <span className="text-xs sm:text-sm text-muted-foreground">kcal/day</span>
                   </div>
                 </div>
 
                 {/* Macros */}
-                <div className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 rounded-lg bg-secondary">
-                      <Target size={18} className="text-foreground" />
+                <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                    <div className="p-1.5 sm:p-2 rounded-lg bg-secondary">
+                      <Target size={14} className="text-foreground sm:w-[18px] sm:h-[18px]" />
                     </div>
-                    <span className="text-sm text-muted-foreground">Daily Macros</span>
+                    <span className="text-xs sm:text-sm text-muted-foreground">Daily Macros</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-3 gap-3 sm:gap-4">
                     {[
                       { label: "Protein", value: results.protein, color: "bg-foreground" },
                       { label: "Carbs", value: results.carbs, color: "bg-success" },
                       { label: "Fats", value: results.fats, color: "bg-chart-4" },
                     ].map((macro) => (
                       <div key={macro.label} className="text-center">
-                        <div className="text-2xl font-semibold text-foreground">
+                        <div className="text-lg sm:text-2xl font-semibold text-foreground">
                           <AnimatedNumber value={macro.value} suffix="g" />
                         </div>
-                        <div className="text-xs text-muted-foreground mt-1">{macro.label}</div>
-                        <div className="h-1 rounded-full bg-secondary mt-2 overflow-hidden">
+                        <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">{macro.label}</div>
+                        <div className="h-1 rounded-full bg-secondary mt-1.5 sm:mt-2 overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: "100%" }}

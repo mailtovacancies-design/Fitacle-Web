@@ -225,7 +225,7 @@ export function Hero() {
         {/* Main Content */}
         <motion.div 
           style={{ opacity }}
-          className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 py-20 sm:py-28 md:py-32 text-center"
+          className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 pt-24 pb-12 sm:py-28 md:py-32 text-center"
         >
           {/* Premium Badge */}
           <motion.div
@@ -242,8 +242,8 @@ export function Hero() {
           </motion.div>
 
           {/* Main Heading */}
-          <div className="mb-6 sm:mb-10">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight leading-[0.95]">
+          <div className="mb-5 sm:mb-10">
+            <h1 className="text-[2.5rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight leading-[1]">
               <div className="overflow-hidden">
                 <motion.span 
                   className="block text-foreground"
@@ -343,7 +343,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 1.1 }}
-            className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-16 mb-10 sm:mb-16"
+            className="grid grid-cols-3 gap-4 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-10 md:gap-16 mb-8 sm:mb-16 max-w-sm sm:max-w-none mx-auto"
           >
             {stats.map((stat, index) => (
               <motion.div
@@ -356,10 +356,10 @@ export function Hero() {
                 }}
                 className="text-center"
               >
-                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-0.5 sm:mb-1">
+                <div className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground mb-0.5">
                   <AnimatedCounter value={stat.value} suffix={stat.suffix} />
                 </div>
-                <div className="text-[10px] sm:text-xs text-muted-foreground tracking-wide uppercase">{stat.label}</div>
+                <div className="text-[9px] sm:text-xs text-muted-foreground tracking-wide uppercase">{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>
