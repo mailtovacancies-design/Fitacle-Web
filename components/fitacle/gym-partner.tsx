@@ -2,15 +2,20 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Users, MapPin, Instagram, Sparkles, UserPlus, Heart, MessageCircle, Dumbbell, Star, Clock } from "lucide-react"
+import { Users, MapPin, Instagram, Sparkles, UserPlus, Heart, MessageCircle, Dumbbell, Star, Clock, CheckCircle2, Building2 } from "lucide-react"
+
+// Real FITACLE community members
+const realPartners = [
+  { id: 1, username: "its_nithin_", location: "Telford, UK", gym: "The Gym Group", avatar: "N", focus: "Strength Training", level: "Advanced", rating: 4.9, schedule: "Morning", verified: true },
+  { id: 2, username: "its_nikhi_l", location: "Vattapar, Kerala, India", gym: "Fitness Spot", avatar: "N", focus: "Bodybuilding", level: "Intermediate", rating: 4.8, schedule: "Evening", verified: true },
+  { id: 3, username: "razi_haroon", location: "Doha, Qatar", gym: "The Turbo Gym", avatar: "R", focus: "CrossFit", level: "Advanced", rating: 4.9, schedule: "Flexible", verified: true },
+]
 
 const mockPartners = [
-  { id: 1, username: "alex_fitness", location: "Los Angeles, CA", avatar: "A", focus: "Strength Training", level: "Advanced", rating: 4.9, schedule: "Morning" },
-  { id: 2, username: "sarah_lifts", location: "New York, NY", avatar: "S", focus: "CrossFit", level: "Intermediate", rating: 4.8, schedule: "Evening" },
-  { id: 3, username: "mike_gains", location: "Miami, FL", avatar: "M", focus: "Bodybuilding", level: "Advanced", rating: 4.7, schedule: "Flexible" },
-  { id: 4, username: "emma_fit", location: "Chicago, IL", avatar: "E", focus: "HIIT", level: "Beginner", rating: 4.9, schedule: "Afternoon" },
-  { id: 5, username: "jordan_power", location: "Seattle, WA", avatar: "J", focus: "Powerlifting", level: "Intermediate", rating: 4.6, schedule: "Morning" },
-  { id: 6, username: "taylor_cardio", location: "Austin, TX", avatar: "T", focus: "Running", level: "Advanced", rating: 4.8, schedule: "Evening" },
+  ...realPartners,
+  { id: 4, username: "emma_fit", location: "Chicago, IL, USA", gym: "LA Fitness", avatar: "E", focus: "HIIT", level: "Beginner", rating: 4.9, schedule: "Afternoon", verified: false },
+  { id: 5, username: "jordan_power", location: "Seattle, WA, USA", gym: "24 Hour Fitness", avatar: "J", focus: "Powerlifting", level: "Intermediate", rating: 4.6, schedule: "Morning", verified: false },
+  { id: 6, username: "taylor_cardio", location: "Austin, TX, USA", gym: "Gold's Gym", avatar: "T", focus: "Running", level: "Advanced", rating: 4.8, schedule: "Evening", verified: false },
 ]
 
 export function GymPartner() {
@@ -178,41 +183,85 @@ export function GymPartner() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
                   whileHover={{ y: -4, scale: 1.01 }}
-                  className="bg-card rounded-2xl border border-border p-4 hover:border-primary/30 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+                  className={`relative bg-card rounded-2xl border p-4 hover:shadow-lg transition-all duration-300 group cursor-pointer ${
+                    partner.verified 
+                      ? "border-emerald-500/30 hover:border-emerald-500/50 bg-gradient-to-br from-emerald-500/5 to-transparent" 
+                      : "border-border hover:border-primary/30"
+                  }`}
                 >
+                  {/* Verified badge for real partners */}
+                  {partner.verified && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.3 + index * 0.1, type: "spring" }}
+                      className="absolute -top-2 -right-2 bg-emerald-500 text-white px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-lg"
+                    >
+                      <CheckCircle2 size={10} />
+                      Verified
+                    </motion.div>
+                  )}
+                  
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center text-lg font-bold text-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold transition-colors duration-300 ${
+                      partner.verified
+                        ? "bg-emerald-500/20 text-emerald-700 group-hover:bg-emerald-500 group-hover:text-white"
+                        : "bg-accent text-foreground group-hover:bg-primary group-hover:text-primary-foreground"
+                    }`}>
                       {partner.avatar}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-foreground">@{partner.username}</span>
-                        <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                        <a 
+                          href={`https://instagram.com/${partner.username}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-1"
+                        >
+                          <Instagram size={14} className="text-pink-500" />
+                          @{partner.username}
+                        </a>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                          partner.verified
+                            ? "bg-emerald-500/20 text-emerald-700"
+                            : "bg-primary/10 text-primary"
+                        }`}>
                           {partner.level}
                         </span>
                       </div>
-                      <div className="flex flex-wrap items-center gap-3">
-                        <span className="text-sm text-muted-foreground flex items-center gap-1">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
                           <MapPin size={12} />
-                          {partner.location}
+                          <span className="truncate max-w-[120px] sm:max-w-none">{partner.location}</span>
                         </span>
-                        <span className="text-sm text-muted-foreground flex items-center gap-1">
+                        <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+                          <Building2 size={12} />
+                          <span className="truncate max-w-[80px] sm:max-w-none">{partner.gym}</span>
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1">
+                        <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
                           <Dumbbell size={12} />
                           {partner.focus}
                         </span>
-                        <span className="text-sm text-muted-foreground flex items-center gap-1">
+                        <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
                           <Clock size={12} />
                           {partner.schedule}
                         </span>
-                        <span className="text-sm flex items-center gap-1 text-amber-600">
+                        <span className="text-xs sm:text-sm flex items-center gap-1 text-amber-600">
                           <Star size={12} className="fill-current" />
                           {partner.rating}
                         </span>
                       </div>
                     </div>
-                    <button className="p-2.5 rounded-xl bg-accent hover:bg-primary hover:text-primary-foreground transition-all duration-300 opacity-0 group-hover:opacity-100">
-                      <MessageCircle size={18} />
-                    </button>
+                    <a 
+                      href={`https://instagram.com/${partner.username}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white hover:shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
+                    >
+                      <Instagram size={18} />
+                    </a>
                   </div>
                 </motion.div>
               ))}

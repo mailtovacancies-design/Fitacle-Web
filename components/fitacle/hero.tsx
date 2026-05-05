@@ -475,11 +475,27 @@ export function Hero() {
               className="w-full max-w-md bg-card rounded-3xl border border-border shadow-2xl overflow-hidden"
             >
               <div className="p-8">
-                {/* Logo */}
+                {/* Logo with animated effects */}
                 <div className="flex justify-center mb-8">
-                  <div className="h-14 w-14 rounded-2xl bg-foreground flex items-center justify-center shadow-xl">
-                    <span className="text-background font-bold text-xl">F</span>
-                  </div>
+                  <motion.div 
+                    className="relative"
+                    animate={{ 
+                      boxShadow: [
+                        "0 0 0 0 rgba(16, 185, 129, 0)",
+                        "0 0 0 8px rgba(16, 185, 129, 0.1)",
+                        "0 0 0 0 rgba(16, 185, 129, 0)"
+                      ]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <Image
+                      src="/images/fitacle-logo.png"
+                      alt="FITACLE"
+                      width={56}
+                      height={56}
+                      className="rounded-2xl shadow-xl"
+                    />
+                  </motion.div>
                 </div>
 
                 <h2 className="text-2xl font-bold text-center text-foreground mb-2">

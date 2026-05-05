@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X, Mail, Instagram, ArrowRight } from "lucide-react"
+import Image from "next/image"
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -34,17 +35,84 @@ export function Navbar() {
       }`}
     >
       <div className="mx-auto max-w-7xl px-6 flex items-center justify-between">
-        {/* Logo */}
+        {/* Animated Logo */}
         <motion.a 
           href="#" 
-          className="flex items-center gap-2.5 group"
+          className="flex items-center gap-3 group relative"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          <div className="h-10 w-10 rounded-xl bg-foreground flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-            <span className="text-background font-bold text-base">F</span>
+          {/* Animated glow effect behind logo */}
+          <motion.div
+            className="absolute -inset-2 bg-gradient-to-r from-emerald-500/20 via-green-500/20 to-emerald-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            animate={{
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, -5, 0]
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          
+          {/* Logo with animated ring */}
+          <div className="relative">
+            {/* Pulsing ring effect */}
+            <motion.div
+              className="absolute -inset-1 rounded-xl border-2 border-emerald-500/30"
+              animate={{
+                scale: [1, 1.15, 1],
+                opacity: [0.5, 0, 0.5]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+            
+            {/* Rotating highlight */}
+            <motion.div
+              className="absolute -inset-1 rounded-xl overflow-hidden"
+              style={{ opacity: 0.3 }}
+            >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent"
+                animate={{
+                  x: ["-200%", "200%"]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "linear",
+                  repeatDelay: 2
+                }}
+              />
+            </motion.div>
+            
+            <Image
+              src="/images/fitacle-logo.png"
+              alt="FITACLE Logo"
+              width={44}
+              height={44}
+              className="relative rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300"
+            />
           </div>
-          <span className="text-xl font-bold tracking-tight text-foreground">FITACLE</span>
+          
+          <div className="flex flex-col">
+            <span className="text-xl font-bold tracking-tight text-foreground flex items-baseline">
+              F<span className="text-emerald-600">i</span>tacle
+            </span>
+            <motion.span 
+              className="text-[9px] tracking-[0.2em] text-muted-foreground uppercase"
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              Transform Beyond
+            </motion.span>
+          </div>
         </motion.a>
 
         {/* Desktop Navigation */}
@@ -59,7 +127,7 @@ export function Navbar() {
               className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 group"
             >
               {link.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-foreground rounded-full group-hover:w-full transition-all duration-300" />
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300" />
             </motion.a>
           ))}
           
@@ -108,10 +176,18 @@ export function Navbar() {
             transition={{ duration: 0.5, delay: 0.7 }}
             whileHover={{ scale: 1.02, y: -1 }}
             whileTap={{ scale: 0.98 }}
-            className="group flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-foreground text-background rounded-full hover:bg-foreground/90 transition-all duration-300 shadow-md hover:shadow-lg"
+            className="group relative flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-foreground text-background rounded-full hover:bg-foreground/90 transition-all duration-300 shadow-md hover:shadow-lg overflow-hidden"
           >
-            Get Started
-            <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+            <span className="relative z-10 flex items-center gap-2">
+              Get Started
+              <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+            </span>
+            {/* Shimmer effect */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-background/20 to-transparent"
+              animate={{ x: ["-200%", "200%"] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+            />
           </motion.button>
         </div>
 
@@ -158,6 +234,21 @@ export function Navbar() {
             className="md:hidden overflow-hidden glass-card mx-4 mt-3 rounded-2xl"
           >
             <div className="p-6 flex flex-col gap-2">
+              {/* Logo in mobile menu */}
+              <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
+                <Image
+                  src="/images/fitacle-logo.png"
+                  alt="FITACLE Logo"
+                  width={40}
+                  height={40}
+                  className="rounded-xl"
+                />
+                <div>
+                  <span className="text-lg font-bold text-foreground">F<span className="text-emerald-600">i</span>tacle</span>
+                  <p className="text-[10px] text-muted-foreground tracking-widest uppercase">Transform Beyond Limits</p>
+                </div>
+              </div>
+              
               {navLinks.map((link, index) => (
                 <motion.a
                   key={link.href}

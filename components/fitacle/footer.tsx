@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Instagram, Twitter, Youtube, Linkedin, Mail, ArrowRight, ArrowUpRight } from "lucide-react"
+import Image from "next/image"
 
 const footerLinks = {
   product: [
@@ -113,13 +114,38 @@ export function Footer() {
           <div className="col-span-2">
             <motion.a 
               href="#" 
-              className="flex items-center gap-2.5 mb-5 group"
+              className="flex items-center gap-3 mb-5 group"
               whileHover={{ scale: 1.02 }}
             >
-              <div className="h-10 w-10 rounded-xl bg-foreground flex items-center justify-center shadow-lg">
-                <span className="text-background font-bold text-base">F</span>
+              {/* Animated logo with glow */}
+              <div className="relative">
+                <motion.div
+                  className="absolute -inset-1 bg-gradient-to-r from-emerald-500/30 to-green-500/30 rounded-xl blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  animate={{
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                <Image
+                  src="/images/fitacle-logo.png"
+                  alt="FITACLE Logo"
+                  width={44}
+                  height={44}
+                  className="relative rounded-xl shadow-lg"
+                />
               </div>
-              <span className="text-xl font-bold tracking-tight text-foreground">FITACLE</span>
+              <div className="flex flex-col">
+                <span className="text-xl font-bold tracking-tight text-foreground">
+                  F<span className="text-emerald-600">i</span>tacle
+                </span>
+                <span className="text-[9px] tracking-[0.15em] text-muted-foreground uppercase">
+                  Transform Beyond Limits
+                </span>
+              </div>
             </motion.a>
             <p className="text-sm text-muted-foreground mb-6 leading-relaxed max-w-xs">
               Your AI-powered fitness companion for lasting transformation and sustainable results.
