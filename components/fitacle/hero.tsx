@@ -5,20 +5,29 @@ import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView 
 import { Instagram, Play, ArrowDown, Sparkles, ChevronRight, Mail, ArrowRight, Heart, Dumbbell, Apple, Leaf, Flame, Timer, Zap, Target, TrendingUp } from "lucide-react"
 import Image from "next/image"
 
-// Floating fitness element data
+// Floating fitness element data - positioned around the headline area
 const floatingElements = [
-  { icon: Dumbbell, x: "8%", y: "15%", size: 28, delay: 0, duration: 12, rotate: 15 },
-  { icon: Apple, x: "85%", y: "20%", size: 24, delay: 1.5, duration: 14, rotate: -10 },
-  { icon: Leaf, x: "12%", y: "65%", size: 22, delay: 0.8, duration: 11, rotate: 20 },
-  { icon: Flame, x: "92%", y: "55%", size: 26, delay: 2, duration: 13, rotate: -15 },
-  { icon: Timer, x: "5%", y: "40%", size: 20, delay: 1.2, duration: 15, rotate: 10 },
-  { icon: Zap, x: "88%", y: "75%", size: 24, delay: 0.5, duration: 10, rotate: -20 },
-  { icon: Target, x: "15%", y: "85%", size: 26, delay: 2.5, duration: 12, rotate: 15 },
-  { icon: TrendingUp, x: "78%", y: "12%", size: 22, delay: 1.8, duration: 14, rotate: -10 },
-  { icon: Heart, x: "95%", y: "38%", size: 20, delay: 0.3, duration: 11, rotate: 12 },
-  { icon: Dumbbell, x: "82%", y: "88%", size: 24, delay: 1, duration: 13, rotate: -18 },
-  { icon: Apple, x: "3%", y: "78%", size: 22, delay: 2.2, duration: 12, rotate: 8 },
-  { icon: Leaf, x: "72%", y: "45%", size: 18, delay: 0.7, duration: 16, rotate: -12 },
+  // Left side of headline
+  { icon: Dumbbell, x: "5%", y: "25%", size: 32, delay: 0, duration: 8, rotate: 15 },
+  { icon: Apple, x: "8%", y: "45%", size: 28, delay: 0.5, duration: 9, rotate: -12 },
+  { icon: Leaf, x: "3%", y: "60%", size: 26, delay: 1, duration: 7, rotate: 18 },
+  { icon: Heart, x: "12%", y: "35%", size: 24, delay: 1.5, duration: 10, rotate: -8 },
+  { icon: Flame, x: "6%", y: "70%", size: 30, delay: 0.3, duration: 8.5, rotate: 10 },
+  // Right side of headline  
+  { icon: Zap, x: "92%", y: "28%", size: 30, delay: 0.8, duration: 7.5, rotate: -15 },
+  { icon: Target, x: "88%", y: "48%", size: 28, delay: 0.2, duration: 9, rotate: 12 },
+  { icon: Timer, x: "94%", y: "62%", size: 26, delay: 1.2, duration: 8, rotate: -18 },
+  { icon: TrendingUp, x: "85%", y: "38%", size: 24, delay: 0.7, duration: 10, rotate: 8 },
+  { icon: Dumbbell, x: "90%", y: "72%", size: 32, delay: 1.8, duration: 7, rotate: -10 },
+  // Top area
+  { icon: Apple, x: "25%", y: "12%", size: 24, delay: 0.4, duration: 9.5, rotate: 15 },
+  { icon: Leaf, x: "75%", y: "10%", size: 22, delay: 0.9, duration: 8, rotate: -12 },
+  // Bottom area
+  { icon: Heart, x: "20%", y: "82%", size: 26, delay: 1.3, duration: 8.5, rotate: 10 },
+  { icon: Flame, x: "78%", y: "85%", size: 28, delay: 0.6, duration: 9, rotate: -14 },
+  // Center-ish floating
+  { icon: Zap, x: "18%", y: "52%", size: 22, delay: 2, duration: 7.5, rotate: 8 },
+  { icon: Target, x: "82%", y: "55%", size: 22, delay: 1.6, duration: 8, rotate: -8 },
 ]
 
 function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
@@ -124,110 +133,29 @@ export function Hero() {
           {/* Base gradient background */}
           <div className="absolute inset-0 bg-gradient-to-br from-neutral-100 via-neutral-50 to-neutral-200" />
           
-          {/* Animated moving shapes and blobs */}
+          {/* Smooth gradient animations - GPU optimized */}
           <motion.div
             animate={{
-              x: [0, 50, 0],
-              y: [0, 30, 0],
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.6, 0.3]
-            }}
-            transition={{
-              duration: 15,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-transparent to-transparent"
-          />
-          
-          {/* Animated fitness equipment silhouettes */}
-          <motion.div
-            animate={{
-              opacity: [0.2, 0.4, 0.2],
-              scale: [1, 1.1, 1]
-            }}
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_50%,_rgba(16,185,129,0.15)_0%,_transparent_40%)]"
-          />
-          
-          <motion.div
-            animate={{
-              opacity: [0.3, 0.5, 0.3],
-              scale: [1, 1.15, 1]
-            }}
-            transition={{
-              duration: 18,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 2
-            }}
-            className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_30%,_rgba(129,184,255,0.12)_0%,_transparent_50%)]"
-          />
-          
-          {/* Animated light rays */}
-          <motion.div
-            animate={{
-              rotate: [0, 360],
-              opacity: [0.1, 0.3, 0.1]
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-            className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0deg,rgba(16,185,129,0.08)_90deg,transparent_180deg)]"
-          />
-          
-          {/* Floating animated elements */}
-          {[...Array(8)].map((_, i) => (
-            <motion.div
-              key={`shape-${i}`}
-              animate={{
-                y: [0, -50 - i * 10, 0],
-                x: [0, (i % 2 === 0 ? 30 : -30), 0],
-                opacity: [0.1, 0.3, 0.1],
-                scale: [1, 1.5, 1]
-              }}
-              transition={{
-                duration: 8 + i * 1.5,
-                repeat: Infinity,
-                delay: i * 0.5,
-                ease: "easeInOut"
-              }}
-              className={`absolute w-${12 + i * 4} h-${12 + i * 4} rounded-full blur-3xl`}
-              style={{
-                background: `radial-gradient(circle, rgba(${16 + i * 20},${185 - i * 15},${129 + i * 10},0.3) 0%, transparent 70%)`,
-                left: `${15 + i * 10}%`,
-                top: `${20 + i * 8}%`
-              }}
-            />
-          ))}
-          
-          {/* Premium layered overlays for light theme */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/60 to-background" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-background/70" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-          
-          {/* Animated mesh overlay */}
-          <motion.div
-            animate={{
-              opacity: [0.03, 0.08, 0.03]
+              opacity: [0.15, 0.3, 0.15]
             }}
             transition={{
               duration: 8,
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="absolute inset-0 mix-blend-overlay pointer-events-none"
-            style={{
-              backgroundImage: `linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.1) 50%, transparent 100%)`,
-              backgroundSize: '200% 100%'
-            }}
+            className="absolute inset-0 bg-gradient-to-br from-emerald-500/15 via-transparent to-transparent will-change-opacity"
           />
+          
+          {/* Subtle radial gradients */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_40%,_rgba(16,185,129,0.12)_0%,_transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_60%,_rgba(16,185,129,0.08)_0%,_transparent_50%)]" />
+          
+          {/* Premium layered overlays for light theme */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/60 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-background/70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          
+          
           
           {/* Grain texture overlay */}
           <div 
@@ -238,110 +166,62 @@ export function Hero() {
           />
           
           {/* Floating Fitness Elements - Dumbbells, Food, Health Icons */}
-          {floatingElements.map((element, i) => (
-            <motion.div
-              key={`floating-${i}`}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ 
-                opacity: [0.15, 0.35, 0.15],
-                scale: [1, 1.15, 1],
-                y: [0, -30, 0],
-                x: [0, i % 2 === 0 ? 15 : -15, 0],
-                rotate: [0, element.rotate, 0]
-              }}
-              transition={{
-                duration: element.duration,
-                repeat: Infinity,
-                delay: element.delay,
-                ease: "easeInOut"
-              }}
-              className="absolute pointer-events-none"
-              style={{
-                left: element.x,
-                top: element.y
-              }}
-            >
+          <div className="absolute inset-0 pointer-events-none z-10">
+            {floatingElements.map((element, i) => (
               <motion.div
-                animate={{
-                  boxShadow: [
-                    "0 0 0 0 rgba(16, 185, 129, 0)",
-                    "0 0 20px 5px rgba(16, 185, 129, 0.15)",
-                    "0 0 0 0 rgba(16, 185, 129, 0)"
-                  ]
+                key={`floating-${i}`}
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ 
+                  opacity: [0.4, 0.7, 0.4],
+                  scale: [1, 1.1, 1],
+                  y: [0, -25, 0],
+                  x: [0, i % 2 === 0 ? 12 : -12, 0],
+                  rotate: [0, element.rotate, 0]
                 }}
                 transition={{
-                  duration: 3,
+                  duration: element.duration,
                   repeat: Infinity,
-                  delay: element.delay + 1
+                  delay: element.delay,
+                  ease: "easeInOut"
                 }}
-                className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/10 backdrop-blur-sm"
+                className="absolute will-change-transform"
+                style={{
+                  left: element.x,
+                  top: element.y,
+                  transform: "translateZ(0)" // Force GPU acceleration
+                }}
               >
-                <element.icon 
-                  size={element.size} 
-                  className="text-emerald-600/40"
-                  strokeWidth={1.5}
-                />
+                <motion.div
+                  animate={{
+                    boxShadow: [
+                      "0 0 15px 3px rgba(16, 185, 129, 0.1)",
+                      "0 0 30px 8px rgba(16, 185, 129, 0.25)",
+                      "0 0 15px 3px rgba(16, 185, 129, 0.1)"
+                    ]
+                  }}
+                  transition={{
+                    duration: 2.5,
+                    repeat: Infinity,
+                    delay: element.delay * 0.5,
+                    ease: "easeInOut"
+                  }}
+                  className="p-3 sm:p-4 rounded-2xl bg-white/80 border border-emerald-500/20 shadow-lg backdrop-blur-md"
+                >
+                  <element.icon 
+                    size={element.size} 
+                    className="text-emerald-600"
+                    strokeWidth={1.8}
+                  />
+                </motion.div>
               </motion.div>
-            </motion.div>
-          ))}
+            ))}
+          </div>
         </motion.div>
 
-        {/* Animated Floating Elements */}
+        {/* Simple ambient gradients - no heavy animations */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <motion.div
-            animate={{ 
-              x: mousePosition.x * 0.5,
-              y: mousePosition.y * 0.5,
-              rotate: 360,
-              scale: [1, 1.1, 1]
-            }}
-            transition={{ 
-              x: { type: "spring", stiffness: 50, damping: 30 },
-              y: { type: "spring", stiffness: 50, damping: 30 },
-              rotate: { duration: 80, repeat: Infinity, ease: "linear" },
-              scale: { duration: 10, repeat: Infinity, ease: "easeInOut" }
-            }}
-            className="absolute -top-1/3 -right-1/4 w-[800px] h-[800px] rounded-full bg-gradient-to-br from-primary/3 via-transparent to-transparent blur-3xl"
-          />
-          <motion.div
-            animate={{ 
-              x: mousePosition.x * -0.3,
-              y: mousePosition.y * -0.3,
-              rotate: -360,
-              scale: [1, 1.15, 1]
-            }}
-            transition={{ 
-              x: { type: "spring", stiffness: 50, damping: 30 },
-              y: { type: "spring", stiffness: 50, damping: 30 },
-              rotate: { duration: 100, repeat: Infinity, ease: "linear" },
-              scale: { duration: 12, repeat: Infinity, ease: "easeInOut" }
-            }}
-            className="absolute -bottom-1/3 -left-1/4 w-[900px] h-[900px] rounded-full bg-gradient-to-tr from-accent/8 via-transparent to-transparent blur-3xl"
-          />
-          
-          {/* Floating particles */}
-          {[...Array(6)].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ 
-                opacity: [0.2, 0.5, 0.2],
-                y: [-20, -120, -20],
-                x: [0, (i % 2 === 0 ? 40 : -40), 0]
-              }}
-              transition={{
-                duration: 10 + i * 2,
-                repeat: Infinity,
-                delay: i * 1.2,
-                ease: "easeInOut"
-              }}
-              className="absolute w-1.5 h-1.5 rounded-full bg-foreground/15"
-              style={{
-                left: `${10 + i * 16}%`,
-                bottom: "15%"
-              }}
-            />
-          ))}
+          <div className="absolute -top-1/3 -right-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-emerald-500/5 via-transparent to-transparent blur-3xl" />
+          <div className="absolute -bottom-1/3 -left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-emerald-500/5 via-transparent to-transparent blur-3xl" />
         </div>
 
         {/* Main Content */}
