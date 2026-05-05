@@ -6,8 +6,8 @@ import { Users, MapPin, Instagram, Sparkles, UserPlus, Heart, MessageCircle, Dum
 
 // Real FITACLE community members
 const realPartners = [
-  { id: 1, username: "its_nithin_", location: "Telford, UK", gym: "The Gym Group", avatar: "N", focus: "Strength Training", level: "Advanced", rating: 4.9, schedule: "Morning", verified: true },
-  { id: 2, username: "its_nikhi_l", location: "Vattapar, Kerala, India", gym: "Fitness Spot", avatar: "N", focus: "Bodybuilding", level: "Intermediate", rating: 4.8, schedule: "Evening", verified: true },
+  { id: 1, username: "its_nithin_", location: "Telford, UK", gym: "The Gym Group", avatar: "N", focus: "Strength Training", level: "Advanced", rating: 4.9, schedule: "Evening", verified: true },
+  { id: 2, username: "its_nikhi_l", location: "Vattapara, Kerala, India", gym: "Fitness Spot", avatar: "N", focus: "Bodybuilding", level: "Intermediate", rating: 4.8, schedule: "Evening", verified: true },
   { id: 3, username: "razi_haroon", location: "Doha, Qatar", gym: "The Turbo Gym", avatar: "R", focus: "CrossFit", level: "Advanced", rating: 4.9, schedule: "Flexible", verified: true },
 ]
 
@@ -66,15 +66,15 @@ export function GymPartner() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             whileHover={{ y: -4 }}
-            className="bg-card rounded-3xl border border-border p-8 md:p-10 shadow-sm hover:shadow-xl transition-all duration-500"
+            className="bg-card rounded-2xl sm:rounded-3xl border border-border p-5 sm:p-8 md:p-10 shadow-sm hover:shadow-xl transition-all duration-500"
           >
-            <div className="flex items-center gap-4 mb-8">
-              <div className="p-3 rounded-2xl bg-foreground">
-                <UserPlus size={24} className="text-background" />
+            <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-foreground">
+                <UserPlus size={20} className="text-background sm:w-6 sm:h-6" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-foreground">Join the Network</h3>
-                <p className="text-sm text-muted-foreground">Connect with fitness partners nearby</p>
+                <h3 className="text-lg sm:text-xl font-semibold text-foreground">Join the Network</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">Connect with fitness partners nearby</p>
               </div>
             </div>
 
@@ -84,32 +84,32 @@ export function GymPartner() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="space-y-6"
+                  className="space-y-4 sm:space-y-6"
                 >
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Your Location</label>
+                    <label className="block text-xs sm:text-sm font-medium text-foreground mb-1.5 sm:mb-2">Your Location</label>
                     <div className="relative">
-                      <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <MapPin size={16} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-muted-foreground sm:w-[18px] sm:h-[18px]" />
                       <input
                         type="text"
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
-                        placeholder="Enter your city or zip code"
-                        className="w-full py-3.5 pl-12 pr-4 bg-background border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                        placeholder="Enter your city"
+                        className="w-full py-3 sm:py-3.5 pl-10 sm:pl-12 pr-4 bg-background border border-border rounded-xl text-foreground text-sm sm:text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Instagram Username</label>
+                    <label className="block text-xs sm:text-sm font-medium text-foreground mb-1.5 sm:mb-2">Instagram Username</label>
                     <div className="relative">
-                      <Instagram size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <Instagram size={16} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-muted-foreground sm:w-[18px] sm:h-[18px]" />
                       <input
                         type="text"
                         value={instagram}
                         onChange={(e) => setInstagram(e.target.value)}
                         placeholder="@yourusername"
-                        className="w-full py-3.5 pl-12 pr-4 bg-background border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                        className="w-full py-3 sm:py-3.5 pl-10 sm:pl-12 pr-4 bg-background border border-border rounded-xl text-foreground text-sm sm:text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                       />
                     </div>
                   </div>
@@ -119,9 +119,9 @@ export function GymPartner() {
                     whileTap={{ scale: 0.98 }}
                     onClick={handleJoin}
                     disabled={!location || !instagram}
-                    className="w-full py-4 bg-foreground text-background rounded-xl font-semibold text-lg flex items-center justify-center gap-3 hover:bg-foreground/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-3.5 sm:py-4 bg-foreground text-background rounded-xl font-semibold text-base sm:text-lg flex items-center justify-center gap-2 sm:gap-3 hover:bg-foreground/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Sparkles size={20} />
+                    <Sparkles size={18} className="sm:w-5 sm:h-5" />
                     Join Network
                   </motion.button>
                 </motion.div>
@@ -146,16 +146,16 @@ export function GymPartner() {
             </AnimatePresence>
 
             {/* Stats */}
-            <div className="mt-8 pt-8 border-t border-border grid grid-cols-3 gap-4">
+            <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-border grid grid-cols-3 gap-2 sm:gap-4">
               {[
                 { icon: Users, label: "Members", value: "50K+" },
                 { icon: MapPin, label: "Cities", value: "100+" },
                 { icon: MessageCircle, label: "Active", value: "24/7" },
               ].map((stat, i) => (
                 <div key={i} className="text-center">
-                  <stat.icon size={20} className="text-primary mx-auto mb-2" />
-                  <div className="text-lg font-bold text-foreground">{stat.value}</div>
-                  <div className="text-xs text-muted-foreground">{stat.label}</div>
+                  <stat.icon size={18} className="text-primary mx-auto mb-1.5 sm:mb-2 sm:w-5 sm:h-5" />
+                  <div className="text-base sm:text-lg font-bold text-foreground">{stat.value}</div>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -183,7 +183,7 @@ export function GymPartner() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
                   whileHover={{ y: -4, scale: 1.01 }}
-                  className={`relative bg-card rounded-2xl border p-4 hover:shadow-lg transition-all duration-300 group cursor-pointer ${
+                  className={`relative bg-card rounded-xl sm:rounded-2xl border p-3 sm:p-4 hover:shadow-lg transition-all duration-300 group cursor-pointer ${
                     partner.verified 
                       ? "border-emerald-500/30 hover:border-emerald-500/50 bg-gradient-to-br from-emerald-500/5 to-transparent" 
                       : "border-border hover:border-primary/30"
@@ -202,16 +202,55 @@ export function GymPartner() {
                     </motion.div>
                   )}
                   
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold transition-colors duration-300 ${
-                      partner.verified
-                        ? "bg-emerald-500/20 text-emerald-700 group-hover:bg-emerald-500 group-hover:text-white"
-                        : "bg-accent text-foreground group-hover:bg-primary group-hover:text-primary-foreground"
-                    }`}>
-                      {partner.avatar}
+                  {/* Mobile: Stack layout, Desktop: Row layout */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    {/* Avatar and username row for mobile */}
+                    <div className="flex items-center gap-3 sm:block">
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-base sm:text-lg font-bold transition-colors duration-300 shrink-0 ${
+                        partner.verified
+                          ? "bg-emerald-500/20 text-emerald-700 group-hover:bg-emerald-500 group-hover:text-white"
+                          : "bg-accent text-foreground group-hover:bg-primary group-hover:text-primary-foreground"
+                      }`}>
+                        {partner.avatar}
+                      </div>
+                      
+                      {/* Mobile: Username next to avatar */}
+                      <div className="sm:hidden flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <a 
+                            href={`https://instagram.com/${partner.username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-semibold text-sm text-foreground hover:text-primary transition-colors flex items-center gap-1"
+                          >
+                            <Instagram size={12} className="text-pink-500" />
+                            @{partner.username}
+                          </a>
+                          <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
+                            partner.verified
+                              ? "bg-emerald-500/20 text-emerald-700"
+                              : "bg-primary/10 text-primary"
+                          }`}>
+                            {partner.level}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Mobile: Instagram button visible */}
+                      <a 
+                        href={`https://instagram.com/${partner.username}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="sm:hidden p-2 rounded-lg bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white shrink-0"
+                      >
+                        <Instagram size={16} />
+                      </a>
                     </div>
+                    
+                    {/* Content section */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      {/* Desktop: Username row */}
+                      <div className="hidden sm:flex items-center gap-2 mb-1">
                         <a 
                           href={`https://instagram.com/${partner.username}`}
                           target="_blank"
@@ -229,36 +268,38 @@ export function GymPartner() {
                           {partner.level}
                         </span>
                       </div>
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                        <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
-                          <MapPin size={12} />
-                          <span className="truncate max-w-[120px] sm:max-w-none">{partner.location}</span>
+                      
+                      {/* Location and gym - clean 2-column grid on mobile */}
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+                        <span className="text-[11px] sm:text-sm text-muted-foreground flex items-center gap-1">
+                          <MapPin size={10} className="sm:w-3 sm:h-3 shrink-0" />
+                          <span className="truncate">{partner.location}</span>
                         </span>
-                        <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
-                          <Building2 size={12} />
-                          <span className="truncate max-w-[80px] sm:max-w-none">{partner.gym}</span>
+                        <span className="text-[11px] sm:text-sm text-muted-foreground flex items-center gap-1">
+                          <Building2 size={10} className="sm:w-3 sm:h-3 shrink-0" />
+                          <span className="truncate">{partner.gym}</span>
                         </span>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1">
-                        <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
-                          <Dumbbell size={12} />
-                          {partner.focus}
+                        <span className="text-[11px] sm:text-sm text-muted-foreground flex items-center gap-1">
+                          <Dumbbell size={10} className="sm:w-3 sm:h-3 shrink-0" />
+                          <span className="truncate">{partner.focus}</span>
                         </span>
-                        <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
-                          <Clock size={12} />
+                        <span className="text-[11px] sm:text-sm text-muted-foreground flex items-center gap-1">
+                          <Clock size={10} className="sm:w-3 sm:h-3 shrink-0" />
                           {partner.schedule}
-                        </span>
-                        <span className="text-xs sm:text-sm flex items-center gap-1 text-amber-600">
-                          <Star size={12} className="fill-current" />
-                          {partner.rating}
+                          <span className="text-amber-600 flex items-center gap-0.5 ml-1">
+                            <Star size={10} className="fill-current shrink-0" />
+                            {partner.rating}
+                          </span>
                         </span>
                       </div>
                     </div>
+                    
+                    {/* Desktop: Instagram button */}
                     <a 
                       href={`https://instagram.com/${partner.username}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white hover:shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
+                      className="hidden sm:block p-2.5 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white hover:shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
                     >
                       <Instagram size={18} />
                     </a>
