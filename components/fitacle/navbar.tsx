@@ -2,12 +2,16 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, Mail, Instagram, ArrowRight } from "lucide-react"
+import { Menu, X, Mail, Instagram, ArrowRight, User, LogOut } from "lucide-react"
 import Image from "next/image"
+import { createClient } from "@/lib/supabase/client"
+import type { User as SupabaseUser } from "@supabase/supabase-js"
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [user, setUser] = useState<SupabaseUser | null>(null)
+  const [showUserMenu, setShowUserMenu] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +20,32 @@ export function Navbar() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // Check for logged in user
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        setUser(user)
+      } catch {
+        // Supabase not configured yet
+      }
+    }
+    checkUser()
+  }, [])
+
+  const handleSignOut = async () => {
+    try {
+      const supabase = createClient()
+      await supabase.auth.signOut()
+      setUser(null)
+      setShowUserMenu(false)
+      window.location.reload()
+    } catch {
+      // Handle error
+    }
+  }
 
   const navLinks = [
     { href: "#analyzer", label: "Analyze" },
@@ -155,35 +185,87 @@ export function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <motion.button 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="px-5 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
-          >
-            Sign In
-          </motion.button>
-          <motion.button 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.7 }}
-            whileHover={{ scale: 1.02, y: -1 }}
-            whileTap={{ scale: 0.98 }}
-            className="group relative flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-foreground text-background rounded-full hover:bg-foreground/90 transition-all duration-300 shadow-md hover:shadow-lg overflow-hidden"
-          >
-            <span className="relative z-10 flex items-center gap-2">
-              Get Started
-              <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-            </span>
-            {/* Shimmer effect */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-background/20 to-transparent"
-              animate={{ x: ["-200%", "200%"] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-            />
-          </motion.button>
+          {user ? (
+            /* User is logged in - show user menu */
+            <div className="relative">
+              <motion.button 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-500/10 text-emerald-600 rounded-full border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-300"
+              >
+                <div className="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white font-semibold text-xs">
+                  {user.user_metadata?.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
+                </div>
+                <span className="max-w-[120px] truncate">
+                  {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                </span>
+              </motion.button>
+              
+              {/* User dropdown menu */}
+              <AnimatePresence>
+                {showUserMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-xl shadow-lg overflow-hidden z-50"
+                  >
+                    <div className="p-3 border-b border-border">
+                      <p className="text-xs text-muted-foreground">Signed in as</p>
+                      <p className="text-sm font-medium text-foreground truncate">{user.email}</p>
+                    </div>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-500 hover:bg-red-500/10 transition-colors"
+                    >
+                      <LogOut size={16} />
+                      Sign Out
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            /* User is not logged in - show sign in/get started */
+            <>
+              <motion.a 
+                href="#get-started"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-5 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
+              >
+                Sign In
+              </motion.a>
+              <motion.a 
+                href="#get-started"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                className="group relative flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-foreground text-background rounded-full hover:bg-foreground/90 transition-all duration-300 shadow-md hover:shadow-lg overflow-hidden"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Get Started
+                  <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                </span>
+                {/* Shimmer effect */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-background/20 to-transparent"
+                  animate={{ x: ["-200%", "200%"] }}
+                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                />
+              </motion.a>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -292,23 +374,62 @@ export function Navbar() {
               </motion.a>
               
               <div className="flex flex-col gap-3 pt-4 mt-2 border-t border-border">
-                <motion.button 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.25 }}
-                  className="py-3 text-foreground font-medium rounded-xl hover:bg-foreground/5 transition-colors"
-                >
-                  Sign In
-                </motion.button>
-                <motion.button 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.3 }}
-                  className="py-3 bg-foreground text-background rounded-full font-semibold shadow-md flex items-center justify-center gap-2"
-                >
-                  Get Started
-                  <ArrowRight size={16} />
-                </motion.button>
+                {user ? (
+                  /* User logged in - show user info */
+                  <>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.25 }}
+                      className="flex items-center gap-3 py-3 px-4 -mx-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white font-semibold">
+                        {user.user_metadata?.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {user.user_metadata?.full_name || 'User'}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      </div>
+                    </motion.div>
+                    <motion.button 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.3 }}
+                      onClick={handleSignOut}
+                      className="py-3 text-red-500 font-medium rounded-xl hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <LogOut size={16} />
+                      Sign Out
+                    </motion.button>
+                  </>
+                ) : (
+                  /* User not logged in */
+                  <>
+                    <motion.a 
+                      href="#get-started"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.25 }}
+                      className="py-3 text-foreground font-medium rounded-xl hover:bg-foreground/5 transition-colors text-center"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sign In
+                    </motion.a>
+                    <motion.a 
+                      href="#get-started"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.3 }}
+                      className="py-3 bg-foreground text-background rounded-full font-semibold shadow-md flex items-center justify-center gap-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Get Started
+                      <ArrowRight size={16} />
+                    </motion.a>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

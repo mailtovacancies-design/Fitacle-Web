@@ -471,8 +471,9 @@ export function Hero() {
           {/* Instagram Highlight Section */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            animate={isLoaded ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1, delay: 1.8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
             className="relative"
           >
             <motion.div
@@ -596,7 +597,7 @@ export function Hero() {
                     animate={{ 
                       boxShadow: [
                         "0 0 0 0 rgba(16, 185, 129, 0)",
-                        "0 0 0 8px rgba(16, 185, 129, 0.1)",
+                        "0 0 0 12px rgba(16, 185, 129, 0.1)",
                         "0 0 0 0 rgba(16, 185, 129, 0)"
                       ]
                     }}
@@ -605,9 +606,9 @@ export function Hero() {
                     <Image
                       src="/images/fitacle-logo.png"
                       alt="FITACLE"
-                      width={56}
-                      height={56}
-                      className="rounded-2xl shadow-xl"
+                      width={80}
+                      height={80}
+                      className="rounded-2xl shadow-xl w-auto h-auto"
                     />
                   </motion.div>
                 </div>
