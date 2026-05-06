@@ -445,18 +445,20 @@ export function Hero() {
           {/* Stats */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={isLoaded ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 1.1 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.8 }}
             className="grid grid-cols-3 gap-4 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-10 md:gap-16 mb-8 sm:mb-16 max-w-sm sm:max-w-none mx-auto"
           >
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 10 }}
-                animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
                 transition={{ 
                   duration: 0.6, 
-                  delay: 1.2 + index * 0.1,
+                  delay: index * 0.1,
                 }}
                 className="text-center"
               >
@@ -472,8 +474,8 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 1, ease: "easeOut" }}
             className="relative"
           >
             <motion.div
@@ -539,8 +541,9 @@ export function Hero() {
             
             <motion.p
               initial={{ opacity: 0 }}
-              animate={isLoaded ? { opacity: 1 } : {}}
-              transition={{ delay: 2.2 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.3 }}
               className="mt-4 text-sm text-muted-foreground"
             >
               Daily tips, workout inspiration & community updates
