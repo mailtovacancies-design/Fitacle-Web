@@ -83,10 +83,19 @@ function MagneticButton({ children, className = "", onClick }: { children: React
   )
 }
 
-export function Hero() {
+interface HeroProps {
+  showAuthModal?: boolean
+  setShowAuthModal?: (show: boolean) => void
+}
+
+export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: externalSetShowAuthModal }: HeroProps) {
   const [isLoaded, setIsLoaded] = useState(false)
-  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [internalShowAuthModal, setInternalShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signup")
+  
+  // Use external state if provided, otherwise use internal state
+  const showAuthModal = externalShowAuthModal !== undefined ? externalShowAuthModal : internalShowAuthModal
+  const setShowAuthModal = externalSetShowAuthModal || setInternalShowAuthModal
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [authSuccess, setAuthSuccess] = useState<string | null>(null)
@@ -194,9 +203,9 @@ export function Hero() {
   }
   
   const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 }
-  const y = useSpring(useTransform(scrollY, [0, 800], [0, 200]), springConfig)
-  const opacity = useSpring(useTransform(scrollY, [0, 500], [1, 0]), springConfig)
-  const scale = useSpring(useTransform(scrollY, [0, 800], [1, 1.15]), springConfig)
+  const y = useSpring(useTransform(scrollY, [0, 800], [0, 100]), springConfig)
+  const backgroundOpacity = useSpring(useTransform(scrollY, [0, 800], [1, 0.3]), springConfig)
+  const scale = useSpring(useTransform(scrollY, [0, 800], [1, 1.05]), springConfig)
 
   useEffect(() => {
     setIsLoaded(true)
@@ -326,9 +335,8 @@ export function Hero() {
           <div className="absolute -bottom-1/3 -left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-emerald-500/5 via-transparent to-transparent blur-3xl" />
         </div>
 
-        {/* Main Content */}
-        <motion.div 
-          style={{ opacity }}
+{/* Main Content */}
+        <div
           className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 pt-24 pb-12 sm:py-28 md:py-32 text-center"
         >
           {/* Premium Badge */}
@@ -549,7 +557,7 @@ export function Hero() {
               Daily tips, workout inspiration & community updates
             </motion.p>
           </motion.div>
-        </motion.div>
+        </div>
 
         {/* Scroll Indicator */}
         <motion.div

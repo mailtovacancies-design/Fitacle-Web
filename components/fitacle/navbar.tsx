@@ -7,7 +7,11 @@ import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 
-export function Navbar() {
+interface NavbarProps {
+  onSignIn?: () => void
+}
+
+export function Navbar({ onSignIn }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [user, setUser] = useState<SupabaseUser | null>(null)
@@ -233,8 +237,8 @@ export function Navbar() {
           ) : (
             /* User is not logged in - show sign in/get started */
             <>
-              <motion.a 
-                href="#get-started"
+              <motion.button 
+                onClick={onSignIn}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
@@ -243,9 +247,9 @@ export function Navbar() {
                 className="px-5 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
               >
                 Sign In
-              </motion.a>
-              <motion.a 
-                href="#get-started"
+              </motion.button>
+              <motion.button 
+                onClick={onSignIn}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.7 }}
@@ -263,7 +267,7 @@ export function Navbar() {
                   animate={{ x: ["-200%", "200%"] }}
                   transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                 />
-              </motion.a>
+              </motion.button>
             </>
           )}
         </div>
@@ -407,27 +411,25 @@ export function Navbar() {
                 ) : (
                   /* User not logged in */
                   <>
-                    <motion.a 
-                      href="#get-started"
+                    <motion.button 
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: 0.25 }}
                       className="py-3 text-foreground font-medium rounded-xl hover:bg-foreground/5 transition-colors text-center"
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={() => { setMobileMenuOpen(false); onSignIn?.(); }}
                     >
                       Sign In
-                    </motion.a>
-                    <motion.a 
-                      href="#get-started"
+                    </motion.button>
+                    <motion.button 
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: 0.3 }}
                       className="py-3 bg-foreground text-background rounded-full font-semibold shadow-md flex items-center justify-center gap-2"
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={() => { setMobileMenuOpen(false); onSignIn?.(); }}
                     >
                       Get Started
                       <ArrowRight size={16} />
-                    </motion.a>
+                    </motion.button>
                   </>
                 )}
               </div>
