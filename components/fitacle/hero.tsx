@@ -106,13 +106,8 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
   
   // Initialize supabase client on mount
   useEffect(() => {
-    try {
-      const client = createClient()
-      console.log("[v0] Hero - Supabase client created:", !!client)
-      setSupabaseClient(client)
-    } catch (err) {
-      console.log("[v0] Supabase client error:", err)
-    }
+    const client = createClient()
+    setSupabaseClient(client)
   }, [])
 
   // Handle Google Sign In
