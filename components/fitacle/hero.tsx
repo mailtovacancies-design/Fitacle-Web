@@ -91,17 +91,30 @@ export function Hero() {
   const [authError, setAuthError] = useState<string | null>(null)
   const [authSuccess, setAuthSuccess] = useState<string | null>(null)
   const [formData, setFormData] = useState({ fullName: "", email: "", password: "" })
+  const [supabaseClient, setSupabaseClient] = useState<ReturnType<typeof createClient> | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll()
   
-  const supabase = createClient()
+  // Initialize supabase client on mount
+  useEffect(() => {
+    try {
+      const client = createClient()
+      setSupabaseClient(client)
+    } catch {
+      console.log("[v0] Supabase client not available - auth disabled")
+    }
+  }, [])
 
   // Handle Google Sign In
   const handleGoogleSignIn = async () => {
+    if (!supabaseClient) {
+      setAuthError("Authentication is not configured yet")
+      return
+    }
     setIsSubmitting(true)
     setAuthError(null)
     
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? 
@@ -118,11 +131,15 @@ export function Hero() {
   // Handle Email Sign Up
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!supabaseClient) {
+      setAuthError("Authentication is not configured yet")
+      return
+    }
     setIsSubmitting(true)
     setAuthError(null)
     setAuthSuccess(null)
 
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabaseClient.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
@@ -147,10 +164,14 @@ export function Hero() {
   // Handle Email Sign In
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!supabaseClient) {
+      setAuthError("Authentication is not configured yet")
+      return
+    }
     setIsSubmitting(true)
     setAuthError(null)
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabaseClient.auth.signInWithPassword({
       email: formData.email,
       password: formData.password,
     })
