@@ -602,13 +602,13 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
             >
               <div className="p-8">
                 {/* Logo with animated effects */}
-                <div className="flex justify-center mb-8">
+                <div className="flex justify-center mb-6">
                   <motion.div 
                     className="relative"
                     animate={{ 
                       boxShadow: [
                         "0 0 0 0 rgba(16, 185, 129, 0)",
-                        "0 0 0 12px rgba(16, 185, 129, 0.1)",
+                        "0 0 0 6px rgba(16, 185, 129, 0.1)",
                         "0 0 0 0 rgba(16, 185, 129, 0)"
                       ]
                     }}
@@ -617,9 +617,9 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                     <Image
                       src="/images/fitacle-logo.png"
                       alt="FITACLE"
-                      width={80}
-                      height={80}
-                      className="rounded-2xl shadow-xl w-auto h-auto"
+                      width={48}
+                      height={48}
+                      className="rounded-xl shadow-lg w-auto h-auto"
                     />
                   </motion.div>
                 </div>
