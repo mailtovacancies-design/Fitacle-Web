@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from "framer-motion"
-import { Instagram, Play, ArrowDown, Sparkles, ChevronRight, Mail, ArrowRight, Heart, Dumbbell, Apple, Leaf, Flame, Timer, Zap, Target, TrendingUp, Footprints, Bike, Salad, Droplets, Activity, Trophy } from "lucide-react"
+import { Instagram, Play, ArrowDown, Sparkles, ChevronRight, Mail, ArrowRight, Heart, Dumbbell, Apple, Leaf, Flame, Timer, Zap, Target, TrendingUp, Footprints, Bike, Salad, Droplets, Activity, Trophy, Loader2, Check, AlertCircle } from "lucide-react"
 import Image from "next/image"
+import { createClient } from "@/lib/supabase/client"
 
 // Floating fitness element data - gym, running, boxing, diet icons with smooth floating
 const floatingElements = [
@@ -86,8 +87,90 @@ export function Hero() {
   const [isLoaded, setIsLoaded] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signup")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
+  const [authSuccess, setAuthSuccess] = useState<string | null>(null)
+  const [formData, setFormData] = useState({ fullName: "", email: "", password: "" })
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll()
+  
+  const supabase = createClient()
+
+  // Handle Google Sign In
+  const handleGoogleSignIn = async () => {
+    setIsSubmitting(true)
+    setAuthError(null)
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? 
+          `${window.location.origin}/auth/callback`,
+      },
+    })
+    
+    if (error) {
+      setAuthError(error.message)
+      setIsSubmitting(false)
+    }
+  }
+
+  // Handle Email Sign Up
+  const handleEmailSignUp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setAuthError(null)
+    setAuthSuccess(null)
+
+    const { error } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+      options: {
+        emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? 
+          `${window.location.origin}/auth/callback`,
+        data: {
+          full_name: formData.fullName,
+        },
+      },
+    })
+
+    setIsSubmitting(false)
+    
+    if (error) {
+      setAuthError(error.message)
+    } else {
+      setAuthSuccess("Check your email to confirm your account!")
+      setFormData({ fullName: "", email: "", password: "" })
+    }
+  }
+
+  // Handle Email Sign In
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setAuthError(null)
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    })
+
+    setIsSubmitting(false)
+    
+    if (error) {
+      setAuthError(error.message)
+    } else {
+      setShowAuthModal(false)
+      window.location.reload()
+    }
+  }
+
+  // Reset form when modal closes or mode changes
+  const resetAuthState = () => {
+    setAuthError(null)
+    setAuthSuccess(null)
+    setFormData({ fullName: "", email: "", password: "" })
+  }
   
   const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 }
   const y = useSpring(useTransform(scrollY, [0, 800], [0, 200]), springConfig)
@@ -474,7 +557,7 @@ export function Hero() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/20 backdrop-blur-sm"
-            onClick={() => setShowAuthModal(false)}
+            onClick={() => { setShowAuthModal(false); resetAuthState(); }}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -518,18 +601,48 @@ export function Hero() {
                   }
                 </p>
 
+                {/* Success Message */}
+                {authSuccess && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 p-4 mb-4 bg-green-500/10 border border-green-500/20 rounded-xl text-green-600"
+                  >
+                    <Check size={18} />
+                    <span className="text-sm">{authSuccess}</span>
+                  </motion.div>
+                )}
+
+                {/* Error Message */}
+                {authError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 p-4 mb-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-600"
+                  >
+                    <AlertCircle size={18} />
+                    <span className="text-sm">{authError}</span>
+                  </motion.div>
+                )}
+
                 {/* Google Button */}
                 <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-foreground text-background rounded-xl font-semibold mb-4 shadow-lg hover:shadow-xl transition-all"
+                  onClick={handleGoogleSignIn}
+                  disabled={isSubmitting}
+                  whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
+                  whileTap={{ scale: isSubmitting ? 1 : 0.99 }}
+                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-foreground text-background rounded-xl font-semibold mb-4 shadow-lg hover:shadow-xl transition-all disabled:opacity-70"
                 >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                  </svg>
+                  {isSubmitting ? (
+                    <Loader2 size={20} className="animate-spin" />
+                  ) : (
+                    <svg className="w-5 h-5" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                      <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                      <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                      <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                  )}
                   Continue with Google
                 </motion.button>
 
@@ -541,14 +654,17 @@ export function Hero() {
                 </div>
 
                 {/* Email Form */}
-                <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                <form className="space-y-4" onSubmit={authMode === "signup" ? handleEmailSignUp : handleEmailSignIn}>
                   {authMode === "signup" && (
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">Full Name</label>
                       <input
                         type="text"
                         placeholder="John Doe"
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                         className="w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                        required
                       />
                     </div>
                   )}
@@ -557,7 +673,10 @@ export function Hero() {
                     <input
                       type="email"
                       placeholder="you@example.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                      required
                     />
                   </div>
                   <div>
@@ -565,17 +684,29 @@ export function Hero() {
                     <input
                       type="password"
                       placeholder="••••••••"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       className="w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                      required
+                      minLength={6}
                     />
                   </div>
 
                   <motion.button
                     type="submit"
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    className="w-full py-4 bg-foreground text-background rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all mt-2"
+                    disabled={isSubmitting}
+                    whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
+                    whileTap={{ scale: isSubmitting ? 1 : 0.99 }}
+                    className="w-full py-4 bg-foreground text-background rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all mt-2 disabled:opacity-70 flex items-center justify-center gap-2"
                   >
-                    {authMode === "signup" ? "Create Account" : "Sign In"}
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 size={18} className="animate-spin" />
+                        {authMode === "signup" ? "Creating Account..." : "Signing In..."}
+                      </>
+                    ) : (
+                      authMode === "signup" ? "Create Account" : "Sign In"
+                    )}
                   </motion.button>
                 </form>
 
@@ -585,7 +716,7 @@ export function Hero() {
                     <>
                       Already have an account?{" "}
                       <button 
-                        onClick={() => setAuthMode("signin")}
+                        onClick={() => { setAuthMode("signin"); resetAuthState(); }}
                         className="text-foreground font-medium hover:underline"
                       >
                         Sign in
@@ -595,7 +726,7 @@ export function Hero() {
                     <>
                       Don&apos;t have an account?{" "}
                       <button 
-                        onClick={() => setAuthMode("signup")}
+                        onClick={() => { setAuthMode("signup"); resetAuthState(); }}
                         className="text-foreground font-medium hover:underline"
                       >
                         Sign up
