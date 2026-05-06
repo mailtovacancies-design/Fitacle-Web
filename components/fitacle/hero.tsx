@@ -119,11 +119,14 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     setIsSubmitting(true)
     setAuthError(null)
     
+    const redirectUrl = typeof window !== 'undefined' 
+      ? `${window.location.origin}/auth/callback` 
+      : 'https://fitacle.com/auth/callback'
+    
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? 
-          `${window.location.origin}/auth/callback`,
+        redirectTo: redirectUrl,
       },
     })
     
@@ -144,12 +147,15 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     setAuthError(null)
     setAuthSuccess(null)
 
+    const emailRedirectUrl = typeof window !== 'undefined' 
+      ? `${window.location.origin}/auth/callback` 
+      : 'https://fitacle.com/auth/callback'
+    
     const { error } = await supabaseClient.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
-        emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? 
-          `${window.location.origin}/auth/callback`,
+        emailRedirectTo: emailRedirectUrl,
         data: {
           full_name: formData.fullName,
         },
