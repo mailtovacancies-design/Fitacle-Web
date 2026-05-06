@@ -106,33 +106,27 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
   
   // Initialize supabase client on mount
   useEffect(() => {
-    console.log("[v0] Initializing supabase client...")
     const client = createClient()
-    console.log("[v0] Client created:", !!client)
     setSupabaseClient(client)
   }, [])
 
   // Handle Google Sign In
   const handleGoogleSignIn = async () => {
-    console.log("[v0] handleGoogleSignIn called")
-    console.log("[v0] supabaseClient:", supabaseClient)
     if (!supabaseClient) {
-      console.log("[v0] No supabase client - showing error")
       setAuthError("Authentication is not configured yet")
       return
     }
     setIsSubmitting(true)
     setAuthError(null)
     
-    console.log("[v0] Calling signInWithOAuth...")
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? 
+          `${window.location.origin}/auth/callback`,
       },
     })
     
-    console.log("[v0] OAuth result error:", error)
     if (error) {
       setAuthError(error.message)
       setIsSubmitting(false)
@@ -142,10 +136,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
   // Handle Email Sign Up
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("[v0] handleEmailSignUp called")
-    console.log("[v0] supabaseClient:", supabaseClient)
     if (!supabaseClient) {
-      console.log("[v0] No supabase client - showing error")
       setAuthError("Authentication is not configured yet")
       return
     }
@@ -153,19 +144,18 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     setAuthError(null)
     setAuthSuccess(null)
 
-    console.log("[v0] Calling signUp with email:", formData.email)
     const { error } = await supabaseClient.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? 
+          `${window.location.origin}/auth/callback`,
         data: {
           full_name: formData.fullName,
         },
       },
     })
 
-    console.log("[v0] SignUp result error:", error)
     setIsSubmitting(false)
     
     if (error) {
