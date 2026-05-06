@@ -108,9 +108,10 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
   useEffect(() => {
     try {
       const client = createClient()
+      console.log("[v0] Hero - Supabase client created:", !!client)
       setSupabaseClient(client)
-    } catch {
-      console.log("[v0] Supabase client not available - auth disabled")
+    } catch (err) {
+      console.log("[v0] Supabase client error:", err)
     }
   }, [])
 
