@@ -69,12 +69,15 @@ export function GymPartner() {
     schedule_preference: ""
   })
 
-  const supabase = createClient()
-
   // Check user and load partners
   useEffect(() => {
     const checkUserAndLoadData = async () => {
       try {
+        const supabase = createClient()
+        if (!supabase) {
+          setLoading(false)
+          return
+        }
         const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
         
@@ -120,6 +123,9 @@ export function GymPartner() {
 
   const loadPartners = async () => {
     try {
+      const supabase = createClient()
+      if (!supabase) return
+      
       let query = supabase
         .from("fitness_partners")
         .select("*")
@@ -154,6 +160,9 @@ export function GymPartner() {
   const handleSubmitProfile = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) return
+    
+    const supabase = createClient()
+    if (!supabase) return
     
     setSubmitting(true)
     setError(null)

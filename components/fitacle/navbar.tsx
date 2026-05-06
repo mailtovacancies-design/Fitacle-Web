@@ -30,6 +30,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
     const checkUser = async () => {
       try {
         const supabase = createClient()
+        if (!supabase) return
         const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
       } catch {
@@ -42,6 +43,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
   const handleSignOut = async () => {
     try {
       const supabase = createClient()
+      if (!supabase) return
       await supabase.auth.signOut()
       setUser(null)
       setShowUserMenu(false)
