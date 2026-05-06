@@ -598,17 +598,17 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-card rounded-3xl border border-border shadow-2xl overflow-hidden"
+              className="w-full max-w-sm bg-card rounded-2xl border border-border shadow-2xl overflow-hidden"
             >
-              <div className="p-8">
+              <div className="p-6">
                 {/* Logo with animated effects */}
-                <div className="flex justify-center mb-6">
+                <div className="flex justify-center mb-4">
                   <motion.div 
                     className="relative"
                     animate={{ 
                       boxShadow: [
                         "0 0 0 0 rgba(16, 185, 129, 0)",
-                        "0 0 0 6px rgba(16, 185, 129, 0.1)",
+                        "0 0 0 4px rgba(16, 185, 129, 0.1)",
                         "0 0 0 0 rgba(16, 185, 129, 0)"
                       ]
                     }}
@@ -617,17 +617,17 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                     <Image
                       src="/images/fitacle-logo.png"
                       alt="FITACLE"
-                      width={48}
-                      height={48}
-                      className="rounded-xl shadow-lg w-auto h-auto"
+                      width={36}
+                      height={36}
+                      className="rounded-lg shadow-md"
                     />
                   </motion.div>
                 </div>
 
-                <h2 className="text-2xl font-bold text-center text-foreground mb-2">
+                <h2 className="text-xl font-bold text-center text-foreground mb-1">
                   {authMode === "signup" ? "Create your account" : "Welcome back"}
                 </h2>
-                <p className="text-center text-muted-foreground mb-8">
+                <p className="text-center text-muted-foreground text-sm mb-5">
                   {authMode === "signup" 
                     ? "Start your fitness journey today" 
                     : "Sign in to continue your journey"
@@ -664,7 +664,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                   disabled={isSubmitting}
                   whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
                   whileTap={{ scale: isSubmitting ? 1 : 0.99 }}
-                  className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-foreground text-background rounded-xl font-semibold mb-4 shadow-lg hover:shadow-xl transition-all disabled:opacity-70"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-foreground text-background rounded-lg font-medium text-sm mb-3 shadow-md hover:shadow-lg transition-all disabled:opacity-70"
                 >
                   {isSubmitting ? (
                     <Loader2 size={20} className="animate-spin" />
@@ -680,46 +680,46 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                 </motion.button>
 
                 {/* Divider */}
-                <div className="flex items-center gap-4 my-6">
+                <div className="flex items-center gap-3 my-4">
                   <div className="flex-1 h-px bg-border" />
                   <span className="text-xs text-muted-foreground uppercase tracking-wider">or</span>
                   <div className="flex-1 h-px bg-border" />
                 </div>
 
                 {/* Email Form */}
-                <form className="space-y-4" onSubmit={authMode === "signup" ? handleEmailSignUp : handleEmailSignIn}>
+                <form className="space-y-3" onSubmit={authMode === "signup" ? handleEmailSignUp : handleEmailSignIn}>
                   {authMode === "signup" && (
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">Full Name</label>
+                      <label className="block text-xs font-medium text-foreground mb-1.5">Full Name</label>
                       <input
                         type="text"
                         placeholder="John Doe"
                         value={formData.fullName}
                         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        className="w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                        className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
                         required
                       />
                     </div>
                   )}
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Email</label>
+                    <label className="block text-xs font-medium text-foreground mb-1.5">Email</label>
                     <input
                       type="email"
                       placeholder="you@example.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                      className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Password</label>
+                    <label className="block text-xs font-medium text-foreground mb-1.5">Password</label>
                     <input
                       type="password"
                       placeholder="••••••••"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                      className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
                       required
                       minLength={6}
                     />
@@ -730,12 +730,12 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                     disabled={isSubmitting}
                     whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
                     whileTap={{ scale: isSubmitting ? 1 : 0.99 }}
-                    className="w-full py-4 bg-foreground text-background rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all mt-2 disabled:opacity-70 flex items-center justify-center gap-2"
+                    className="w-full py-2.5 bg-foreground text-background rounded-lg font-medium text-sm shadow-md hover:shadow-lg transition-all mt-1 disabled:opacity-70 flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 size={18} className="animate-spin" />
-                        {authMode === "signup" ? "Creating Account..." : "Signing In..."}
+                        <Loader2 size={16} className="animate-spin" />
+                        {authMode === "signup" ? "Creating..." : "Signing In..."}
                       </>
                     ) : (
                       authMode === "signup" ? "Create Account" : "Sign In"
@@ -744,7 +744,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                 </form>
 
                 {/* Toggle Auth Mode */}
-                <p className="text-center text-sm text-muted-foreground mt-6">
+                <p className="text-center text-xs text-muted-foreground mt-4">
                   {authMode === "signup" ? (
                     <>
                       Already have an account?{" "}
