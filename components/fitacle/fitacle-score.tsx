@@ -205,15 +205,15 @@ export function FitacleScore() {
         >
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background border border-border text-sm font-medium text-foreground mb-6">
             <Award size={16} className="text-primary" />
-            Measurable Progress
+            Performance Dashboard
           </span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
-            <span className="text-foreground">Your Fitness Is Not Random.</span>
+            <span className="text-foreground">Your Life,</span>
             <br />
-            <span className="text-muted-foreground">It&apos;s Measurable.</span>
+            <span className="text-muted-foreground">Quantified.</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto text-pretty mb-2">
-            Your Fitacle Score reflects consistency, recovery, energy, and discipline.
+            Not just fitness. Your entire lifestyle translated into data.
           </p>
           <p className="text-sm text-muted-foreground/70 max-w-lg mx-auto text-pretty">
             What gets measured gets improved. What gets ignored disappears.
