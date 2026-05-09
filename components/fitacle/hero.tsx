@@ -222,7 +222,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
 
   return (
     <>
-      <section ref={containerRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section id="begin" ref={containerRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Animated Background with Jaw-Dropping Effects */}
         <motion.div 
           style={{ y, scale }}

@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Users, Star, Heart, TrendingUp } from "lucide-react"
+import { Users, Star, Heart, TrendingUp, Instagram } from "lucide-react"
 
 const communityMembers = [
   { name: "Sarah M.", progress: "Lost 12kg in 90 days", badge: "Consistent" },
@@ -102,6 +102,41 @@ export function Community() {
               <span className="text-2xl sm:text-3xl font-bold text-foreground">92%</span>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground">Success Rate</p>
+          </div>
+        </motion.div>
+
+        {/* Join the Movement - Instagram Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="mt-20 text-center"
+        >
+          <div className="bg-gradient-to-r from-purple-500/5 via-pink-500/5 to-orange-500/5 border border-pink-500/10 rounded-3xl p-8 sm:p-12 max-w-2xl mx-auto">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 mb-6">
+              <Instagram size={28} className="text-white" />
+            </div>
+            
+            <h3 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
+              Join the Movement
+            </h3>
+            
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Follow @fitacle_official for daily fitness insights, transformation stories, and AI-powered health tips.
+            </p>
+            
+            <motion.a
+              href="https://instagram.com/fitacle_official"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-shadow"
+            >
+              <Instagram size={18} />
+              Follow on Instagram
+            </motion.a>
           </div>
         </motion.div>
       </div>
