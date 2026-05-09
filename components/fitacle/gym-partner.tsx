@@ -8,8 +8,10 @@ import type { User } from "@supabase/supabase-js"
 
 interface FitnessPartner {
   id: string
+  user_id: string
   full_name: string
   instagram_id: string
+  age: number | null
   country: string
   city: string
   gym_name: string
@@ -26,7 +28,7 @@ interface FitnessPartner {
 }
 
 const experienceLevels = ["Beginner", "Intermediate", "Advanced", "Pro"]
-const fitnessFocusOptions = ["Strength Training", "Bodybuilding", "CrossFit", "HIIT", "Running", "Powerlifting", "Calisthenics", "Yoga", "Swimming", "Other"]
+const fitnessFocusOptions = ["Strength Training", "Bodybuilding", "CrossFit", "HIIT", "Running", "Cycling", "Powerlifting", "Calisthenics", "Yoga", "Swimming", "Boxing", "Martial Arts", "Other"]
 const scheduleOptions = ["Morning", "Afternoon", "Evening", "Night", "Flexible"]
 const gymTimeOptions = ["5-7 AM", "7-9 AM", "9-11 AM", "11 AM-1 PM", "1-3 PM", "3-5 PM", "5-7 PM", "7-9 PM", "9-11 PM", "Flexible"]
 
@@ -47,6 +49,7 @@ export function GymPartner() {
   const [formData, setFormData] = useState({
     full_name: "",
     instagram_id: "",
+    age: "",
     country: "",
     city: "",
     gym_name: "",
@@ -171,6 +174,14 @@ export function GymPartner() {
       errors.instagram_id = "Please enter a valid Instagram username"
     }
     
+    // Age validation
+    if (formData.age) {
+      const age = parseInt(formData.age)
+      if (isNaN(age) || age <= 0 || age < 16 || age > 100) {
+        errors.age = "Enter realistic age (16-100)"
+      }
+    }
+    
     if (!formData.country.trim() || formData.country.trim().length < 2) {
       errors.country = "Please enter your country"
     }
@@ -231,6 +242,7 @@ export function GymPartner() {
         user_id: user.id,
         full_name: formData.full_name.trim(),
         instagram_id: formData.instagram_id.replace("@", "").trim(),
+        age: formData.age ? parseInt(formData.age) : null,
         country: formData.country.trim(),
         city: formData.city.trim(),
         gym_name: formData.gym_name.trim(),
@@ -306,16 +318,18 @@ export function GymPartner() {
         >
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent border border-border text-sm font-medium text-foreground mb-6">
             <Users size={16} className="text-primary" />
-            Gym Partner Network
+            Accountability Network
           </span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
-            <span className="text-foreground">Find Your Perfect</span>
+            <span className="text-foreground">Never Train</span>
             <br />
-            <span className="text-muted-foreground">Gym Partner</span>
+            <span className="text-muted-foreground">Alone Again.</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-            Connect with like-minded fitness enthusiasts in your area. 
-            Our AI matches you based on goals, schedule, and training style.
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-4 text-pretty">
+            Fitness is not a solo journey. Consistency is built through people.
+          </p>
+          <p className="text-sm text-muted-foreground/70 max-w-2xl mx-auto text-pretty">
+            Find accountability partners based on goals, schedule, energy level, training style, and location. You don&apos;t quit when someone is waiting for you.
           </p>
         </motion.div>
 
@@ -591,26 +605,7 @@ export function GymPartner() {
                           </span>
                         </div>
                         
-                        {/* Body stats if available - only show if values are non-zero */}
-                        {((partner.height_cm && partner.height_cm > 0) || (partner.weight_kg && partner.weight_kg > 0)) && (
-                          <div className="mt-2 flex items-center gap-3 text-[10px] sm:text-xs text-muted-foreground">
-                            {partner.height_cm && partner.height_cm > 0 && (
-                              <span className="flex items-center gap-1">
-                                <Ruler size={10} /> {partner.height_cm}cm
-                              </span>
-                            )}
-                            {partner.weight_kg && partner.weight_kg > 0 && (
-                              <span className="flex items-center gap-1">
-                                <Scale size={10} /> {partner.weight_kg}kg
-                              </span>
-                            )}
-                            {partner.body_fat_percentage && partner.body_fat_percentage > 0 && (
-                              <span className="flex items-center gap-1">
-                                <Activity size={10} /> {partner.body_fat_percentage}% BF
-                              </span>
-                            )}
-                          </div>
-                        )}
+                        {/* Note: Body stats (weight, height, age, body fat) are kept private and not displayed publicly */}
                       </div>
                       
                       <a 
@@ -705,6 +700,24 @@ export function GymPartner() {
                     </div>
                   </div>
 
+                  {/* Age */}
+                  <div>
+                    <label className="block text-xs font-medium text-foreground mb-1.5">Age</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={formData.age}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, '')
+                        setFormData({ ...formData, age: val })
+                        if (fieldErrors.age) setFieldErrors({ ...fieldErrors, age: "" })
+                      }}
+                      placeholder="28"
+                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.age ? "border-red-500" : "border-border"}`}
+                    />
+                    {fieldErrors.age && <p className="text-xs text-red-500 mt-1">{fieldErrors.age}</p>}
+                  </div>
+
                   {/* Location */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -716,7 +729,7 @@ export function GymPartner() {
                           setFormData({ ...formData, country: e.target.value })
                           if (fieldErrors.country) setFieldErrors({ ...fieldErrors, country: "" })
                         }}
-                        placeholder="India"
+                        placeholder="United Kingdom"
                         className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.country ? "border-red-500" : "border-border"}`}
                       />
                       {fieldErrors.country && <p className="text-xs text-red-500 mt-1">{fieldErrors.country}</p>}
@@ -730,7 +743,7 @@ export function GymPartner() {
                           setFormData({ ...formData, city: e.target.value })
                           if (fieldErrors.city) setFieldErrors({ ...fieldErrors, city: "" })
                         }}
-                        placeholder="Bangalore"
+                        placeholder="Telford"
                         className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.city ? "border-red-500" : "border-border"}`}
                       />
                       {fieldErrors.city && <p className="text-xs text-red-500 mt-1">{fieldErrors.city}</p>}
@@ -748,7 +761,7 @@ export function GymPartner() {
                           setFormData({ ...formData, gym_name: e.target.value })
                           if (fieldErrors.gym_name) setFieldErrors({ ...fieldErrors, gym_name: "" })
                         }}
-                        placeholder="Cult Fit"
+                        placeholder="The Gym Group"
                         className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.gym_name ? "border-red-500" : "border-border"}`}
                       />
                       {fieldErrors.gym_name && <p className="text-xs text-red-500 mt-1">{fieldErrors.gym_name}</p>}

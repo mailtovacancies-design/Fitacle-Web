@@ -350,7 +350,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-foreground/5 border border-foreground/10 text-xs sm:text-sm font-medium text-foreground">
               <Sparkles size={14} className="text-foreground sm:w-4 sm:h-4" />
-              AI-Powered Fitness Revolution
+              Identity-Driven Transformation
               <ChevronRight size={12} className="text-muted-foreground sm:w-3.5 sm:h-3.5" />
             </span>
           </motion.div>
@@ -365,7 +365,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                   animate={isLoaded ? { opacity: 1, y: 0, rotateX: 0 } : {}}
                   transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  Become The
+                  You Were Never
                 </motion.span>
               </div>
               <div className="overflow-hidden">
@@ -375,7 +375,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                   animate={isLoaded ? { opacity: 1, y: 0, rotateX: 0 } : {}}
                   transition={{ duration: 1, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  Version You
+                  Meant to Stay
                 </motion.span>
               </div>
               <div className="overflow-hidden">
@@ -385,23 +385,30 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                   animate={isLoaded ? { opacity: 1, y: 0, rotateX: 0 } : {}}
                   transition={{ duration: 1, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  Respect
+                  The Same.
                 </motion.span>
               </div>
             </h1>
           </div>
 
-          {/* Subtitle */}
+          {/* Emotional Subtitle */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.7 }}
-            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-14 px-2"
+            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-4 sm:mb-6 px-2"
           >
-            Real fitness. Intelligent transformation. Sustainable habits.
-            <span className="hidden sm:inline"><br /></span>
-            <span className="sm:hidden"> </span>
-            Your premium AI fitness companion for lasting change.
+            Real fitness is not motivation. It is identity built through daily repetition.
+          </motion.p>
+          
+          {/* Supporting Subtext */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.85 }}
+            className="text-sm sm:text-base text-muted-foreground/70 max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-14 px-2"
+          >
+            An AI-powered fitness system that understands your habits, adapts to your lifestyle, and builds the future version of you — step by step.
           </motion.p>
 
           {/* Auth Buttons */}
@@ -411,7 +418,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
             transition={{ duration: 0.8, delay: 0.9 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-10 px-2"
           >
-            {/* Google Sign Up */}
+            {/* Start Transformation CTA */}
             <MagneticButton 
               onClick={() => { setAuthMode("signup"); setShowAuthModal(true) }}
               className="w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3.5 sm:py-4 bg-foreground text-background rounded-full font-semibold text-sm sm:text-base shadow-lg"

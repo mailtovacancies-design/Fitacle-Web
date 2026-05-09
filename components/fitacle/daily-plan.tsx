@@ -782,13 +782,18 @@ export function DailyPlan() {
             className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-background border border-border text-[10px] sm:text-xs font-medium text-muted-foreground mb-4 sm:mb-6"
           >
             <Utensils size={12} className="sm:w-3.5 sm:h-3.5" />
-            Nutrition + Workout
+            Culturally Adapted Nutrition
           </motion.span>
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-semibold mb-2 sm:mb-4 text-foreground">
-            Your Custom Plan
+            Built for Your Culture.
+            <br />
+            <span className="text-muted-foreground">Adapted to Your Body.</span>
           </h2>
-          <p className="text-muted-foreground text-sm sm:text-lg max-w-2xl mx-auto px-2">
-            Tailored meals and workouts for your goal
+          <p className="text-muted-foreground text-sm sm:text-lg max-w-xl mx-auto px-2 mb-2">
+            Indian, Arabic, Asian, European meal systems mapped to your goals and metabolism.
+          </p>
+          <p className="text-muted-foreground/70 text-xs sm:text-sm max-w-lg mx-auto px-2">
+            Food should fit your life, not fight it.
           </p>
         </motion.div>
 

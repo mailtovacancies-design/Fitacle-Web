@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Navbar } from "@/components/fitacle/navbar"
 import { Hero } from "@/components/fitacle/hero"
+import { EmotionalHook } from "@/components/fitacle/emotional-hook"
 import { BodyAnalyzer } from "@/components/fitacle/body-analyzer"
 import { DailyPlan } from "@/components/fitacle/daily-plan"
 import { Transformation } from "@/components/fitacle/transformation"
@@ -17,6 +18,7 @@ export function MainContent() {
     <main className="relative overflow-hidden">
       <Navbar onSignIn={() => setShowAuthModal(true)} />
       <Hero showAuthModal={showAuthModal} setShowAuthModal={setShowAuthModal} />
+      <EmotionalHook />
       <BodyAnalyzer />
       <DailyPlan />
       <Transformation />
