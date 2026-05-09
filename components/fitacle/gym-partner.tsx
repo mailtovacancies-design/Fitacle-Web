@@ -23,6 +23,7 @@ interface FitnessPartner {
   experience_level: string
   schedule_preference: string
   is_visible: boolean
+  is_trainer: boolean
   avatar_initial: string | null
   created_at: string
 }
@@ -60,8 +61,10 @@ export function GymPartner() {
     fitness_focus: "Strength Training",
     experience_level: "Beginner",
     schedule_preference: "Flexible",
-    is_visible: true
+    is_visible: true,
+    is_trainer: false
   })
+  const [showTrainerNote, setShowTrainerNote] = useState(false)
   
   // Filter state
   const [filters, setFilters] = useState({
@@ -254,6 +257,7 @@ export function GymPartner() {
         experience_level: formData.experience_level,
         schedule_preference: formData.schedule_preference,
         is_visible: formData.is_visible,
+        is_trainer: formData.is_trainer,
         avatar_initial: formData.full_name.trim().charAt(0).toUpperCase()
       }
       
@@ -514,7 +518,8 @@ export function GymPartner() {
               </div>
             ) : (
               <div className="grid gap-3">
-                {partners.map((partner, index) => (
+                {/* Sort trainers to the top */}
+                {[...partners].sort((a, b) => (b.is_trainer ? 1 : 0) - (a.is_trainer ? 1 : 0)).map((partner, index) => (
                   <motion.div
                     key={partner.id}
                     initial={{ opacity: 0, y: 30, scale: 0.95 }}
@@ -522,22 +527,43 @@ export function GymPartner() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
                     whileHover={{ y: -4, scale: 1.01 }}
-                    className="relative bg-card rounded-xl sm:rounded-2xl border border-emerald-500/30 hover:border-emerald-500/50 bg-gradient-to-br from-emerald-500/5 to-transparent p-3 sm:p-4 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+                    className={`relative bg-card rounded-xl sm:rounded-2xl border p-3 sm:p-4 hover:shadow-lg transition-all duration-300 group cursor-pointer ${
+                      partner.is_trainer 
+                        ? "border-amber-500/50 hover:border-amber-500 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent" 
+                        : "border-emerald-500/30 hover:border-emerald-500/50 bg-gradient-to-br from-emerald-500/5 to-transparent"
+                    }`}
                   >
-                    {/* Verified badge */}
+                    {/* Trainer or Verified badge */}
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ delay: 0.3 + index * 0.1, type: "spring" }}
-                      className="absolute -top-2 -right-2 bg-emerald-500 text-white px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-lg"
+                      className={`absolute -top-2 -right-2 px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-lg ${
+                        partner.is_trainer 
+                          ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white" 
+                          : "bg-emerald-500 text-white"
+                      }`}
                     >
-                      <CheckCircle2 size={10} />
-                      Verified
+                      {partner.is_trainer ? (
+                        <>
+                          <Star size={10} />
+                          Fitacle Trainer
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 size={10} />
+                          Verified
+                        </>
+                      )}
                     </motion.div>
                     
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                       <div className="flex items-center gap-3 sm:block">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-base sm:text-lg font-bold transition-colors duration-300 shrink-0 bg-emerald-500/20 text-emerald-700 group-hover:bg-emerald-500 group-hover:text-white">
+                        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-base sm:text-lg font-bold transition-colors duration-300 shrink-0 ${
+                          partner.is_trainer 
+                            ? "bg-gradient-to-br from-amber-500/20 to-orange-500/20 text-amber-700 group-hover:from-amber-500 group-hover:to-orange-500 group-hover:text-white" 
+                            : "bg-emerald-500/20 text-emerald-700 group-hover:bg-emerald-500 group-hover:text-white"
+                        }`}>
                           {partner.avatar_initial || partner.full_name.charAt(0).toUpperCase()}
                         </div>
                         
@@ -873,6 +899,59 @@ export function GymPartner() {
                       ))}
                     </select>
                   </div>
+
+                  {/* Are you a trainer? */}
+                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-amber-500/5 to-orange-500/5 border border-amber-500/20 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <Star size={18} className={formData.is_trainer ? "text-amber-500" : "text-muted-foreground"} />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Are you a certified trainer?</p>
+                        <p className="text-xs text-muted-foreground">
+                          Get highlighted as a Fitacle Community Trainer
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newValue = !formData.is_trainer
+                        setFormData({ ...formData, is_trainer: newValue })
+                        if (newValue) setShowTrainerNote(true)
+                      }}
+                      className={`relative w-12 h-6 rounded-full transition-colors ${formData.is_trainer ? "bg-amber-500" : "bg-muted"}`}
+                    >
+                      <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.is_trainer ? "left-7" : "left-1"}`} />
+                    </button>
+                  </div>
+
+                  {/* Trainer Verification Note Popup */}
+                  <AnimatePresence>
+                    {showTrainerNote && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl"
+                      >
+                        <div className="flex items-start gap-3">
+                          <AlertCircle size={18} className="text-amber-500 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm font-medium text-foreground mb-1">Verification Notice</p>
+                            <p className="text-xs text-muted-foreground">
+                              Fitacle may contact you for verification. You may be asked to provide certification details at a later stage.
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setShowTrainerNote(false)}
+                              className="mt-2 text-xs text-amber-600 hover:text-amber-500 font-medium"
+                            >
+                              I understand
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   {/* Visibility Toggle */}
                   <div className="flex items-center justify-between p-4 bg-accent rounded-xl">
