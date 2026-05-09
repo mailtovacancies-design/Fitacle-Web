@@ -321,7 +321,7 @@ export function FitacleScore() {
         />
       </div>
       
-      <div className="mx-auto max-w-7xl px-6 relative">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 relative">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -368,7 +368,7 @@ export function FitacleScore() {
               transition={{ duration: 0.5 }}
               className="mb-12 overflow-hidden"
             >
-              <div className="bg-card rounded-3xl border border-border p-8 shadow-lg">
+              <div className="bg-card rounded-2xl sm:rounded-3xl border border-border p-4 sm:p-8 shadow-lg">
                 <div className="text-center mb-8">
                   <h3 className="text-2xl font-bold text-foreground mb-2">Calculate Your Daily Score</h3>
                   <p className="text-muted-foreground">Enter today&apos;s activity and get personalized AI advice</p>
@@ -377,7 +377,7 @@ export function FitacleScore() {
                 {/* Goal Mode Selection */}
                 <div className="mb-8">
                   <label className="block text-sm font-medium text-foreground mb-4 text-center">Select Your Goal</label>
-                  <div className="grid grid-cols-3 gap-3 max-w-lg mx-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-lg mx-auto">
                     {goalModes.map((mode) => (
                       <button
                         key={mode.id}
@@ -397,7 +397,7 @@ export function FitacleScore() {
                 </div>
                 
                 {/* Input Fields */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-8">
                   <div>
                     <label className="block text-xs font-medium text-muted-foreground mb-2">
                       <Flame size={12} className="inline mr-1" />
