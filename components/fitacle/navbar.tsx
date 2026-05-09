@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ArrowRight, LogOut } from "lucide-react"
+import { Menu, X, ArrowRight, LogOut, User, Camera, Edit2, Instagram, Mail } from "lucide-react"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
@@ -16,6 +16,9 @@ export function Navbar({ onSignIn }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [showProfileEdit, setShowProfileEdit] = useState(false)
+  const [profileData, setProfileData] = useState({ fullName: "", avatarUrl: "" })
+  const [isUpdating, setIsUpdating] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,12 +36,36 @@ export function Navbar({ onSignIn }: NavbarProps) {
         if (!supabase) return
         const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
+        if (user) {
+          setProfileData({
+            fullName: user.user_metadata?.full_name || "",
+            avatarUrl: user.user_metadata?.avatar_url || ""
+          })
+        }
       } catch {
         // Supabase not configured yet
       }
     }
     checkUser()
   }, [])
+
+  const handleProfileUpdate = async () => {
+    if (!user) return
+    setIsUpdating(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.updateUser({
+        data: { full_name: profileData.fullName, avatar_url: profileData.avatarUrl }
+      })
+      if (!error) {
+        setShowProfileEdit(false)
+        window.location.reload()
+      }
+    } catch {
+      // Handle error
+    }
+    setIsUpdating(false)
+  }
 
   const handleSignOut = async () => {
     try {
@@ -202,6 +229,13 @@ export function Navbar({ onSignIn }: NavbarProps) {
                       <p className="text-xs text-muted-foreground">Signed in as</p>
                       <p className="text-sm font-medium text-foreground truncate">{user.email}</p>
                     </div>
+                    <button
+                      onClick={() => { setShowProfileEdit(true); setShowUserMenu(false) }}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-accent transition-colors"
+                    >
+                      <Edit2 size={16} />
+                      Edit Profile
+                    </button>
                     <button
                       onClick={handleSignOut}
                       className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-500 hover:bg-red-500/10 transition-colors"
@@ -379,7 +413,17 @@ export function Navbar({ onSignIn }: NavbarProps) {
                     <motion.button 
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.3 }}
+                      transition={{ duration: 0.3, delay: 0.28 }}
+                      onClick={() => { setShowProfileEdit(true); setMobileMenuOpen(false) }}
+                      className="py-3 text-foreground font-medium rounded-xl hover:bg-accent transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Edit2 size={16} />
+                      Edit Profile
+                    </motion.button>
+                    <motion.button 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.32 }}
                       onClick={handleSignOut}
                       className="py-3 text-red-500 font-medium rounded-xl hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
                     >
@@ -413,6 +457,92 @@ export function Navbar({ onSignIn }: NavbarProps) {
                 )}
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Profile Edit Modal */}
+      <AnimatePresence>
+        {showProfileEdit && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+            onClick={() => setShowProfileEdit(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md bg-card border border-border rounded-2xl p-6 shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-foreground">Edit Profile</h3>
+                <button
+                  onClick={() => setShowProfileEdit(false)}
+                  className="p-2 hover:bg-accent rounded-lg transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Avatar */}
+              <div className="flex flex-col items-center mb-6">
+                <div className="relative">
+                  <div className="w-24 h-24 rounded-full bg-emerald-500 flex items-center justify-center text-white text-3xl font-bold">
+                    {profileData.fullName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                  </div>
+                  <button className="absolute bottom-0 right-0 p-2 bg-foreground text-background rounded-full hover:bg-foreground/90 transition-colors">
+                    <Camera size={16} />
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">Photo upload coming soon</p>
+              </div>
+
+              {/* Form */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Full Name</label>
+                  <input
+                    type="text"
+                    value={profileData.fullName}
+                    onChange={(e) => setProfileData({ ...profileData, fullName: e.target.value })}
+                    className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                    placeholder="Your name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={user?.email || ""}
+                    disabled
+                    className="w-full px-4 py-3 bg-accent border border-border rounded-xl text-muted-foreground cursor-not-allowed"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
+                </div>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleProfileUpdate}
+                  disabled={isUpdating}
+                  className="w-full py-3 bg-foreground text-background rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-foreground/90 transition-all disabled:opacity-50"
+                >
+                  {isUpdating ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </motion.button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

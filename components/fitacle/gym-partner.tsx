@@ -33,7 +33,11 @@ const fitnessFocusOptions = ["Strength Training", "Bodybuilding", "CrossFit", "H
 const scheduleOptions = ["Morning", "Afternoon", "Evening", "Night", "Flexible"]
 const gymTimeOptions = ["5-7 AM", "7-9 AM", "9-11 AM", "11 AM-1 PM", "1-3 PM", "3-5 PM", "5-7 PM", "7-9 PM", "9-11 PM", "Flexible"]
 
-export function GymPartner() {
+interface GymPartnerProps {
+  onSignUpClick?: () => void
+}
+
+export function GymPartner({ onSignUpClick }: GymPartnerProps) {
   const [user, setUser] = useState<User | null>(null)
   const [partners, setPartners] = useState<FitnessPartner[]>([])
   const [loading, setLoading] = useState(true)
@@ -401,10 +405,7 @@ export function GymPartner() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      const heroSection = document.getElementById("get-started")
-                      heroSection?.scrollIntoView({ behavior: "smooth" })
-                    }}
+                    onClick={onSignUpClick}
                     className="px-8 py-3 bg-foreground text-background rounded-xl font-semibold flex items-center justify-center gap-2 mx-auto hover:bg-foreground/90 transition-all"
                   >
                     <Sparkles size={18} />

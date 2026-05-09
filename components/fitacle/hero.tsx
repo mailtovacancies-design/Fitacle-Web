@@ -6,23 +6,23 @@ import { Instagram, Play, ArrowDown, Sparkles, ChevronRight, Mail, ArrowRight, H
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 
-// Floating fitness element data - gym, running, boxing, diet icons with smooth floating
+// Floating fitness element data - positioned around the main headline on mobile
 const floatingElements = [
-  // Left side - gym & running icons
-  { icon: Dumbbell, x: "4%", y: "18%", mobileX: "5%", mobileY: "12%", size: 22, mobileSize: 16, delay: 0, duration: 6 },
-  { icon: Footprints, x: "6%", y: "35%", mobileX: "8%", mobileY: "78%", size: 20, mobileSize: 14, delay: 2, duration: 7 },
-  { icon: Heart, x: "3%", y: "52%", mobileX: "88%", mobileY: "15%", size: 18, mobileSize: 14, delay: 4, duration: 5.5 },
-  { icon: Activity, x: "7%", y: "68%", mobileX: "92%", mobileY: "75%", size: 20, mobileSize: 16, delay: 1, duration: 6.5 },
-  // Right side - diet & fitness icons
-  { icon: Apple, x: "94%", y: "20%", mobileX: "90%", mobileY: "32%", size: 20, mobileSize: 14, delay: 1.5, duration: 6 },
-  { icon: Salad, x: "91%", y: "38%", mobileX: "6%", mobileY: "42%", size: 18, mobileSize: 14, delay: 3.5, duration: 7 },
-  { icon: Droplets, x: "95%", y: "55%", mobileX: "4%", mobileY: "58%", size: 18, mobileSize: 12, delay: 0.5, duration: 5.5 },
-  { icon: Flame, x: "92%", y: "72%", mobileX: "10%", mobileY: "88%", size: 22, mobileSize: 16, delay: 2.5, duration: 6.5 },
-  // Top & bottom scattered
-  { icon: Bike, x: "18%", y: "6%", mobileX: "22%", mobileY: "8%", size: 18, mobileSize: 12, delay: 3, duration: 6 },
-  { icon: Trophy, x: "82%", y: "8%", mobileX: "78%", mobileY: "6%", size: 18, mobileSize: 12, delay: 1.2, duration: 5.5 },
-  { icon: Target, x: "16%", y: "88%", mobileX: "18%", mobileY: "92%", size: 20, mobileSize: 14, delay: 2.8, duration: 7 },
-  { icon: TrendingUp, x: "84%", y: "86%", mobileX: "82%", mobileY: "90%", size: 20, mobileSize: 14, delay: 0.8, duration: 6 },
+  // Left side around "You Were Never Meant to Stay The Same"
+  { icon: Dumbbell, x: "4%", y: "18%", mobileX: "3%", mobileY: "22%", size: 22, mobileSize: 18, delay: 0, duration: 6 },
+  { icon: Footprints, x: "6%", y: "35%", mobileX: "5%", mobileY: "35%", size: 20, mobileSize: 16, delay: 2, duration: 7 },
+  { icon: Heart, x: "3%", y: "52%", mobileX: "8%", mobileY: "48%", size: 18, mobileSize: 16, delay: 4, duration: 5.5 },
+  { icon: Activity, x: "7%", y: "68%", mobileX: "4%", mobileY: "58%", size: 20, mobileSize: 16, delay: 1, duration: 6.5 },
+  // Right side around headline
+  { icon: Apple, x: "94%", y: "20%", mobileX: "92%", mobileY: "20%", size: 20, mobileSize: 16, delay: 1.5, duration: 6 },
+  { icon: Salad, x: "91%", y: "38%", mobileX: "94%", mobileY: "33%", size: 18, mobileSize: 16, delay: 3.5, duration: 7 },
+  { icon: Droplets, x: "95%", y: "55%", mobileX: "90%", mobileY: "45%", size: 18, mobileSize: 14, delay: 0.5, duration: 5.5 },
+  { icon: Flame, x: "92%", y: "72%", mobileX: "93%", mobileY: "56%", size: 22, mobileSize: 18, delay: 2.5, duration: 6.5 },
+  // Top scattered around headline
+  { icon: Bike, x: "18%", y: "6%", mobileX: "15%", mobileY: "15%", size: 18, mobileSize: 14, delay: 3, duration: 6 },
+  { icon: Trophy, x: "82%", y: "8%", mobileX: "85%", mobileY: "12%", size: 18, mobileSize: 14, delay: 1.2, duration: 5.5 },
+  { icon: Target, x: "16%", y: "88%", mobileX: "12%", mobileY: "65%", size: 20, mobileSize: 16, delay: 2.8, duration: 7 },
+  { icon: TrendingUp, x: "84%", y: "86%", mobileX: "88%", mobileY: "68%", size: 20, mobileSize: 16, delay: 0.8, duration: 6 },
 ]
 
 function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
@@ -167,7 +167,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     if (error) {
       setAuthError(error.message)
     } else {
-      setAuthSuccess("Check your email to confirm your account!")
+      setAuthSuccess("You didn't just sign up. You started proving something to yourself!")
       setFormData({ fullName: "", email: "", password: "" })
     }
   }
@@ -192,8 +192,11 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     if (error) {
       setAuthError(error.message)
     } else {
-      setShowAuthModal(false)
-      window.location.reload()
+      setAuthSuccess("Welcome back! Consistency is being built right now.")
+      setTimeout(() => {
+        setShowAuthModal(false)
+        window.location.reload()
+      }, 1500)
     }
   }
 
@@ -213,11 +216,11 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     setIsLoaded(true)
   }, [])
 
-  // Realistic stats for a new startup
+// Realistic stats for a growing fitness platform
   const stats = [
-    { value: 847, suffix: "+", label: "Beta Users" },
-    { value: 12, suffix: "K+", label: "Workouts Tracked" },
-    { value: 94, suffix: "%", label: "Satisfaction" },
+  { value: 2, suffix: "K+", label: "Active Users" },
+  { value: 45, suffix: "K+", label: "Workouts Tracked" },
+  { value: 96, suffix: "%", label: "Satisfaction" },
   ]
 
   return (

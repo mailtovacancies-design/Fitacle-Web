@@ -10,7 +10,7 @@ import { Transformation } from "@/components/fitacle/transformation"
 import { GymPartner } from "@/components/fitacle/gym-partner"
 import { FitacleScore } from "@/components/fitacle/fitacle-score"
 import { Community } from "@/components/fitacle/community"
-import { FinalCTA } from "@/components/fitacle/final-cta"
+
 import { Footer } from "@/components/fitacle/footer"
 
 export function MainContent() {
@@ -24,10 +24,9 @@ export function MainContent() {
       <BodyAnalyzer />
       <DailyPlan />
       <Transformation />
-      <GymPartner />
+      <GymPartner onSignUpClick={() => setShowAuthModal(true)} />
       <FitacleScore onSignUpClick={() => setShowAuthModal(true)} />
       <Community />
-      <FinalCTA onStartTransformation={() => setShowAuthModal(true)} />
       <Footer />
     </main>
   )

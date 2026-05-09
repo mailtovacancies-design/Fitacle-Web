@@ -616,137 +616,42 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
           )}
         </AnimatePresence>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Main Score */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            whileInView={{ opacity: 1, scale: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={{ y: -4 }}
-            className="lg:col-span-1 bg-card rounded-3xl border border-border p-8 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col items-center"
-          >
-            <MainScoreRing score={mainScore} />
-
-            <div className="mt-10 w-full space-y-4">
-              <div className="flex items-center justify-between py-3 border-b border-border">
-                <span className="text-muted-foreground text-sm">Weekly Average</span>
-                <span className="font-semibold text-foreground">76.6</span>
-              </div>
-              <div className="flex items-center justify-between py-3 border-b border-border">
-                <span className="text-muted-foreground text-sm">Best Score</span>
-                <span className="font-semibold text-emerald-600">85</span>
-              </div>
-              <div className="flex items-center justify-between py-3">
-                <span className="text-muted-foreground text-sm">Improvement</span>
-                <span className="font-semibold text-primary flex items-center gap-1">
-                  <TrendingUp size={14} />
-                  +12%
-                </span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Sub Scores */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="lg:col-span-2 bg-card rounded-3xl border border-border p-8 shadow-sm"
-          >
-            <h3 className="text-lg font-semibold text-foreground mb-8">Score Breakdown</h3>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {subScores.map((item, index) => (
-                <motion.div
-                  key={item.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: 0.2 + index * 0.1 }}
-                  className="flex flex-col items-center"
-                >
-                  <div 
-                    className="p-2.5 rounded-xl mb-4" 
-                    style={{ backgroundColor: `${item.color}15` }}
-                  >
-                    <item.icon size={20} style={{ color: item.color }} />
-                  </div>
-                  <ScoreRing score={item.score} label={item.label} color={item.color} delay={300 + index * 100} />
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Weekly Chart */}
-            <div className="mt-12 pt-8 border-t border-border">
-              <h4 className="text-sm font-medium text-foreground mb-6">Weekly Progress</h4>
-              <div className="flex items-end justify-between gap-3 h-32">
-                {weeklyProgress.map((day, index) => (
-                  <motion.div
-                    key={day.day}
-                    initial={{ height: 0 }}
-                    whileInView={{ height: `${day.score}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
-                    className="flex-1 flex flex-col items-center gap-2"
-                  >
-                    <div
-                      className="w-full rounded-lg bg-foreground"
-                      style={{ height: `${day.score}%`, minHeight: "20%" }}
-                    />
-                    <span className="text-xs text-muted-foreground font-medium">{day.day}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Achievements */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-3 bg-card rounded-3xl border border-border p-8 shadow-sm"
-          >
-            <div className="flex items-center gap-3 mb-8">
+        {/* Achievements - Coming Soon */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-card rounded-2xl border border-border p-6 shadow-sm opacity-60"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
               <Trophy className="w-5 h-5 text-amber-500" />
-              <h3 className="text-lg font-semibold text-foreground">Achievements</h3>
+              <h3 className="text-base font-semibold text-foreground">Achievements</h3>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {achievements.map((achievement, index) => (
-                <motion.div
-                  key={achievement.title}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-                  className={`p-6 rounded-2xl text-center transition-all duration-300 ${
-                    achievement.unlocked
-                      ? "bg-accent hover:bg-accent/80 border border-border"
-                      : "bg-accent/50 opacity-60"
-                  }`}
-                >
-                  <div
-                    className={`w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center ${
-                      achievement.unlocked ? "bg-foreground" : "bg-muted"
-                    }`}
-                  >
-                    <achievement.icon
-                      size={24}
-                      className={achievement.unlocked ? "text-background" : "text-muted-foreground"}
-                    />
-                  </div>
-                  <h4 className={`font-semibold ${achievement.unlocked ? "text-foreground" : "text-muted-foreground"}`}>
-                    {achievement.title}
-                  </h4>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {achievement.unlocked ? "Unlocked" : "Locked"}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
+            <span className="text-xs px-3 py-1 bg-amber-500/10 text-amber-600 rounded-full border border-amber-500/20">
+              Coming Soon
+            </span>
+          </div>
+          <div className="flex items-center gap-3 overflow-x-auto pb-2">
+            {achievements.slice(0, 4).map((achievement, index) => (
+              <motion.div
+                key={achievement.title}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
+                className="flex-shrink-0 p-4 rounded-xl text-center bg-accent/50 border border-border w-24"
+              >
+                <div className="w-10 h-10 rounded-xl mx-auto mb-2 flex items-center justify-center bg-muted">
+                  <achievement.icon size={18} className="text-muted-foreground" />
+                </div>
+                <h4 className="text-xs font-medium text-muted-foreground truncate">
+                  {achievement.title}
+                </h4>
+              </motion.div>
+            ))}
+          </div>
           </motion.div>
         </div>
       </div>
