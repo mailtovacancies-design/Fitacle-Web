@@ -217,25 +217,24 @@ export function BodyAnalyzer() {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="text-center mb-10 sm:mb-16"
         >
-          <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] sm:text-xs font-medium text-amber-600 mb-4 sm:mb-6">
-            <Sparkles size={12} className="sm:w-3.5 sm:h-3.5" />
-            Coming Soon - AI Coach
+          <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-secondary text-[10px] sm:text-xs font-medium text-muted-foreground mb-4 sm:mb-6">
+            <Calculator size={12} className="sm:w-3.5 sm:h-3.5" />
+            Behavioral + Biological Analysis
           </span>
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-semibold mb-3 sm:mb-4 text-foreground px-2">
-            Your AI Coach Learns
+            Your Body Has a Language.
             <br />
-            <span className="text-muted-foreground">You Daily.</span>
+            <span className="text-muted-foreground">We Decode It.</span>
           </h2>
           <p className="text-muted-foreground text-sm sm:text-lg max-w-2xl mx-auto px-2 mb-2">
-            An intelligent coach that adapts to your habits and provides personalized guidance.
+            Enter your metrics. Receive a full behavioural + biological analysis of your current state.
           </p>
-          <p className="text-amber-600/80 text-xs sm:text-sm max-w-xl mx-auto px-2 flex items-center justify-center gap-2">
-            <Lock size={12} />
-            This feature is currently in development
+          <p className="text-muted-foreground/70 text-xs sm:text-sm max-w-xl mx-auto px-2">
+            Your body is not your problem. Your patterns are.
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 opacity-50 pointer-events-none select-none">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {/* Input Form */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
