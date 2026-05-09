@@ -652,8 +652,7 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
               </motion.div>
             ))}
           </div>
-          </motion.div>
-        </div>
+        </motion.div>
       </div>
     </section>
   )
