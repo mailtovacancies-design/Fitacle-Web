@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Activity, Zap, Heart, Brain, TrendingUp, Award, Trophy } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Activity, Zap, Heart, Brain, TrendingUp, Award, Trophy, Droplets, Moon, Flame, Target, Sparkles, ArrowRight, Lock } from "lucide-react"
 
 interface ScoreRingProps {
   score: number
@@ -147,7 +147,122 @@ function MainScoreRing({ score }: { score: number }) {
   )
 }
 
+type GoalMode = "fat_loss" | "maintain" | "muscle_gain"
+
+interface DailyInput {
+  caloriesConsumed: string
+  caloriesBurned: string
+  waterLitres: string
+  sleepHours: string
+  steps: string
+}
+
+interface AIAdvice {
+  message: string
+  type: "warning" | "success" | "info"
+  icon: typeof Flame
+}
+
+function calculateScore(input: DailyInput, goalMode: GoalMode): { score: number; advice: AIAdvice[] } {
+  const calories = parseFloat(input.caloriesConsumed) || 0
+  const burned = parseFloat(input.caloriesBurned) || 0
+  const water = parseFloat(input.waterLitres) || 0
+  const sleep = parseFloat(input.sleepHours) || 0
+  const steps = parseFloat(input.steps) || 0
+  
+  let score = 50 // Base score
+  const advice: AIAdvice[] = []
+  
+  // Goal-based calorie analysis
+  const calorieBalance = calories - burned
+  
+  if (goalMode === "fat_loss") {
+    // For fat loss, need calorie deficit
+    if (calorieBalance < -300 && calorieBalance > -700) {
+      score += 15
+      advice.push({ message: "Perfect calorie deficit for fat loss!", type: "success", icon: Flame })
+    } else if (calorieBalance > 0) {
+      score -= 10
+      advice.push({ message: "You're in a calorie surplus. Burn more or eat less for fat loss.", type: "warning", icon: Flame })
+    } else if (calorieBalance < -700) {
+      score -= 5
+      advice.push({ message: "Deficit too aggressive. This may affect muscle retention.", type: "warning", icon: Flame })
+    }
+  } else if (goalMode === "muscle_gain") {
+    // For muscle gain, need calorie surplus
+    if (calorieBalance > 200 && calorieBalance < 500) {
+      score += 15
+      advice.push({ message: "Excellent surplus for lean muscle gains!", type: "success", icon: Flame })
+    } else if (calorieBalance < 0) {
+      score -= 10
+      advice.push({ message: "You need a calorie surplus to build muscle. Eat more!", type: "warning", icon: Flame })
+    } else if (calorieBalance > 500) {
+      score -= 5
+      advice.push({ message: "Surplus too high. May lead to excess fat gain.", type: "info", icon: Flame })
+    }
+  } else {
+    // Maintain
+    if (Math.abs(calorieBalance) < 200) {
+      score += 15
+      advice.push({ message: "Perfect balance for maintenance!", type: "success", icon: Flame })
+    } else {
+      advice.push({ message: "Try to balance calories consumed with calories burned.", type: "info", icon: Flame })
+    }
+  }
+  
+  // Water analysis (target: 3L minimum)
+  if (water >= 3) {
+    score += 15
+    advice.push({ message: "Excellent hydration! Keep it up.", type: "success", icon: Droplets })
+  } else if (water >= 2) {
+    score += 8
+    advice.push({ message: `Drink ${(3 - water).toFixed(1)}L more water today.`, type: "info", icon: Droplets })
+  } else {
+    score -= 5
+    advice.push({ message: "Seriously dehydrated! Drink at least 3L daily.", type: "warning", icon: Droplets })
+  }
+  
+  // Sleep analysis (target: 7-9 hours)
+  if (sleep >= 7 && sleep <= 9) {
+    score += 15
+    advice.push({ message: "Optimal sleep for recovery and performance!", type: "success", icon: Moon })
+  } else if (sleep >= 6) {
+    score += 5
+    advice.push({ message: "Need more sleep. Aim for 7-9 hours.", type: "info", icon: Moon })
+  } else if (sleep > 0) {
+    score -= 10
+    advice.push({ message: "Sleep deprivation detected. This affects recovery and fat loss.", type: "warning", icon: Moon })
+  }
+  
+  // Steps analysis (target: 10,000)
+  if (steps >= 10000) {
+    score += 10
+    advice.push({ message: "Amazing activity level! 10K+ steps achieved.", type: "success", icon: Activity })
+  } else if (steps >= 7000) {
+    score += 5
+    advice.push({ message: `Walk ${Math.round((10000 - steps) / 1000)}K more steps to hit your goal.`, type: "info", icon: Activity })
+  } else if (steps > 0) {
+    advice.push({ message: "Increase daily movement. Walking burns fat and improves health.", type: "info", icon: Activity })
+  }
+  
+  // Clamp score between 0 and 100
+  score = Math.max(0, Math.min(100, score))
+  
+  return { score, advice }
+}
+
 export function FitacleScore() {
+  const [showCalculator, setShowCalculator] = useState(false)
+  const [goalMode, setGoalMode] = useState<GoalMode>("fat_loss")
+  const [dailyInput, setDailyInput] = useState<DailyInput>({
+    caloriesConsumed: "",
+    caloriesBurned: "",
+    waterLitres: "",
+    sleepHours: "",
+    steps: ""
+  })
+  const [calculatedResult, setCalculatedResult] = useState<{ score: number; advice: AIAdvice[] } | null>(null)
+  
   const mainScore = 78
   const subScores = [
     { label: "Energy", score: 82, color: "#f59e0b", icon: Zap },
@@ -172,6 +287,17 @@ export function FitacleScore() {
     { title: "Early Bird", icon: TrendingUp, unlocked: true },
     { title: "Hydration King", icon: Heart, unlocked: false },
   ]
+  
+  const handleCalculate = () => {
+    const result = calculateScore(dailyInput, goalMode)
+    setCalculatedResult(result)
+  }
+
+  const goalModes = [
+    { id: "fat_loss" as GoalMode, label: "Fat Loss", icon: Flame, description: "Calorie deficit" },
+    { id: "maintain" as GoalMode, label: "Maintain", icon: Target, description: "Balance calories" },
+    { id: "muscle_gain" as GoalMode, label: "Muscle Gain", icon: Zap, description: "Calorie surplus" },
+  ]
 
   return (
     <section id="score" className="py-24 md:py-32 bg-accent/30 relative overflow-hidden">
@@ -195,7 +321,7 @@ export function FitacleScore() {
         />
       </div>
       
-      <div className="mx-auto max-w-7xl px-6 relative">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 relative">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -208,15 +334,250 @@ export function FitacleScore() {
             Performance Dashboard
           </span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
-            <span className="text-foreground">Your Fitacle</span>
+            <span className="text-foreground">Your Life,</span>
             <br />
-            <span className="text-muted-foreground">Score</span>
+            <span className="text-muted-foreground">Quantified.</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-            A comprehensive measure of your fitness journey based on consistency, 
-            energy levels, and overall health metrics.
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto text-pretty mb-2">
+            Not just fitness. Your entire lifestyle translated into data.
           </p>
+          <p className="text-sm text-muted-foreground/70 max-w-lg mx-auto text-pretty mb-8">
+            What gets measured gets improved. What gets ignored disappears.
+          </p>
+          
+          {/* Find Your Fitacle Score CTA */}
+          <motion.button
+            onClick={() => setShowCalculator(!showCalculator)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-foreground text-background rounded-full font-semibold text-base shadow-lg hover:shadow-xl transition-all"
+          >
+            <Sparkles size={18} />
+            Find Your Fitacle Score
+            <ArrowRight size={18} />
+          </motion.button>
         </motion.div>
+        
+        {/* Score Calculator Modal/Section */}
+        <AnimatePresence>
+          {showCalculator && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-12 overflow-hidden"
+            >
+              <div className="bg-card rounded-2xl sm:rounded-3xl border border-border p-4 sm:p-8 shadow-lg">
+                <div className="text-center mb-8">
+                  <h3 className="text-2xl font-bold text-foreground mb-2">Calculate Your Daily Score</h3>
+                  <p className="text-muted-foreground">Enter today&apos;s activity and get personalized AI advice</p>
+                </div>
+                
+                {/* Goal Mode Selection */}
+                <div className="mb-8">
+                  <label className="block text-sm font-medium text-foreground mb-4 text-center">Select Your Goal</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-lg mx-auto">
+                    {goalModes.map((mode) => (
+                      <button
+                        key={mode.id}
+                        onClick={() => setGoalMode(mode.id)}
+                        className={`p-4 rounded-xl border-2 transition-all ${
+                          goalMode === mode.id
+                            ? "border-foreground bg-foreground/5"
+                            : "border-border hover:border-foreground/30"
+                        }`}
+                      >
+                        <mode.icon size={20} className={`mx-auto mb-2 ${goalMode === mode.id ? "text-foreground" : "text-muted-foreground"}`} />
+                        <p className={`text-sm font-medium ${goalMode === mode.id ? "text-foreground" : "text-muted-foreground"}`}>{mode.label}</p>
+                        <p className="text-xs text-muted-foreground/70 mt-1">{mode.description}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Input Fields */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-8">
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-2">
+                      <Flame size={12} className="inline mr-1" />
+                      Calories Consumed
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={dailyInput.caloriesConsumed}
+                      onChange={(e) => setDailyInput({ ...dailyInput, caloriesConsumed: e.target.value.replace(/[^0-9]/g, '') })}
+                      placeholder="2000"
+                      className="w-full px-4 py-3 bg-input border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-2">
+                      <Activity size={12} className="inline mr-1" />
+                      Calories Burned
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={dailyInput.caloriesBurned}
+                      onChange={(e) => setDailyInput({ ...dailyInput, caloriesBurned: e.target.value.replace(/[^0-9]/g, '') })}
+                      placeholder="500"
+                      className="w-full px-4 py-3 bg-input border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-2">
+                      <Droplets size={12} className="inline mr-1" />
+                      Water (Litres)
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={dailyInput.waterLitres}
+                      onChange={(e) => setDailyInput({ ...dailyInput, waterLitres: e.target.value.replace(/[^0-9.]/g, '') })}
+                      placeholder="3"
+                      className="w-full px-4 py-3 bg-input border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-2">
+                      <Moon size={12} className="inline mr-1" />
+                      Sleep (Hours)
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={dailyInput.sleepHours}
+                      onChange={(e) => setDailyInput({ ...dailyInput, sleepHours: e.target.value.replace(/[^0-9.]/g, '') })}
+                      placeholder="8"
+                      className="w-full px-4 py-3 bg-input border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-2">
+                      <TrendingUp size={12} className="inline mr-1" />
+                      Steps
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={dailyInput.steps}
+                      onChange={(e) => setDailyInput({ ...dailyInput, steps: e.target.value.replace(/[^0-9]/g, '') })}
+                      placeholder="10000"
+                      className="w-full px-4 py-3 bg-input border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                    />
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <motion.button
+                    onClick={handleCalculate}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="inline-flex items-center gap-2 px-8 py-3 bg-foreground text-background rounded-full font-semibold text-sm"
+                  >
+                    <Sparkles size={16} />
+                    Calculate My Score
+                  </motion.button>
+                </div>
+                
+                {/* Results */}
+                <AnimatePresence>
+                  {calculatedResult && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      className="mt-8 pt-8 border-t border-border"
+                    >
+                      <div className="flex flex-col md:flex-row items-center gap-8">
+                        {/* Score Display */}
+                        <div className="flex-shrink-0">
+                          <div className="relative w-32 h-32">
+                            <svg width={128} height={128} className="transform -rotate-90">
+                              <circle
+                                cx={64}
+                                cy={64}
+                                r={56}
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={8}
+                                className="text-accent"
+                              />
+                              <motion.circle
+                                cx={64}
+                                cy={64}
+                                r={56}
+                                fill="none"
+                                stroke={calculatedResult.score >= 70 ? "#10b981" : calculatedResult.score >= 50 ? "#f59e0b" : "#ef4444"}
+                                strokeWidth={8}
+                                strokeLinecap="round"
+                                strokeDasharray={351.86}
+                                initial={{ strokeDashoffset: 351.86 }}
+                                animate={{ strokeDashoffset: 351.86 - (calculatedResult.score / 100) * 351.86 }}
+                                transition={{ duration: 1.5 }}
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                              <span className="text-3xl font-bold text-foreground">{calculatedResult.score}</span>
+                              <span className="text-xs text-muted-foreground">Today</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* AI Advice */}
+                        <div className="flex-1 space-y-3">
+                          <h4 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                            <Brain size={18} className="text-primary" />
+                            AI Recommendations
+                          </h4>
+                          {calculatedResult.advice.map((item, index) => (
+                            <motion.div
+                              key={index}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              className={`flex items-start gap-3 p-3 rounded-xl ${
+                                item.type === "success" ? "bg-emerald-500/10 border border-emerald-500/20" :
+                                item.type === "warning" ? "bg-amber-500/10 border border-amber-500/20" :
+                                "bg-blue-500/10 border border-blue-500/20"
+                              }`}
+                            >
+                              <item.icon size={16} className={
+                                item.type === "success" ? "text-emerald-500" :
+                                item.type === "warning" ? "text-amber-500" :
+                                "text-blue-500"
+                              } />
+                              <p className="text-sm text-foreground">{item.message}</p>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Sign Up CTA */}
+                      <div className="mt-8 p-6 bg-gradient-to-r from-foreground/5 to-foreground/10 rounded-2xl border border-border text-center">
+                        <Lock size={24} className="mx-auto mb-3 text-muted-foreground" />
+                        <h4 className="text-lg font-semibold text-foreground mb-2">Track Your Progress Daily</h4>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Sign up to save your scores, track trends, and get personalized AI coaching based on your history.
+                        </p>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="inline-flex items-center gap-2 px-6 py-3 bg-foreground text-background rounded-full font-semibold text-sm"
+                        >
+                          Sign Up to Track Your Score
+                          <ArrowRight size={16} />
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Main Score */}

@@ -219,13 +219,18 @@ export function BodyAnalyzer() {
         >
           <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-secondary text-[10px] sm:text-xs font-medium text-muted-foreground mb-4 sm:mb-6">
             <Calculator size={12} className="sm:w-3.5 sm:h-3.5" />
-            Premium Body Analysis
+            Behavioral + Biological Analysis
           </span>
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-semibold mb-3 sm:mb-4 text-foreground px-2">
-            Unlock Your Body Intelligence
+            Your Body Has a Language.
+            <br />
+            <span className="text-muted-foreground">We Decode It.</span>
           </h2>
-          <p className="text-muted-foreground text-sm sm:text-lg max-w-2xl mx-auto px-2">
-            Get personalized insights powered by advanced algorithms
+          <p className="text-muted-foreground text-sm sm:text-lg max-w-2xl mx-auto px-2 mb-2">
+            Enter your metrics. Receive a full behavioural + biological analysis of your current state.
+          </p>
+          <p className="text-muted-foreground/70 text-xs sm:text-sm max-w-xl mx-auto px-2">
+            Your body is not your problem. Your patterns are.
           </p>
         </motion.div>
 

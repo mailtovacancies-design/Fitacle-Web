@@ -10,38 +10,38 @@ import {
 const milestones = [
   {
     day: 30,
-    title: "Foundation Phase",
-    description: "Build habits, increase energy, initial body composition changes",
+    title: "Awareness",
+    description: "You begin to see your patterns. The unconscious becomes conscious. Habits are identified.",
     metrics: [
-      { label: "Weight Change", value: "-2 to -4 kg" },
-      { label: "Energy Boost", value: "+40%" },
-      { label: "Sleep Quality", value: "+25%" },
+      { label: "Pattern Recognition", value: "Active" },
+      { label: "Energy Awareness", value: "+40%" },
+      { label: "Sleep Tracking", value: "Initiated" },
     ],
-    achievements: ["Consistent routine established", "Cravings reduced", "Mood improvement"],
+    achievements: ["Patterns identified", "Daily tracking established", "Baseline set"],
     color: "from-blue-500 to-cyan-500",
   },
   {
     day: 60,
-    title: "Transformation Phase",
-    description: "Visible changes, strength gains, metabolism optimization",
+    title: "Adaptation",
+    description: "Your body and mind begin to respond. Old patterns break. New identity forms.",
     metrics: [
-      { label: "Weight Change", value: "-5 to -8 kg" },
-      { label: "Muscle Definition", value: "Visible" },
-      { label: "Strength Gain", value: "+30%" },
+      { label: "Habit Consistency", value: "75%+" },
+      { label: "Behavioral Change", value: "Visible" },
+      { label: "Identity Shift", value: "Beginning" },
     ],
-    achievements: ["Clothes fit differently", "Others notice changes", "Increased confidence"],
+    achievements: ["Old habits replaced", "New routines embedded", "Confidence building"],
     color: "from-purple-500 to-pink-500",
   },
   {
     day: 90,
-    title: "Elite Phase",
-    description: "Peak performance, sustainable lifestyle, total transformation",
+    title: "Transformation",
+    description: "A different version of you emerges. This is no longer effort. This is who you are.",
     metrics: [
-      { label: "Weight Change", value: "-8 to -12 kg" },
-      { label: "Body Fat", value: "-5 to -8%" },
-      { label: "Fitness Level", value: "Advanced" },
+      { label: "Identity Shift", value: "Complete" },
+      { label: "Discipline", value: "Automatic" },
+      { label: "Lifestyle", value: "Embedded" },
     ],
-    achievements: ["Complete transformation", "New lifestyle embedded", "Ready for new goals"],
+    achievements: ["Irreversible change", "New identity locked", "Ready for next level"],
     color: "from-orange-500 to-red-500",
   },
 ]
@@ -92,7 +92,7 @@ export function Transformation() {
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 8, repeat: Infinity, ease: "linear" }}>
               <TrendingUp size={14} />
             </motion.div>
-            Your Journey Timeline
+            Behavioural Change System
           </motion.span>
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
@@ -107,7 +107,7 @@ export function Transformation() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              90 Days to a
+              90 Days to a Different
             </motion.span>
             <motion.span 
               initial={{ opacity: 0, scale: 0.9 }}
@@ -116,7 +116,7 @@ export function Transformation() {
               transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
               className="block bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent"
             >
-              New You
+              Version of You.
             </motion.span>
           </motion.h2>
           <motion.p 
@@ -124,9 +124,18 @@ export function Transformation() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-muted-foreground text-lg max-w-2xl mx-auto"
+            className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto mb-2"
           >
-            See what&apos;s possible with dedication and the right plan
+            Not motivation. Not theory. Just structured behavioural change.
+          </motion.p>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="text-muted-foreground/70 text-xs sm:text-sm max-w-lg mx-auto"
+          >
+            Small changes repeated daily create irreversible identity shifts.
           </motion.p>
         </motion.div>
 

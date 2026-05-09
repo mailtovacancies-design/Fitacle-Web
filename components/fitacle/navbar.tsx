@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, Mail, Instagram, ArrowRight, User, LogOut } from "lucide-react"
+import { Menu, X, ArrowRight, LogOut } from "lucide-react"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
@@ -54,9 +54,11 @@ export function Navbar({ onSignIn }: NavbarProps) {
   }
 
   const navLinks = [
-    { href: "#analyzer", label: "Analyze" },
-    { href: "#plan", label: "Plans" },
-    { href: "#score", label: "Score" },
+    { href: "#begin", label: "Begin" },
+    { href: "#analyzer", label: "Body Intelligence" },
+    { href: "#plan", label: "AI Plan" },
+    { href: "#transformation", label: "Progress" },
+    { href: "#partner", label: "Never Train Alone" },
   ]
 
   return (
@@ -162,32 +164,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
             </motion.a>
           ))}
           
-          {/* Instagram Link - Highlighted */}
-          <motion.a
-            href="https://instagram.com/fitacle_official"
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            whileHover={{ scale: 1.05 }}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 rounded-full border border-pink-500/20 hover:border-pink-500/40 transition-all duration-300 group"
-          >
-            <Instagram size={16} className="text-pink-500" />
-            <span className="text-foreground">@fitacle_official</span>
-          </motion.a>
           
-          {/* Contact Email */}
-          <motion.a
-            href="mailto:contact@fitacle.com"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
-          >
-            <Mail size={14} />
-            Contact
-          </motion.a>
         </div>
 
         <div className="hidden md:flex items-center gap-3">
@@ -260,7 +237,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
                 className="group relative flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-foreground text-background rounded-full hover:bg-foreground/90 transition-all duration-300 shadow-md hover:shadow-lg overflow-hidden"
               >
                 <span className="relative z-10 flex items-center gap-2">
-                  Get Started
+                  Start Transformation
                   <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
                 </span>
                 {/* Shimmer effect */}
