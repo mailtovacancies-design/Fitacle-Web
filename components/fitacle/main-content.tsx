@@ -25,7 +25,7 @@ export function MainContent() {
       <DailyPlan />
       <Transformation />
       <GymPartner />
-      <FitacleScore />
+      <FitacleScore onSignUpClick={() => setShowAuthModal(true)} />
       <Community />
       <FinalCTA onStartTransformation={() => setShowAuthModal(true)} />
       <Footer />

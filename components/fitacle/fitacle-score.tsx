@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Activity, Zap, Heart, Brain, TrendingUp, Award, Trophy, Droplets, Moon, Flame, Target, Sparkles, ArrowRight, Lock } from "lucide-react"
+import { Activity, Zap, Heart, Brain, TrendingUp, Award, Trophy, Droplets, Moon, Flame, Target, Sparkles, ArrowRight, Lock, LogIn } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
 
 interface ScoreRingProps {
   score: number
@@ -251,7 +252,11 @@ function calculateScore(input: DailyInput, goalMode: GoalMode): { score: number;
   return { score, advice }
 }
 
-export function FitacleScore() {
+interface FitacleScoreProps {
+  onSignUpClick?: () => void
+}
+
+export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
   const [showCalculator, setShowCalculator] = useState(false)
   const [goalMode, setGoalMode] = useState<GoalMode>("fat_loss")
   const [dailyInput, setDailyInput] = useState<DailyInput>({
@@ -262,6 +267,18 @@ export function FitacleScore() {
     steps: ""
   })
   const [calculatedResult, setCalculatedResult] = useState<{ score: number; advice: AIAdvice[] } | null>(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  
+  useEffect(() => {
+    const checkAuth = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      setIsLoggedIn(!!user)
+      setIsLoading(false)
+    }
+    checkAuth()
+  }, [])
   
   const mainScore = 78
   const subScores = [
@@ -346,21 +363,41 @@ export function FitacleScore() {
           </p>
           
           {/* Find Your Fitacle Score CTA */}
-          <motion.button
-            onClick={() => setShowCalculator(!showCalculator)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-foreground text-background rounded-full font-semibold text-base shadow-lg hover:shadow-xl transition-all"
-          >
-            <Sparkles size={18} />
-            Find Your Fitacle Score
-            <ArrowRight size={18} />
-          </motion.button>
+          {isLoading ? (
+            <div className="h-14 w-64 mx-auto bg-accent animate-pulse rounded-full" />
+          ) : isLoggedIn ? (
+            <motion.button
+              onClick={() => setShowCalculator(!showCalculator)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex items-center gap-2 px-8 py-4 bg-foreground text-background rounded-full font-semibold text-base shadow-lg hover:shadow-xl transition-all"
+            >
+              <Sparkles size={18} />
+              Find Your Fitacle Score
+              <ArrowRight size={18} />
+            </motion.button>
+          ) : (
+            <div className="space-y-4">
+              <motion.button
+                onClick={onSignUpClick}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-foreground text-background rounded-full font-semibold text-base shadow-lg hover:shadow-xl transition-all"
+              >
+                <LogIn size={18} />
+                Sign Up to Find Your Fitacle Score
+                <ArrowRight size={18} />
+              </motion.button>
+              <p className="text-sm text-muted-foreground">
+                Get personalized AI recommendations based on your daily activity
+              </p>
+            </div>
+          )}
         </motion.div>
         
-        {/* Score Calculator Modal/Section */}
+        {/* Score Calculator Modal/Section - Only for logged in users */}
         <AnimatePresence>
-          {showCalculator && (
+          {showCalculator && isLoggedIn && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
