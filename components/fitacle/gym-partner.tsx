@@ -41,6 +41,7 @@ export function GymPartner() {
   const [showFilters, setShowFilters] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   
   // Form state
   const [formData, setFormData] = useState({
@@ -157,24 +158,82 @@ export function GymPartner() {
     }
   }
 
+  // Validation function
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {}
+    
+    // Required fields validation
+    if (!formData.full_name.trim() || formData.full_name.trim().length < 2) {
+      errors.full_name = "Please enter your full name (min 2 characters)"
+    }
+    
+    if (!formData.instagram_id.trim() || formData.instagram_id.trim().length < 2) {
+      errors.instagram_id = "Please enter a valid Instagram username"
+    }
+    
+    if (!formData.country.trim() || formData.country.trim().length < 2) {
+      errors.country = "Please enter your country"
+    }
+    
+    if (!formData.city.trim() || formData.city.trim().length < 2) {
+      errors.city = "Please enter your city"
+    }
+    
+    if (!formData.gym_name.trim() || formData.gym_name.trim().length < 2) {
+      errors.gym_name = "Please enter your gym name"
+    }
+    
+    // Numeric validation - no zeros, realistic ranges
+    if (formData.weight_kg) {
+      const weight = parseFloat(formData.weight_kg)
+      if (isNaN(weight) || weight <= 0 || weight < 30 || weight > 300) {
+        errors.weight_kg = "Enter realistic weight (30-300 kg)"
+      }
+    }
+    
+    if (formData.height_cm) {
+      const height = parseFloat(formData.height_cm)
+      if (isNaN(height) || height <= 0 || height < 100 || height > 250) {
+        errors.height_cm = "Enter realistic height (100-250 cm)"
+      }
+    }
+    
+    if (formData.body_fat_percentage) {
+      const bodyFat = parseFloat(formData.body_fat_percentage)
+      if (isNaN(bodyFat) || bodyFat <= 0 || bodyFat < 3 || bodyFat > 60) {
+        errors.body_fat_percentage = "Enter realistic body fat (3-60%)"
+      }
+    }
+    
+    setFieldErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
   const handleSubmitProfile = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) return
+    
+    // Validate form
+    if (!validateForm()) {
+      setError("Please fix the errors below")
+      return
+    }
     
     const supabase = createClient()
     if (!supabase) return
     
     setSubmitting(true)
     setError(null)
+    setFieldErrors({})
     
     try {
       const profileData = {
         user_id: user.id,
-        full_name: formData.full_name,
-        instagram_id: formData.instagram_id.replace("@", ""),
-        country: formData.country,
-        city: formData.city,
-        gym_name: formData.gym_name,
+        full_name: formData.full_name.trim(),
+        instagram_id: formData.instagram_id.replace("@", "").trim(),
+        country: formData.country.trim(),
+        city: formData.city.trim(),
+        gym_name: formData.gym_name.trim(),
         usual_gym_time: formData.usual_gym_time,
         weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,
         height_cm: formData.height_cm ? parseFloat(formData.height_cm) : null,
@@ -183,7 +242,7 @@ export function GymPartner() {
         experience_level: formData.experience_level,
         schedule_preference: formData.schedule_preference,
         is_visible: formData.is_visible,
-        avatar_initial: formData.full_name.charAt(0).toUpperCase()
+        avatar_initial: formData.full_name.trim().charAt(0).toUpperCase()
       }
       
       if (hasProfile) {
@@ -532,20 +591,20 @@ export function GymPartner() {
                           </span>
                         </div>
                         
-                        {/* Body stats if available */}
-                        {(partner.weight_kg || partner.height_cm) && (
+                        {/* Body stats if available - only show if values are non-zero */}
+                        {((partner.height_cm && partner.height_cm > 0) || (partner.weight_kg && partner.weight_kg > 0)) && (
                           <div className="mt-2 flex items-center gap-3 text-[10px] sm:text-xs text-muted-foreground">
-                            {partner.height_cm && (
+                            {partner.height_cm && partner.height_cm > 0 && (
                               <span className="flex items-center gap-1">
                                 <Ruler size={10} /> {partner.height_cm}cm
                               </span>
                             )}
-                            {partner.weight_kg && (
+                            {partner.weight_kg && partner.weight_kg > 0 && (
                               <span className="flex items-center gap-1">
                                 <Scale size={10} /> {partner.weight_kg}kg
                               </span>
                             )}
-                            {partner.body_fat_percentage && (
+                            {partner.body_fat_percentage && partner.body_fat_percentage > 0 && (
                               <span className="flex items-center gap-1">
                                 <Activity size={10} /> {partner.body_fat_percentage}% BF
                               </span>
@@ -618,11 +677,14 @@ export function GymPartner() {
                       <input
                         type="text"
                         value={formData.full_name}
-                        onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                        placeholder="John Doe"
-                        className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
-                        required
+                        onChange={(e) => {
+                          setFormData({ ...formData, full_name: e.target.value })
+                          if (fieldErrors.full_name) setFieldErrors({ ...fieldErrors, full_name: "" })
+                        }}
+                        placeholder="Nithin Francis"
+                        className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.full_name ? "border-red-500" : "border-border"}`}
                       />
+                      {fieldErrors.full_name && <p className="text-xs text-red-500 mt-1">{fieldErrors.full_name}</p>}
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-foreground mb-1.5">Instagram *</label>
@@ -631,12 +693,15 @@ export function GymPartner() {
                         <input
                           type="text"
                           value={formData.instagram_id}
-                          onChange={(e) => setFormData({ ...formData, instagram_id: e.target.value })}
-                          placeholder="username"
-                          className="w-full pl-9 pr-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
-                          required
+                          onChange={(e) => {
+                            setFormData({ ...formData, instagram_id: e.target.value })
+                            if (fieldErrors.instagram_id) setFieldErrors({ ...fieldErrors, instagram_id: "" })
+                          }}
+                          placeholder="_its_nithin_"
+                          className={`w-full pl-9 pr-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.instagram_id ? "border-red-500" : "border-border"}`}
                         />
                       </div>
+                      {fieldErrors.instagram_id && <p className="text-xs text-red-500 mt-1">{fieldErrors.instagram_id}</p>}
                     </div>
                   </div>
 
@@ -647,22 +712,28 @@ export function GymPartner() {
                       <input
                         type="text"
                         value={formData.country}
-                        onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                        placeholder="United States"
-                        className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
-                        required
+                        onChange={(e) => {
+                          setFormData({ ...formData, country: e.target.value })
+                          if (fieldErrors.country) setFieldErrors({ ...fieldErrors, country: "" })
+                        }}
+                        placeholder="India"
+                        className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.country ? "border-red-500" : "border-border"}`}
                       />
+                      {fieldErrors.country && <p className="text-xs text-red-500 mt-1">{fieldErrors.country}</p>}
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-foreground mb-1.5">City *</label>
                       <input
                         type="text"
                         value={formData.city}
-                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                        placeholder="New York"
-                        className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
-                        required
+                        onChange={(e) => {
+                          setFormData({ ...formData, city: e.target.value })
+                          if (fieldErrors.city) setFieldErrors({ ...fieldErrors, city: "" })
+                        }}
+                        placeholder="Bangalore"
+                        className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.city ? "border-red-500" : "border-border"}`}
                       />
+                      {fieldErrors.city && <p className="text-xs text-red-500 mt-1">{fieldErrors.city}</p>}
                     </div>
                   </div>
 
@@ -673,11 +744,14 @@ export function GymPartner() {
                       <input
                         type="text"
                         value={formData.gym_name}
-                        onChange={(e) => setFormData({ ...formData, gym_name: e.target.value })}
-                        placeholder="Gold's Gym"
-                        className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
-                        required
+                        onChange={(e) => {
+                          setFormData({ ...formData, gym_name: e.target.value })
+                          if (fieldErrors.gym_name) setFieldErrors({ ...fieldErrors, gym_name: "" })
+                        }}
+                        placeholder="Cult Fit"
+                        className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.gym_name ? "border-red-500" : "border-border"}`}
                       />
+                      {fieldErrors.gym_name && <p className="text-xs text-red-500 mt-1">{fieldErrors.gym_name}</p>}
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-foreground mb-1.5">Usual Gym Time *</label>
@@ -699,35 +773,50 @@ export function GymPartner() {
                     <div>
                       <label className="block text-xs font-medium text-foreground mb-1.5">Weight (kg)</label>
                       <input
-                        type="number"
-                        step="0.1"
+                        type="text"
+                        inputMode="decimal"
                         value={formData.weight_kg}
-                        onChange={(e) => setFormData({ ...formData, weight_kg: e.target.value })}
-                        placeholder="75"
-                        className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9.]/g, '')
+                          setFormData({ ...formData, weight_kg: val })
+                          if (fieldErrors.weight_kg) setFieldErrors({ ...fieldErrors, weight_kg: "" })
+                        }}
+                        placeholder="94"
+                        className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.weight_kg ? "border-red-500" : "border-border"}`}
                       />
+                      {fieldErrors.weight_kg && <p className="text-xs text-red-500 mt-1">{fieldErrors.weight_kg}</p>}
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-foreground mb-1.5">Height (cm)</label>
                       <input
-                        type="number"
-                        step="0.1"
+                        type="text"
+                        inputMode="decimal"
                         value={formData.height_cm}
-                        onChange={(e) => setFormData({ ...formData, height_cm: e.target.value })}
-                        placeholder="175"
-                        className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9.]/g, '')
+                          setFormData({ ...formData, height_cm: val })
+                          if (fieldErrors.height_cm) setFieldErrors({ ...fieldErrors, height_cm: "" })
+                        }}
+                        placeholder="183"
+                        className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.height_cm ? "border-red-500" : "border-border"}`}
                       />
+                      {fieldErrors.height_cm && <p className="text-xs text-red-500 mt-1">{fieldErrors.height_cm}</p>}
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-foreground mb-1.5">Body Fat %</label>
                       <input
-                        type="number"
-                        step="0.1"
+                        type="text"
+                        inputMode="decimal"
                         value={formData.body_fat_percentage}
-                        onChange={(e) => setFormData({ ...formData, body_fat_percentage: e.target.value })}
-                        placeholder="15"
-                        className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9.]/g, '')
+                          setFormData({ ...formData, body_fat_percentage: val })
+                          if (fieldErrors.body_fat_percentage) setFieldErrors({ ...fieldErrors, body_fat_percentage: "" })
+                        }}
+                        placeholder="18"
+                        className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.body_fat_percentage ? "border-red-500" : "border-border"}`}
                       />
+                      {fieldErrors.body_fat_percentage && <p className="text-xs text-red-500 mt-1">{fieldErrors.body_fat_percentage}</p>}
                     </div>
                   </div>
 
