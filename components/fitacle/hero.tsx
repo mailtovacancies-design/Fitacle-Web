@@ -167,7 +167,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     if (error) {
       setAuthError(error.message)
     } else {
-      setAuthSuccess("You didn't just sign up. You started proving something to yourself!")
+      setAuthSuccess("signup")
       setFormData({ fullName: "", email: "", password: "" })
     }
   }
@@ -192,11 +192,11 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     if (error) {
       setAuthError(error.message)
     } else {
-      setAuthSuccess("Welcome back! Consistency is being built right now.")
+      setAuthSuccess("login")
       setTimeout(() => {
         setShowAuthModal(false)
         window.location.reload()
-      }, 1500)
+      }, 2500)
     }
   }
 
@@ -647,15 +647,112 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                   }
                 </p>
 
-                {/* Success Message */}
+                {/* Success Message - Magical Effect */}
                 {authSuccess && (
                   <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 p-4 mb-4 bg-green-500/10 border border-green-500/20 rounded-xl text-green-600"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", damping: 15, stiffness: 300 }}
+                    className="p-6 mb-4 bg-gradient-to-br from-emerald-500/10 via-green-500/5 to-teal-500/10 border border-emerald-500/20 rounded-2xl text-center relative overflow-hidden"
                   >
-                    <Check size={18} />
-                    <span className="text-sm">{authSuccess}</span>
+                    {/* Sparkle effects */}
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                      className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-emerald-400/20 to-transparent rounded-full blur-xl"
+                    />
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute -bottom-2 -left-2 w-16 h-16 bg-gradient-to-tr from-teal-400/20 to-transparent rounded-full blur-lg"
+                    />
+                    
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring", damping: 12 }}
+                      className="w-14 h-14 mx-auto mb-4 rounded-full bg-emerald-500/20 flex items-center justify-center"
+                    >
+                      <motion.div
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ delay: 0.4, duration: 0.5 }}
+                      >
+                        <Check size={28} className="text-emerald-500" />
+                      </motion.div>
+                    </motion.div>
+                    
+                    {authSuccess === "signup" ? (
+                      <>
+                        <motion.p
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.3 }}
+                          className="text-lg font-bold text-emerald-600 mb-1"
+                        >
+                          Signup Successful
+                        </motion.p>
+                        <motion.p
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.4 }}
+                          className="text-base font-semibold text-foreground mb-1"
+                        >
+                          Welcome to Fitacle!
+                        </motion.p>
+                        <motion.p
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.5 }}
+                          className="text-sm text-muted-foreground"
+                        >
+                          The version of you you&apos;ve imagined starts now.
+                        </motion.p>
+                      </>
+                    ) : (
+                      <>
+                        <motion.p
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.3 }}
+                          className="text-lg font-bold text-emerald-600 mb-1"
+                        >
+                          Login Successful!
+                        </motion.p>
+                        <motion.p
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.4 }}
+                          className="text-base font-semibold text-foreground mb-1"
+                        >
+                          Welcome back
+                        </motion.p>
+                        <motion.p
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.5 }}
+                          className="text-sm text-muted-foreground"
+                        >
+                          Keep moving forward
+                        </motion.p>
+                      </>
+                    )}
+                    
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.7 }}
+                      className="mt-4 flex justify-center gap-1"
+                    >
+                      {[0, 1, 2].map((i) => (
+                        <motion.div
+                          key={i}
+                          animate={{ scale: [1, 1.3, 1], opacity: [0.4, 1, 0.4] }}
+                          transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.15 }}
+                          className="w-1.5 h-1.5 rounded-full bg-emerald-500"
+                        />
+                      ))}
+                    </motion.div>
                   </motion.div>
                 )}
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ArrowRight, LogOut, User, Camera, Edit2, Instagram, Mail } from "lucide-react"
+import { Menu, X, ArrowRight, LogOut, User, Edit2, Instagram, Mail } from "lucide-react"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
@@ -29,6 +29,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
   const [isUpdating, setIsUpdating] = useState(false)
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null)
   const [profileError, setProfileError] = useState<string | null>(null)
+  const [showLogoutSuccess, setShowLogoutSuccess] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -120,7 +121,10 @@ export function Navbar({ onSignIn }: NavbarProps) {
       await supabase.auth.signOut()
       setUser(null)
       setShowUserMenu(false)
-      window.location.reload()
+      setShowLogoutSuccess(true)
+      setTimeout(() => {
+        window.location.reload()
+      }, 2000)
     } catch {
       // Handle error
     }
@@ -562,17 +566,11 @@ export function Navbar({ onSignIn }: NavbarProps) {
                 </motion.div>
               )}
 
-              {/* Avatar */}
+              {/* Avatar - Initial Letter */}
               <div className="flex flex-col items-center mb-4">
-                <div className="relative">
-                  <div className="w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center text-white text-2xl font-bold">
-                    {profileData.fullName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
-                  </div>
-                  <button className="absolute bottom-0 right-0 p-1.5 bg-foreground text-background rounded-full hover:bg-foreground/90 transition-colors">
-                    <Camera size={14} />
-                  </button>
+                <div className="w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                  {profileData.fullName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Photo upload coming soon</p>
               </div>
 
               {/* Form - Scrollable */}
@@ -697,6 +695,81 @@ export function Navbar({ onSignIn }: NavbarProps) {
                   )}
                 </motion.button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Logout Success Modal */}
+      <AnimatePresence>
+        {showLogoutSuccess && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", damping: 20, stiffness: 300 }}
+              className="text-center"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/10 flex items-center justify-center"
+              >
+                <motion.svg
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ delay: 0.4, duration: 0.5 }}
+                  className="w-10 h-10 text-emerald-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <motion.path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </motion.svg>
+              </motion.div>
+              <motion.h3
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-2xl font-bold text-foreground mb-2"
+              >
+                Logout Successful
+              </motion.h3>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="text-muted-foreground text-lg"
+              >
+                See you soon..
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="mt-6 flex justify-center gap-1"
+              >
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                    className="w-2 h-2 rounded-full bg-emerald-500"
+                  />
+                ))}
+              </motion.div>
             </motion.div>
           </motion.div>
         )}
