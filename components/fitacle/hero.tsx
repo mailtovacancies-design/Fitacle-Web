@@ -216,11 +216,11 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     setIsLoaded(true)
   }, [])
 
-// Realistic stats for a new startup
+// Realistic stats for early stage startup
   const stats = [
-  { value: 847, suffix: "+", label: "Beta Users" },
-  { value: 12, suffix: "K+", label: "Workouts Tracked" },
-  { value: 94, suffix: "%", label: "Satisfaction" },
+  { value: 347, suffix: "+", label: "Beta Users" },
+  { value: 2, suffix: "K+", label: "Workouts Tracked" },
+  { value: 92, suffix: "%", label: "Satisfaction" },
   ]
 
   return (
