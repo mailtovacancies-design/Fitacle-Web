@@ -22,7 +22,7 @@ export function MainContent() {
       <Hero showAuthModal={showAuthModal} setShowAuthModal={setShowAuthModal} />
       <EmotionalHook />
       <BodyAnalyzer />
-      <DailyPlan />
+      <DailyPlan onSignUpClick={() => setShowAuthModal(true)} />
       <Transformation />
       <GymPartner onSignUpClick={() => setShowAuthModal(true)} />
       <FitacleScore onSignUpClick={() => setShowAuthModal(true)} />

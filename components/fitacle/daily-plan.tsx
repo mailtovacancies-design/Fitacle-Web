@@ -1,12 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
   Utensils, Sun, Cloud, Moon, Coffee, ArrowRight, Leaf, Flame, 
   Dumbbell, Instagram, MessageCircle, ChevronRight, Sparkles,
-  Heart, Target, TrendingUp
+  Heart, Target, TrendingUp, Lock
 } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
+import type { User as SupabaseUser } from "@supabase/supabase-js"
+
+interface DailyPlanProps {
+  onSignUpClick?: () => void
+}
 
 type GoalType = "lose" | "maintain" | "gain"
 type CuisineType = "indian" | "arabic" | "asian" | "european"
@@ -737,9 +743,24 @@ const goalInfo: Record<GoalType, { label: string; icon: typeof Target; color: st
   gain: { label: "Muscle Gain", icon: Dumbbell, color: "text-green-500" },
 }
 
-export function DailyPlan() {
+export function DailyPlan({ onSignUpClick }: DailyPlanProps) {
   const [selectedGoal, setSelectedGoal] = useState<GoalType>("maintain")
   const [selectedCuisine, setSelectedCuisine] = useState<CuisineType>("indian")
+  const [user, setUser] = useState<SupabaseUser | null>(null)
+
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const supabase = createClient()
+        if (!supabase) return
+        const { data: { user } } = await supabase.auth.getUser()
+        setUser(user)
+      } catch {
+        // Supabase not configured
+      }
+    }
+    checkUser()
+  }, [])
 
   const getMealPlan = () => {
     switch (selectedCuisine) {
@@ -901,6 +922,9 @@ export function DailyPlan() {
           </div>
         </motion.div>
 
+        {/* Gated Content - Meal Plans & Workouts */}
+        {user ? (
+          <>
         {/* Meal Cards */}
         <AnimatePresence mode="wait">
           <motion.div 
@@ -1098,6 +1122,41 @@ export function DailyPlan() {
             </div>
           </motion.div>
         </motion.div>
+          </>
+        ) : (
+          /* Signup CTA for non-logged users */
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="bg-card border border-border rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 text-center"
+          >
+            <div className="flex justify-center mb-4">
+              <div className="p-4 rounded-2xl bg-foreground/5 border border-border">
+                <Lock size={32} className="text-muted-foreground" />
+              </div>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-semibold text-foreground mb-3">
+              Unlock Your Personalized Plans
+            </h3>
+            <p className="text-muted-foreground text-sm sm:text-base max-w-md mx-auto mb-6">
+              Sign up to access customized meal plans and workout recommendations tailored to your fitness goals and cultural preferences.
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onSignUpClick}
+              className="px-8 py-3.5 bg-foreground text-background rounded-xl font-semibold flex items-center justify-center gap-2 mx-auto hover:bg-foreground/90 transition-all"
+            >
+              <Sparkles size={18} />
+              Sign Up to View Plans
+            </motion.button>
+            <p className="text-xs text-muted-foreground mt-4">
+              Get access to Indian, Arabic, Asian, and European meal systems mapped to your goals
+            </p>
+          </motion.div>
+        )}
       </div>
     </section>
   )
