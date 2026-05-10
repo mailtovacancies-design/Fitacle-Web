@@ -17,8 +17,18 @@ export function Navbar({ onSignIn }: NavbarProps) {
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showProfileEdit, setShowProfileEdit] = useState(false)
-  const [profileData, setProfileData] = useState({ fullName: "", avatarUrl: "" })
+  const [profileData, setProfileData] = useState({
+    fullName: "",
+    instagramId: "",
+    gymName: "",
+    height: "",
+    weight: "",
+    age: "",
+    fitnessGoal: ""
+  })
   const [isUpdating, setIsUpdating] = useState(false)
+  const [profileSuccess, setProfileSuccess] = useState<string | null>(null)
+  const [profileError, setProfileError] = useState<string | null>(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,7 +49,12 @@ export function Navbar({ onSignIn }: NavbarProps) {
         if (user) {
           setProfileData({
             fullName: user.user_metadata?.full_name || "",
-            avatarUrl: user.user_metadata?.avatar_url || ""
+            instagramId: user.user_metadata?.instagram_id || "",
+            gymName: user.user_metadata?.gym_name || "",
+            height: user.user_metadata?.height || "",
+            weight: user.user_metadata?.weight || "",
+            age: user.user_metadata?.age || "",
+            fitnessGoal: user.user_metadata?.fitness_goal || ""
           })
         }
       } catch {
@@ -51,18 +66,49 @@ export function Navbar({ onSignIn }: NavbarProps) {
 
   const handleProfileUpdate = async () => {
     if (!user) return
+    setProfileError(null)
+    setProfileSuccess(null)
+
+    // Validation
+    if (profileData.height && (parseInt(profileData.height) < 100 || parseInt(profileData.height) > 250)) {
+      setProfileError("Height must be between 100-250 cm")
+      return
+    }
+    if (profileData.weight && (parseInt(profileData.weight) < 30 || parseInt(profileData.weight) > 300)) {
+      setProfileError("Weight must be between 30-300 kg")
+      return
+    }
+    if (profileData.age && (parseInt(profileData.age) < 13 || parseInt(profileData.age) > 100)) {
+      setProfileError("Age must be between 13-100 years")
+      return
+    }
+
     setIsUpdating(true)
     try {
       const supabase = createClient()
       const { error } = await supabase.auth.updateUser({
-        data: { full_name: profileData.fullName, avatar_url: profileData.avatarUrl }
+        data: {
+          full_name: profileData.fullName,
+          instagram_id: profileData.instagramId,
+          gym_name: profileData.gymName,
+          height: profileData.height,
+          weight: profileData.weight,
+          age: profileData.age,
+          fitness_goal: profileData.fitnessGoal
+        }
       })
       if (!error) {
-        setShowProfileEdit(false)
-        window.location.reload()
+        setProfileSuccess("Profile updated successfully!")
+        setTimeout(() => {
+          setShowProfileEdit(false)
+          setProfileSuccess(null)
+          window.location.reload()
+        }, 1500)
+      } else {
+        setProfileError(error.message)
       }
     } catch {
-      // Handle error
+      setProfileError("Something went wrong. Please try again.")
     }
     setIsUpdating(false)
   }
@@ -488,41 +534,148 @@ export function Navbar({ onSignIn }: NavbarProps) {
                 </button>
               </div>
 
+              {/* Success/Error Messages */}
+              {profileSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 p-3 mb-4 bg-green-500/10 border border-green-500/20 rounded-xl text-green-600"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-sm">{profileSuccess}</span>
+                </motion.div>
+              )}
+              {profileError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 p-3 mb-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-600"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span className="text-sm">{profileError}</span>
+                </motion.div>
+              )}
+
               {/* Avatar */}
-              <div className="flex flex-col items-center mb-6">
+              <div className="flex flex-col items-center mb-4">
                 <div className="relative">
-                  <div className="w-24 h-24 rounded-full bg-emerald-500 flex items-center justify-center text-white text-3xl font-bold">
+                  <div className="w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center text-white text-2xl font-bold">
                     {profileData.fullName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
                   </div>
-                  <button className="absolute bottom-0 right-0 p-2 bg-foreground text-background rounded-full hover:bg-foreground/90 transition-colors">
-                    <Camera size={16} />
+                  <button className="absolute bottom-0 right-0 p-1.5 bg-foreground text-background rounded-full hover:bg-foreground/90 transition-colors">
+                    <Camera size={14} />
                   </button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">Photo upload coming soon</p>
+                <p className="text-xs text-muted-foreground mt-1">Photo upload coming soon</p>
               </div>
 
-              {/* Form */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Full Name</label>
-                  <input
-                    type="text"
-                    value={profileData.fullName}
-                    onChange={(e) => setProfileData({ ...profileData, fullName: e.target.value })}
-                    className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-                    placeholder="Your name"
-                  />
-                </div>
+              {/* Form - Scrollable */}
+              <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <label className="block text-xs font-medium text-foreground mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      value={profileData.fullName}
+                      onChange={(e) => setProfileData({ ...profileData, fullName: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
+                      placeholder="Your name"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Email</label>
-                  <input
-                    type="email"
-                    value={user?.email || ""}
-                    disabled
-                    className="w-full px-4 py-3 bg-accent border border-border rounded-xl text-muted-foreground cursor-not-allowed"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
+                  <div className="col-span-2">
+                    <label className="block text-xs font-medium text-foreground mb-1">Email</label>
+                    <input
+                      type="email"
+                      value={user?.email || ""}
+                      disabled
+                      className="w-full px-3 py-2.5 bg-accent border border-border rounded-xl text-muted-foreground cursor-not-allowed text-sm"
+                    />
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="block text-xs font-medium text-foreground mb-1">Instagram ID</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">@</span>
+                      <input
+                        type="text"
+                        value={profileData.instagramId}
+                        onChange={(e) => setProfileData({ ...profileData, instagramId: e.target.value.replace('@', '') })}
+                        className="w-full pl-7 pr-3 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
+                        placeholder="username"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="block text-xs font-medium text-foreground mb-1">Gym Name</label>
+                    <input
+                      type="text"
+                      value={profileData.gymName}
+                      onChange={(e) => setProfileData({ ...profileData, gymName: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
+                      placeholder="Where do you train?"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-foreground mb-1">Height (cm)</label>
+                    <input
+                      type="number"
+                      value={profileData.height}
+                      onChange={(e) => setProfileData({ ...profileData, height: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
+                      placeholder="170"
+                      min="100"
+                      max="250"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-foreground mb-1">Weight (kg)</label>
+                    <input
+                      type="number"
+                      value={profileData.weight}
+                      onChange={(e) => setProfileData({ ...profileData, weight: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
+                      placeholder="70"
+                      min="30"
+                      max="300"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-foreground mb-1">Age</label>
+                    <input
+                      type="number"
+                      value={profileData.age}
+                      onChange={(e) => setProfileData({ ...profileData, age: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
+                      placeholder="25"
+                      min="13"
+                      max="100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-foreground mb-1">Fitness Goal</label>
+                    <select
+                      value={profileData.fitnessGoal}
+                      onChange={(e) => setProfileData({ ...profileData, fitnessGoal: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
+                    >
+                      <option value="">Select...</option>
+                      <option value="fat_loss">Fat Loss</option>
+                      <option value="muscle_gain">Muscle Gain</option>
+                      <option value="maintain">Maintain</option>
+                      <option value="strength">Build Strength</option>
+                      <option value="endurance">Improve Endurance</option>
+                    </select>
+                  </div>
                 </div>
 
                 <motion.button
@@ -530,7 +683,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleProfileUpdate}
                   disabled={isUpdating}
-                  className="w-full py-3 bg-foreground text-background rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-foreground/90 transition-all disabled:opacity-50"
+                  className="w-full py-3 bg-foreground text-background rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-foreground/90 transition-all disabled:opacity-50 mt-4"
                 >
                   {isUpdating ? (
                     <>
