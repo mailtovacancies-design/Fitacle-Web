@@ -207,7 +207,8 @@ export function Navbar({ onSignIn }: NavbarProps) {
               alt="FITACLE Logo"
               width={60}
               height={60}
-              className="relative rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300"
+              className="relative rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300 object-contain"
+              style={{ objectFit: 'contain' }}
             />
           </div>
           
@@ -376,11 +377,12 @@ export function Navbar({ onSignIn }: NavbarProps) {
             <div className="p-6 flex flex-col gap-2">
               {/* Logo in mobile menu */}
               <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
-                <Image
-                  src="/images/fitacle-logo.png"
-                  alt="FITACLE Logo"
-                  width={40}
-                  height={40}
+<Image
+                    src="/images/fitacle-logo.png"
+                    alt="FITACLE Logo"
+                    width={40}
+                    height={40}
+                    style={{ objectFit: 'contain' }}
                   className="rounded-xl"
                 />
                 <div>

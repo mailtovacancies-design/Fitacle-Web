@@ -631,7 +631,8 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                       alt="FITACLE"
                       width={36}
                       height={36}
-                      className="rounded-lg shadow-md"
+                      className="rounded-lg shadow-md object-contain"
+                      style={{ objectFit: 'contain' }}
                     />
                   </motion.div>
                 </div>

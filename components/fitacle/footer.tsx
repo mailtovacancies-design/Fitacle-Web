@@ -537,7 +537,8 @@ export function Footer() {
                   alt="FITACLE Logo"
                   width={44}
                   height={44}
-                  className="relative rounded-xl shadow-lg"
+                  className="relative rounded-xl shadow-lg object-contain"
+                  style={{ objectFit: 'contain' }}
                 />
               </div>
               <div className="flex flex-col">
