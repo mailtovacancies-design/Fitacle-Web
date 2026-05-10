@@ -12,6 +12,7 @@ import { FitacleScore } from "@/components/fitacle/fitacle-score"
 import { Community } from "@/components/fitacle/community"
 
 import { Footer } from "@/components/fitacle/footer"
+import { AIChatbot } from "@/components/fitacle/ai-chatbot"
 
 export function MainContent() {
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -28,6 +29,7 @@ export function MainContent() {
       <FitacleScore onSignUpClick={() => setShowAuthModal(true)} />
       <Community />
       <Footer />
+      <AIChatbot />
     </main>
   )
 }
