@@ -70,8 +70,8 @@ export function AIChatbot() {
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-card" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground text-sm">Fitacle AI</h3>
-                  <p className="text-xs text-muted-foreground">Your fitness assistant</p>
+                  <h3 className="font-semibold text-foreground text-sm flex items-center gap-1">TACLE AI <span className="text-amber-500">⚡</span></h3>
+                  <p className="text-xs text-muted-foreground">Your AI Fitness Companion</p>
                 </div>
               </div>
               <button
@@ -89,7 +89,7 @@ export function AIChatbot() {
                   <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-500/10 flex items-center justify-center">
                     <Bot size={32} className="text-emerald-500" />
                   </div>
-                  <h4 className="font-semibold text-foreground mb-2">Hi! I&apos;m Fitacle AI</h4>
+                  <h4 className="font-semibold text-foreground mb-2">Hi! I&apos;m TACLE AI <span className="text-amber-500">⚡</span></h4>
                   <p className="text-sm text-muted-foreground mb-4">
                     Ask me anything about fitness, nutrition, or workouts!
                   </p>
@@ -189,7 +189,7 @@ export function AIChatbot() {
                 </motion.button>
               </div>
               <p className="text-[10px] text-muted-foreground text-center mt-2">
-                Powered by Fitacle AI - For general guidance only
+                Powered by TACLE AI ⚡ - For general guidance only
               </p>
             </form>
           </motion.div>
