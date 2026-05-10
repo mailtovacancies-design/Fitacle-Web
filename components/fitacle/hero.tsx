@@ -216,11 +216,11 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     setIsLoaded(true)
   }, [])
 
-// Realistic stats for a growing fitness platform
+// Realistic stats for a new startup
   const stats = [
-  { value: 2, suffix: "K+", label: "Active Users" },
-  { value: 45, suffix: "K+", label: "Workouts Tracked" },
-  { value: 96, suffix: "%", label: "Satisfaction" },
+  { value: 847, suffix: "+", label: "Beta Users" },
+  { value: 12, suffix: "K+", label: "Workouts Tracked" },
+  { value: 94, suffix: "%", label: "Satisfaction" },
   ]
 
   return (
