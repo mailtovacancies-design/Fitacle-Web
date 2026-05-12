@@ -558,46 +558,72 @@ export function GymPartner({ onSignUpClick }: GymPartnerProps) {
                       )}
                     </motion.div>
                     
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                      <div className="flex items-center gap-3 sm:block">
-                        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-base sm:text-lg font-bold transition-colors duration-300 shrink-0 ${
+                    {/* Mobile Layout */}
+                    <div className="sm:hidden">
+                      <div className="flex items-start gap-3">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold shrink-0 ${
                           partner.is_trainer 
-                            ? "bg-gradient-to-br from-amber-500/20 to-orange-500/20 text-amber-700 group-hover:from-amber-500 group-hover:to-orange-500 group-hover:text-white" 
-                            : "bg-emerald-500/20 text-emerald-700 group-hover:bg-emerald-500 group-hover:text-white"
+                            ? "bg-gradient-to-br from-amber-500/20 to-orange-500/20 text-amber-700" 
+                            : "bg-emerald-500/20 text-emerald-700"
                         }`}>
                           {partner.avatar_initial || partner.full_name.charAt(0).toUpperCase()}
                         </div>
                         
-                        <div className="sm:hidden flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <a 
-                              href={`https://instagram.com/${partner.instagram_id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-semibold text-sm text-foreground hover:text-primary transition-colors flex items-center gap-1"
-                            >
-                              <Instagram size={12} className="text-pink-500" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm text-foreground truncate">{partner.full_name}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Instagram size={10} className="text-pink-500" />
                               @{partner.instagram_id}
-                            </a>
+                            </span>
                             <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/20 text-emerald-700">
                               {partner.experience_level}
                             </span>
                           </div>
-                          <p className="text-xs text-muted-foreground truncate">{partner.full_name}</p>
                         </div>
                         
                         <a 
                           href={`https://instagram.com/${partner.instagram_id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="sm:hidden p-2 rounded-lg bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white shrink-0"
+                          className="p-2 rounded-lg bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white shrink-0"
                         >
                           <Instagram size={16} />
                         </a>
                       </div>
                       
+                      <div className="mt-3 grid grid-cols-2 gap-2">
+                        <span className="text-[11px] text-muted-foreground flex items-center gap-1.5 bg-accent/50 rounded-lg px-2 py-1.5">
+                          <MapPin size={12} className="shrink-0 text-primary" />
+                          <span className="truncate">{partner.city}, {partner.country}</span>
+                        </span>
+                        <span className="text-[11px] text-muted-foreground flex items-center gap-1.5 bg-accent/50 rounded-lg px-2 py-1.5">
+                          <Building2 size={12} className="shrink-0 text-primary" />
+                          <span className="truncate">{partner.gym_name}</span>
+                        </span>
+                        <span className="text-[11px] text-muted-foreground flex items-center gap-1.5 bg-accent/50 rounded-lg px-2 py-1.5">
+                          <Dumbbell size={12} className="shrink-0 text-primary" />
+                          <span className="truncate">{partner.fitness_focus}</span>
+                        </span>
+                        <span className="text-[11px] text-muted-foreground flex items-center gap-1.5 bg-accent/50 rounded-lg px-2 py-1.5">
+                          <Clock size={12} className="shrink-0 text-primary" />
+                          {partner.usual_gym_time}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Desktop Layout */}
+                    <div className="hidden sm:flex sm:items-center gap-4">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold transition-colors duration-300 shrink-0 ${
+                        partner.is_trainer 
+                          ? "bg-gradient-to-br from-amber-500/20 to-orange-500/20 text-amber-700 group-hover:from-amber-500 group-hover:to-orange-500 group-hover:text-white" 
+                          : "bg-emerald-500/20 text-emerald-700 group-hover:bg-emerald-500 group-hover:text-white"
+                      }`}>
+                        {partner.avatar_initial || partner.full_name.charAt(0).toUpperCase()}
+                      </div>
+                      
                       <div className="flex-1 min-w-0">
-                        <div className="hidden sm:flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-1">
                           <span className="font-semibold text-foreground">{partner.full_name}</span>
                           <a 
                             href={`https://instagram.com/${partner.instagram_id}`}
@@ -613,33 +639,31 @@ export function GymPartner({ onSignUpClick }: GymPartnerProps) {
                           </span>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-x-2 gap-y-1 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
-                          <span className="text-[11px] sm:text-sm text-muted-foreground flex items-center gap-1">
-                            <MapPin size={10} className="sm:w-3 sm:h-3 shrink-0" />
+                        <div className="flex flex-wrap items-center gap-3">
+                          <span className="text-sm text-muted-foreground flex items-center gap-1">
+                            <MapPin size={12} className="shrink-0" />
                             <span className="truncate">{partner.city}, {partner.country}</span>
                           </span>
-                          <span className="text-[11px] sm:text-sm text-muted-foreground flex items-center gap-1">
-                            <Building2 size={10} className="sm:w-3 sm:h-3 shrink-0" />
+                          <span className="text-sm text-muted-foreground flex items-center gap-1">
+                            <Building2 size={12} className="shrink-0" />
                             <span className="truncate">{partner.gym_name}</span>
                           </span>
-                          <span className="text-[11px] sm:text-sm text-muted-foreground flex items-center gap-1">
-                            <Dumbbell size={10} className="sm:w-3 sm:h-3 shrink-0" />
+                          <span className="text-sm text-muted-foreground flex items-center gap-1">
+                            <Dumbbell size={12} className="shrink-0" />
                             <span className="truncate">{partner.fitness_focus}</span>
                           </span>
-                          <span className="text-[11px] sm:text-sm text-muted-foreground flex items-center gap-1">
-                            <Clock size={10} className="sm:w-3 sm:h-3 shrink-0" />
+                          <span className="text-sm text-muted-foreground flex items-center gap-1">
+                            <Clock size={12} className="shrink-0" />
                             {partner.usual_gym_time}
                           </span>
                         </div>
-                        
-                        {/* Note: Body stats (weight, height, age, body fat) are kept private and not displayed publicly */}
                       </div>
                       
                       <a 
                         href={`https://instagram.com/${partner.instagram_id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hidden sm:block p-2.5 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white hover:shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
+                        className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 text-white hover:shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
                       >
                         <Instagram size={18} />
                       </a>
