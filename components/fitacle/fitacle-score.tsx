@@ -272,9 +272,17 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
   
   useEffect(() => {
     const checkAuth = async () => {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      setIsLoggedIn(!!user)
+      try {
+        const supabase = createClient()
+        if (!supabase) {
+          setIsLoading(false)
+          return
+        }
+        const { data: { user } } = await supabase.auth.getUser()
+        setIsLoggedIn(!!user)
+      } catch {
+        // Supabase not configured
+      }
       setIsLoading(false)
     }
     checkAuth()

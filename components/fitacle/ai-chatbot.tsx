@@ -9,6 +9,7 @@ import Image from "next/image"
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [isDesktop, setIsDesktop] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const dragControls = useDragControls()
   const constraintsRef = useRef<HTMLDivElement>(null)
@@ -18,6 +19,14 @@ export function AIChatbot() {
   })
 
   const hasError = !!error
+  
+  // Check if desktop on mount and resize
+  useEffect(() => {
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 640)
+    checkDesktop()
+    window.addEventListener('resize', checkDesktop)
+    return () => window.removeEventListener('resize', checkDesktop)
+  }, [])
   
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -62,7 +71,7 @@ export function AIChatbot() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            drag={window.innerWidth >= 640}
+            drag={isDesktop}
             dragControls={dragControls}
             dragListener={false}
             dragConstraints={constraintsRef}
@@ -77,7 +86,7 @@ export function AIChatbot() {
             {/* Header with drag handle */}
             <div 
               className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-emerald-500/10 to-teal-500/10 cursor-grab active:cursor-grabbing sm:cursor-grab"
-              onPointerDown={(e) => { if (window.innerWidth >= 640) dragControls.start(e) }}
+              onPointerDown={(e) => { if (isDesktop) dragControls.start(e) }}
             >
               <div className="flex items-center gap-3">
                 <div className="hidden sm:flex items-center text-muted-foreground mr-1">
