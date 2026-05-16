@@ -2,13 +2,16 @@
 
 import { useState, useRef, useEffect } from "react"
 import { useChat } from "@ai-sdk/react"
-import { motion, AnimatePresence } from "framer-motion"
-import { MessageCircle, X, Send, Sparkles, Bot, User } from "lucide-react"
+import { motion, AnimatePresence, useDragControls } from "framer-motion"
+import { MessageCircle, X, Send, Sparkles, Bot, User, GripVertical } from "lucide-react"
 import Image from "next/image"
 
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false)
+  const [position, setPosition] = useState({ x: 0, y: 0 })
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const dragControls = useDragControls()
+  const constraintsRef = useRef<HTMLDivElement>(null)
   
   const { messages, input, setInput, handleSubmit, isLoading, error } = useChat({
     api: "/api/chat",
@@ -20,16 +23,30 @@ export function AIChatbot() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages, isLoading])
+  
+  // Reset position when window resizes
+  useEffect(() => {
+    const handleResize = () => setPosition({ x: 0, y: 0 })
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   return (
     <>
-      {/* Floating Chat Button */}
+      {/* Drag constraints container */}
+      <div ref={constraintsRef} className="fixed inset-0 pointer-events-none z-40" />
+      
+      {/* Floating Chat Button - Draggable */}
       <motion.button
+        drag
+        dragConstraints={constraintsRef}
+        dragElastic={0.1}
+        whileDrag={{ scale: 1.1 }}
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 1, type: "spring", damping: 15 }}
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-emerald-500 text-white shadow-lg hover:bg-emerald-600 transition-colors flex items-center justify-center ${isOpen ? "hidden" : ""}`}
+        className={`fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 w-14 h-14 rounded-full bg-emerald-500 text-white shadow-lg hover:bg-emerald-600 transition-colors flex items-center justify-center cursor-grab active:cursor-grabbing ${isOpen ? "hidden" : ""}`}
       >
         <MessageCircle size={24} />
         <motion.div
@@ -41,19 +58,31 @@ export function AIChatbot() {
         </motion.div>
       </motion.button>
 
-      {/* Chat Window */}
+      {/* Chat Window - Draggable on desktop */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            drag={window.innerWidth >= 640}
+            dragControls={dragControls}
+            dragListener={false}
+            dragConstraints={constraintsRef}
+            dragElastic={0.1}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
+            animate={{ opacity: 1, y: 0, scale: 1, x: position.x, ...position }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[90vw] sm:max-w-[380px] h-[100dvh] sm:h-[70vh] sm:max-h-[550px] bg-card border-0 sm:border border-border sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden safe-area-inset-bottom"
+            onDragEnd={(_, info) => setPosition({ x: position.x + info.offset.x, y: position.y + info.offset.y })}
+            className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-[60] w-full sm:w-[90vw] sm:max-w-[380px] h-[85dvh] sm:h-[70vh] sm:max-h-[550px] bg-card border-0 sm:border border-border sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden safe-area-inset-bottom"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-emerald-500/10 to-teal-500/10">
+            {/* Header with drag handle */}
+            <div 
+              className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-emerald-500/10 to-teal-500/10 cursor-grab active:cursor-grabbing sm:cursor-grab"
+              onPointerDown={(e) => { if (window.innerWidth >= 640) dragControls.start(e) }}
+            >
               <div className="flex items-center gap-3">
+                <div className="hidden sm:flex items-center text-muted-foreground mr-1">
+                  <GripVertical size={16} />
+                </div>
                 <div className="relative">
                   <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center">
                     <Image

@@ -198,7 +198,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     setIsSubmitting(true)
     setAuthError(null)
 
-    const { error } = await supabaseClient.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: formData.email,
       password: formData.password,
     })
@@ -209,9 +209,17 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
       setAuthError(error.message)
     } else {
       setAuthSuccess("login")
+      // Check if profile is incomplete, redirect to partner section
+      const metadata = data.user?.user_metadata || {}
+      const hasCompleteProfile = metadata.weight && metadata.height && metadata.age && metadata.fitness_goal
+      
       setTimeout(() => {
         setShowAuthModal(false)
-        window.location.reload()
+        if (!hasCompleteProfile) {
+          window.location.href = '/#partner'
+        } else {
+          window.location.reload()
+        }
       }, 2500)
     }
   }
