@@ -160,7 +160,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
     { href: "#analyzer", label: "Body Intelligence" },
     { href: "#plan", label: "AI Plan" },
     { href: "#transformation", label: "Progress" },
-    { href: "#partner", label: "Never Train Alone" },
+    { href: "#partner", label: "Find a Training Partner" },
   ]
 
   return (
