@@ -102,6 +102,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
   const [formData, setFormData] = useState({ fullName: "", email: "", password: "" })
   const [supabaseClient, setSupabaseClient] = useState<ReturnType<typeof createClient> | null>(null)
   const [userAuthProvider, setUserAuthProvider] = useState<"google" | "email" | null>(null)
+  const [isSignedIn, setIsSignedIn] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll()
   
@@ -115,6 +116,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
       if (!client) return
       const { data: { user } } = await client.auth.getUser()
       if (user) {
+        setIsSignedIn(true)
         // Check if signed in with Google
         const isGoogleUser = user.app_metadata?.provider === 'google' || 
                             user.identities?.some(i => i.provider === 'google')
@@ -807,21 +809,21 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                 {/* Google Button */}
                 <motion.button
                   onClick={handleGoogleSignIn}
-                  disabled={isSubmitting || userAuthProvider === 'google'}
-                  whileHover={{ scale: (isSubmitting || userAuthProvider === 'google') ? 1 : 1.01 }}
-                  whileTap={{ scale: (isSubmitting || userAuthProvider === 'google') ? 1 : 0.99 }}
+                  disabled={isSubmitting || isSignedIn}
+                  whileHover={{ scale: (isSubmitting || isSignedIn) ? 1 : 1.01 }}
+                  whileTap={{ scale: (isSubmitting || isSignedIn) ? 1 : 0.99 }}
                   className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium text-sm mb-3 shadow-md transition-all ${
-                    userAuthProvider === 'google' 
+                    isSignedIn 
                       ? 'bg-emerald-500/20 text-emerald-700 border border-emerald-500/30 cursor-not-allowed' 
                       : 'bg-foreground text-background hover:shadow-lg disabled:opacity-70'
                   }`}
                 >
                   {isSubmitting ? (
                     <Loader2 size={20} className="animate-spin" />
-                  ) : userAuthProvider === 'google' ? (
+                  ) : isSignedIn ? (
                     <>
                       <Check size={18} />
-                      Signed up with Google
+                      Already signed in
                     </>
                   ) : (
                     <>
@@ -884,11 +886,11 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
 
                   <motion.button
                     type="submit"
-                    disabled={isSubmitting || (authMode === "signup" && userAuthProvider === 'email')}
-                    whileHover={{ scale: (isSubmitting || (authMode === "signup" && userAuthProvider === 'email')) ? 1 : 1.01 }}
-                    whileTap={{ scale: (isSubmitting || (authMode === "signup" && userAuthProvider === 'email')) ? 1 : 0.99 }}
+                    disabled={isSubmitting || isSignedIn}
+                    whileHover={{ scale: (isSubmitting || isSignedIn) ? 1 : 1.01 }}
+                    whileTap={{ scale: (isSubmitting || isSignedIn) ? 1 : 0.99 }}
                     className={`w-full py-2.5 rounded-lg font-medium text-sm shadow-md transition-all mt-1 flex items-center justify-center gap-2 ${
-                      authMode === "signup" && userAuthProvider === 'email'
+                      isSignedIn
                         ? 'bg-emerald-500/20 text-emerald-700 border border-emerald-500/30 cursor-not-allowed'
                         : 'bg-foreground text-background hover:shadow-lg disabled:opacity-70'
                     }`}
@@ -898,10 +900,10 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                         <Loader2 size={16} className="animate-spin" />
                         {authMode === "signup" ? "Creating..." : "Signing In..."}
                       </>
-                    ) : authMode === "signup" && userAuthProvider === 'email' ? (
+                    ) : isSignedIn ? (
                       <>
                         <Check size={16} />
-                        Signed up with Email
+                        Already signed in
                       </>
                     ) : (
                       authMode === "signup" ? "Create Account" : "Sign In"

@@ -12,11 +12,15 @@ export function AIChatbot() {
   const [input, setInput] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
   
-  const { messages, sendMessage, status, error } = useChat({
+  const { messages, sendMessage, status, error, reload } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
+    onError: (err) => {
+      console.error("[v0] Chat error:", err)
+    }
   })
 
   const isLoading = status === "streaming" || status === "submitted"
+  const hasError = status === "error" || !!error
   
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -137,12 +141,16 @@ export function AIChatbot() {
                       : "bg-accent text-foreground rounded-tl-md"
                   }`}>
                     <div className="text-sm whitespace-pre-wrap">
-                      {message.parts.map((part, index) => {
-                        if (part.type === "text") {
-                          return <span key={index}>{part.text}</span>
-                        }
-                        return null
-                      })}
+                      {message.parts && message.parts.length > 0 ? (
+                        message.parts.map((part, index) => {
+                          if (part.type === "text") {
+                            return <span key={index}>{part.text}</span>
+                          }
+                          return null
+                        })
+                      ) : (
+                        <span>{String((message as { content?: string }).content || "")}</span>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -172,9 +180,15 @@ export function AIChatbot() {
                 </motion.div>
               )}
               
-              {error && (
+              {hasError && (
                 <div className="text-center py-4">
-                  <p className="text-sm text-red-500">Something went wrong. Please try again.</p>
+                  <p className="text-sm text-red-500 mb-2">Something went wrong. Please try again.</p>
+                  <button
+                    onClick={() => reload()}
+                    className="text-xs px-3 py-1.5 bg-accent rounded-full text-foreground hover:bg-accent/80 transition-colors"
+                  >
+                    Retry
+                  </button>
                 </div>
               )}
               

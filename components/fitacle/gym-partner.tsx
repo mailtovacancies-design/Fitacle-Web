@@ -461,6 +461,18 @@ export function GymPartner({ onSignUpClick }: GymPartnerProps) {
                     <Sparkles size={18} />
                     Create Profile
                   </motion.button>
+                  <button
+                    onClick={() => {
+                      // Scroll to next section
+                      const nextSection = document.querySelector('#community')
+                      if (nextSection) {
+                        nextSection.scrollIntoView({ behavior: 'smooth' })
+                      }
+                    }}
+                    className="mt-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Skip for now
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
