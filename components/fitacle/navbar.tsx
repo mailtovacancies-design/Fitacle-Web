@@ -397,142 +397,150 @@ export function Navbar({ onSignIn }: NavbarProps) {
   <AnimatePresence>
   {mobileMenuOpen && (
   <motion.div
-  initial={{ opacity: 0, y: -20 }}
-  animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="md:hidden fixed inset-0 z-[80] bg-background overflow-y-auto pt-20"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden fixed inset-0 z-[80] bg-background flex flex-col h-[100dvh]"
           >
-            <div className="p-6 flex flex-col gap-2 max-w-md mx-auto">
-              {/* Logo in mobile menu */}
-              <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
-<Image
+            {/* Header with logo and close button */}
+            <div className="flex items-center justify-between p-4 border-b border-border shrink-0">
+              <div className="flex items-center gap-3">
+                {/* Animated Logo */}
+                <div className="relative w-10 h-10">
+                  <motion.div
+                    className="absolute -inset-0.5 rounded-lg overflow-hidden"
+                    style={{ opacity: 0.3 }}
+                  >
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent"
+                      animate={{ x: ["-200%", "200%"] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "linear", repeatDelay: 2 }}
+                    />
+                  </motion.div>
+                  <Image
                     src="/images/fitacle-logo.png"
                     alt="FITACLE Logo"
                     width={40}
                     height={40}
-                    style={{ objectFit: 'contain' }}
-                  className="rounded-xl"
-                />
+                    className="relative rounded-lg object-contain"
+                  />
+                </div>
                 <div>
                   <span className="text-lg font-bold text-foreground">F<span className="text-emerald-600">i</span>tacle</span>
-                  <p className="text-[10px] text-muted-foreground tracking-widest uppercase">Transform Beyond Limits</p>
+                  <p className="text-[9px] text-muted-foreground tracking-wider uppercase">Transform Beyond</p>
                 </div>
               </div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 rounded-lg hover:bg-accent transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            {/* Scrollable content area */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {/* Navigation Links */}
+              <div className="space-y-1">
+                {navLinks.map((link, index) => (
+                  <motion.a
+                    key={link.href}
+                    href={link.href}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2, delay: index * 0.03 }}
+                    className="flex items-center text-foreground hover:text-primary transition-colors py-2.5 font-medium rounded-lg hover:bg-accent/50 px-3"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setMobileMenuOpen(false)
+                      const target = document.querySelector(link.href)
+                      if (target) {
+                        setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
+                      }
+                    }}
+                  >
+                    {link.label}
+                  </motion.a>
+                ))}
+              </div>
               
-              {navLinks.map((link, index) => (
+              {/* Social Links Row */}
+              <div className="flex gap-2 mt-4">
                 <motion.a
-                  key={link.href}
-                  href={link.href}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                  className="text-foreground hover:text-primary transition-colors py-3 font-medium rounded-xl hover:bg-foreground/5 px-4 -mx-4"
+                  href="https://instagram.com/fitacle_official"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: 0.1 }}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 border border-pink-500/20"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  {link.label}
+                  <Instagram size={16} className="text-pink-500" />
+                  <span className="text-sm font-medium">@fitacle_official</span>
                 </motion.a>
-              ))}
-              
-              {/* Instagram Link - Highlighted in Mobile */}
-              <motion.a
-                href="https://instagram.com/fitacle_official"
-                target="_blank"
-                rel="noopener noreferrer"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: 0.15 }}
-                className="flex items-center gap-3 py-3 px-4 -mx-4 rounded-xl bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 border border-pink-500/20"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center">
-                  <Instagram size={16} className="text-white" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Follow us</p>
-                  <p className="text-foreground font-medium">@fitacle_official</p>
-                </div>
-              </motion.a>
-              
-              {/* Contact Email in Mobile */}
-              <motion.a
-                href="mailto:contact@fitacle.com"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: 0.2 }}
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors py-3 font-medium rounded-xl hover:bg-foreground/5 px-4 -mx-4"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Mail size={16} />
-                contact@fitacle.com
-              </motion.a>
-              
-              <div className="flex flex-col gap-3 pt-4 mt-2 border-t border-border">
-                {user ? (
-                  /* User logged in - show user info */
-                  <>
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.25 }}
-                      className="flex items-center gap-3 py-3 px-4 -mx-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white font-semibold">
-                        {user.user_metadata?.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {user.user_metadata?.full_name || 'User'}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                      </div>
-                    </motion.div>
-                    <motion.button 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.28 }}
-                      onClick={() => { setShowProfileEdit(true); setMobileMenuOpen(false) }}
-                      className="py-3 text-foreground font-medium rounded-xl hover:bg-accent transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Edit2 size={16} />
-                      Edit Profile
-                    </motion.button>
-                    <motion.button 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.32 }}
-                      onClick={handleSignOut}
-                      className="py-3 text-red-500 font-medium rounded-xl hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <LogOut size={16} />
-                      Sign Out
-                    </motion.button>
-                  </>
-                ) : (
-                  /* User not logged in */
-                  <>
-                    <motion.button 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.25 }}
-                      className="py-3 text-foreground font-medium rounded-xl hover:bg-foreground/5 transition-colors text-center"
-                      onClick={() => { setMobileMenuOpen(false); onSignIn?.(); }}
-                    >
-                      Sign In
-                    </motion.button>
-                    <motion.button 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.3 }}
-                      className="py-3 bg-foreground text-background rounded-full font-semibold shadow-md flex items-center justify-center gap-2"
-                      onClick={() => { setMobileMenuOpen(false); onSignIn?.(); }}
-                    >
-                      Get Started
-                      <ArrowRight size={16} />
-                    </motion.button>
-                  </>
-                )}
+                <motion.a
+                  href="mailto:contact@fitacle.com"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: 0.12 }}
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-accent/50 border border-border"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Mail size={16} className="text-muted-foreground" />
+                </motion.a>
               </div>
+            </div>
+            
+            {/* Footer with user actions - fixed at bottom */}
+            <div className="shrink-0 p-4 border-t border-border bg-background">
+              {user ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                    <div className="w-9 h-9 rounded-full bg-emerald-500 flex items-center justify-center text-white font-semibold text-sm">
+                      {user.user_metadata?.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {user.user_metadata?.full_name || 'User'}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => { setShowProfileEdit(true); setMobileMenuOpen(false) }}
+                      className="flex-1 py-2.5 text-sm text-foreground font-medium rounded-lg bg-accent hover:bg-accent/80 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Edit2 size={14} />
+                      Edit Profile
+                    </button>
+                    <button 
+                      onClick={handleSignOut}
+                      className="py-2.5 px-4 text-sm text-red-500 font-medium rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <LogOut size={14} />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <button 
+                    className="flex-1 py-2.5 text-sm text-foreground font-medium rounded-lg bg-accent hover:bg-accent/80 transition-colors"
+                    onClick={() => { setMobileMenuOpen(false); onSignIn?.(); }}
+                  >
+                    Sign In
+                  </button>
+                  <button 
+                    className="flex-1 py-2.5 text-sm bg-foreground text-background rounded-lg font-semibold flex items-center justify-center gap-2"
+                    onClick={() => { setMobileMenuOpen(false); onSignIn?.(); }}
+                  >
+                    Get Started
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
