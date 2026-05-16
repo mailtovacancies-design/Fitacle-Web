@@ -101,13 +101,27 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
   const [authSuccess, setAuthSuccess] = useState<string | null>(null)
   const [formData, setFormData] = useState({ fullName: "", email: "", password: "" })
   const [supabaseClient, setSupabaseClient] = useState<ReturnType<typeof createClient> | null>(null)
+  const [userAuthProvider, setUserAuthProvider] = useState<"google" | "email" | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollY } = useScroll()
   
-  // Initialize supabase client on mount
+  // Initialize supabase client on mount and check user auth provider
   useEffect(() => {
     const client = createClient()
     setSupabaseClient(client)
+    
+    // Check if user is already signed in and get their auth provider
+    const checkUserProvider = async () => {
+      if (!client) return
+      const { data: { user } } = await client.auth.getUser()
+      if (user) {
+        // Check if signed in with Google
+        const isGoogleUser = user.app_metadata?.provider === 'google' || 
+                            user.identities?.some(i => i.provider === 'google')
+        setUserAuthProvider(isGoogleUser ? 'google' : 'email')
+      }
+    }
+    checkUserProvider()
   }, [])
 
   // Handle Google Sign In
@@ -793,22 +807,33 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                 {/* Google Button */}
                 <motion.button
                   onClick={handleGoogleSignIn}
-                  disabled={isSubmitting}
-                  whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
-                  whileTap={{ scale: isSubmitting ? 1 : 0.99 }}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-foreground text-background rounded-lg font-medium text-sm mb-3 shadow-md hover:shadow-lg transition-all disabled:opacity-70"
+                  disabled={isSubmitting || userAuthProvider === 'google'}
+                  whileHover={{ scale: (isSubmitting || userAuthProvider === 'google') ? 1 : 1.01 }}
+                  whileTap={{ scale: (isSubmitting || userAuthProvider === 'google') ? 1 : 0.99 }}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium text-sm mb-3 shadow-md transition-all ${
+                    userAuthProvider === 'google' 
+                      ? 'bg-emerald-500/20 text-emerald-700 border border-emerald-500/30 cursor-not-allowed' 
+                      : 'bg-foreground text-background hover:shadow-lg disabled:opacity-70'
+                  }`}
                 >
                   {isSubmitting ? (
                     <Loader2 size={20} className="animate-spin" />
+                  ) : userAuthProvider === 'google' ? (
+                    <>
+                      <Check size={18} />
+                      Signed up with Google
+                    </>
                   ) : (
-                    <svg className="w-5 h-5" viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                      <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                      <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                      <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
+                    <>
+                      <svg className="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                      </svg>
+                      Continue with Google
+                    </>
                   )}
-                  Continue with Google
                 </motion.button>
 
                 {/* Divider */}
@@ -859,15 +884,24 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
 
                   <motion.button
                     type="submit"
-                    disabled={isSubmitting}
-                    whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
-                    whileTap={{ scale: isSubmitting ? 1 : 0.99 }}
-                    className="w-full py-2.5 bg-foreground text-background rounded-lg font-medium text-sm shadow-md hover:shadow-lg transition-all mt-1 disabled:opacity-70 flex items-center justify-center gap-2"
+                    disabled={isSubmitting || (authMode === "signup" && userAuthProvider === 'email')}
+                    whileHover={{ scale: (isSubmitting || (authMode === "signup" && userAuthProvider === 'email')) ? 1 : 1.01 }}
+                    whileTap={{ scale: (isSubmitting || (authMode === "signup" && userAuthProvider === 'email')) ? 1 : 0.99 }}
+                    className={`w-full py-2.5 rounded-lg font-medium text-sm shadow-md transition-all mt-1 flex items-center justify-center gap-2 ${
+                      authMode === "signup" && userAuthProvider === 'email'
+                        ? 'bg-emerald-500/20 text-emerald-700 border border-emerald-500/30 cursor-not-allowed'
+                        : 'bg-foreground text-background hover:shadow-lg disabled:opacity-70'
+                    }`}
                   >
                     {isSubmitting ? (
                       <>
                         <Loader2 size={16} className="animate-spin" />
                         {authMode === "signup" ? "Creating..." : "Signing In..."}
+                      </>
+                    ) : authMode === "signup" && userAuthProvider === 'email' ? (
+                      <>
+                        <Check size={16} />
+                        Signed up with Email
                       </>
                     ) : (
                       authMode === "signup" ? "Create Account" : "Sign In"
