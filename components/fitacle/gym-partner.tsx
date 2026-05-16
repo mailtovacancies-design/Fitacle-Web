@@ -93,7 +93,7 @@ export function GymPartner({ onSignUpClick }: GymPartnerProps) {
         setUser(user)
         
         if (user) {
-          // Check if user has a profile
+          // Check if user has a profile in fitness_partners table
           const { data: profile } = await supabase
             .from("fitness_partners")
             .select("*")
@@ -117,6 +117,11 @@ export function GymPartner({ onSignUpClick }: GymPartnerProps) {
               schedule_preference: profile.schedule_preference || "Flexible",
               is_visible: profile.is_visible
             })
+          } else {
+            // Auto-open form if user is logged in, has no profile, and URL has #partner
+            if (window.location.hash === '#partner') {
+              setShowProfileForm(true)
+            }
           }
         }
         
