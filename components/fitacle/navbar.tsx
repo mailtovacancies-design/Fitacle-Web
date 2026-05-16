@@ -39,6 +39,31 @@ export function Navbar({ onSignIn }: NavbarProps) {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.width = '100%'
+      document.body.style.top = `-${window.scrollY}px`
+    } else {
+      const scrollY = document.body.style.top
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+      document.body.style.top = ''
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1)
+      }
+    }
+    return () => {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+      document.body.style.top = ''
+    }
+  }, [mobileMenuOpen])
+
   // Check for logged in user
   useEffect(() => {
     const checkUser = async () => {
@@ -368,17 +393,17 @@ export function Navbar({ onSignIn }: NavbarProps) {
         </motion.button>
       </div>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
+{/* Mobile Menu - Full Screen Overlay */}
+  <AnimatePresence>
+  {mobileMenuOpen && (
+  <motion.div
+  initial={{ opacity: 0, y: -20 }}
+  animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="md:hidden overflow-hidden glass-card mx-4 mt-3 rounded-2xl"
+            className="md:hidden fixed inset-0 z-[80] bg-background overflow-y-auto pt-20"
           >
-            <div className="p-6 flex flex-col gap-2">
+            <div className="p-6 flex flex-col gap-2 max-w-md mx-auto">
               {/* Logo in mobile menu */}
               <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
 <Image
