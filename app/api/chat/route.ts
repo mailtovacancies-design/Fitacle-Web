@@ -1,4 +1,5 @@
-import { convertToModelMessages, streamText } from 'ai'
+import { openai } from '@ai-sdk/openai'
+import { streamText } from 'ai'
 
 export const maxDuration = 30
 
@@ -27,12 +28,12 @@ export async function POST(req: Request) {
     const { messages } = await req.json()
 
     const result = streamText({
-      model: 'google/gemini-3-flash',
+      model: openai('gpt-4o-mini'),
       system: SYSTEM_PROMPT,
-      messages: await convertToModelMessages(messages),
+      messages,
     })
 
-    return result.toUIMessageStreamResponse()
+    return result.toDataStreamResponse()
   } catch (error) {
     console.error('[TACLE AI] Error:', error)
     return new Response(

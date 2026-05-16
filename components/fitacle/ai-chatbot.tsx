@@ -2,37 +2,24 @@
 
 import { useState, useRef, useEffect } from "react"
 import { useChat } from "@ai-sdk/react"
-import { DefaultChatTransport } from "ai"
 import { motion, AnimatePresence } from "framer-motion"
 import { MessageCircle, X, Send, Sparkles, Bot, User } from "lucide-react"
 import Image from "next/image"
 
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false)
-  const [input, setInput] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
   
-  const { messages, sendMessage, status, error, reload } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/chat" }),
-    onError: (err) => {
-      console.error("[v0] Chat error:", err)
-    }
+  const { messages, input, setInput, handleSubmit, isLoading, error } = useChat({
+    api: "/api/chat",
   })
 
-  const isLoading = status === "streaming" || status === "submitted"
-  const hasError = status === "error" || !!error
+  const hasError = !!error
   
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages, isLoading])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || isLoading) return
-    sendMessage({ text: input })
-    setInput("")
-  }
 
   return (
     <>
@@ -141,16 +128,7 @@ export function AIChatbot() {
                       : "bg-accent text-foreground rounded-tl-md"
                   }`}>
                     <div className="text-sm whitespace-pre-wrap">
-                      {message.parts && message.parts.length > 0 ? (
-                        message.parts.map((part, index) => {
-                          if (part.type === "text") {
-                            return <span key={index}>{part.text}</span>
-                          }
-                          return null
-                        })
-                      ) : (
-                        <span>{String((message as { content?: string }).content || "")}</span>
-                      )}
+                      {message.content}
                     </div>
                   </div>
                 </motion.div>
@@ -182,13 +160,7 @@ export function AIChatbot() {
               
               {hasError && (
                 <div className="text-center py-4">
-                  <p className="text-sm text-red-500 mb-2">Something went wrong. Please try again.</p>
-                  <button
-                    onClick={() => reload()}
-                    className="text-xs px-3 py-1.5 bg-accent rounded-full text-foreground hover:bg-accent/80 transition-colors"
-                  >
-                    Retry
-                  </button>
+                  <p className="text-sm text-red-500">Something went wrong. Please try again.</p>
                 </div>
               )}
               
@@ -196,7 +168,7 @@ export function AIChatbot() {
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSubmit} className="p-4 pb-safe border-t border-border bg-card">
+            <form onSubmit={(e) => { if (input.trim()) handleSubmit(e) }} className="p-4 pb-safe border-t border-border bg-card">
               <div className="flex gap-2">
                 <input
                   type="text"
