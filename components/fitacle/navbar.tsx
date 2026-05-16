@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ArrowRight, LogOut, User, Edit2, Instagram, Mail } from "lucide-react"
+import { Menu, X, ArrowRight, LogOut, User, Edit2, Instagram, Mail, Dumbbell, Heart, Apple, Flame, Zap, Target } from "lucide-react"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
@@ -174,7 +174,49 @@ export function Navbar({ onSignIn }: NavbarProps) {
           : "bg-transparent py-5"
       }`}
     >
-      <div className="mx-auto max-w-7xl px-6 flex items-center justify-between">
+      {/* Floating Elements - Transparent */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {[
+          { icon: Dumbbell, x: "8%", delay: 0, duration: 7 },
+          { icon: Heart, x: "25%", delay: 1.5, duration: 6 },
+          { icon: Apple, x: "42%", delay: 3, duration: 8 },
+          { icon: Flame, x: "58%", delay: 0.5, duration: 6.5 },
+          { icon: Zap, x: "75%", delay: 2, duration: 7.5 },
+          { icon: Target, x: "92%", delay: 1, duration: 6 },
+        ].map((element, i) => (
+          <motion.div
+            key={`nav-float-${i}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ 
+              opacity: [0, 0.4, 0.4, 0],
+              y: [10, -5, -8, 5],
+            }}
+            transition={{
+              duration: element.duration,
+              repeat: Infinity,
+              delay: element.delay,
+              ease: "easeInOut",
+              times: [0, 0.2, 0.8, 1]
+            }}
+            className="absolute hidden sm:block will-change-transform"
+            style={{
+              left: element.x,
+              top: "50%",
+              transform: "translateY(-50%)",
+            }}
+          >
+            <div className="p-1.5 rounded-lg bg-white/5 border border-emerald-500/10 backdrop-blur-[2px]">
+              <element.icon 
+                size={14} 
+                className="text-emerald-500/40"
+                strokeWidth={1.5}
+              />
+            </div>
+          </motion.div>
+        ))}
+      </div>
+      
+      <div className="mx-auto max-w-7xl px-6 flex items-center justify-between relative z-10">
         {/* Animated Logo */}
         <motion.a 
           href="#" 
