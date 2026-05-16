@@ -1,9 +1,4 @@
-import {
-  consumeStream,
-  convertToModelMessages,
-  streamText,
-  UIMessage,
-} from 'ai'
+import { convertToModelMessages, streamText } from 'ai'
 
 export const maxDuration = 30
 
@@ -21,24 +16,28 @@ Guidelines:
 - Give practical, actionable advice
 - Consider cultural food preferences when discussing nutrition
 - Always remind users to consult healthcare professionals for medical concerns
-- Keep responses concise but helpful
+- Keep responses concise but helpful (2-3 paragraphs max)
 - Use a friendly, conversational tone
 - If asked about topics outside fitness/health, politely redirect to fitness topics
 
 You represent Fitacle - "Tackle Your Fitness Limits"`
 
 export async function POST(req: Request) {
-  const { messages }: { messages: UIMessage[] } = await req.json()
+  try {
+    const { messages } = await req.json()
 
-  const result = streamText({
-    model: 'google/gemini-3-flash',
-    system: SYSTEM_PROMPT,
-    messages: await convertToModelMessages(messages),
-    abortSignal: req.signal,
-  })
+    const result = streamText({
+      model: 'google/gemini-3-flash',
+      system: SYSTEM_PROMPT,
+      messages: await convertToModelMessages(messages),
+    })
 
-  return result.toUIMessageStreamResponse({
-    originalMessages: messages,
-    consumeSseStream: consumeStream,
-  })
+    return result.toUIMessageStreamResponse()
+  } catch (error) {
+    console.error('[TACLE AI] Error:', error)
+    return new Response(
+      JSON.stringify({ error: 'Failed to process request' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
 }

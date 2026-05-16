@@ -216,6 +216,28 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     setIsLoaded(true)
   }, [])
 
+  // Handle Google auth callback from URL params
+  const [showGoogleAuthSuccess, setShowGoogleAuthSuccess] = useState<"signup" | "login" | null>(null)
+  
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const authType = params.get('auth')
+    
+    if (authType === 'google_signup') {
+      setShowGoogleAuthSuccess('signup')
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname + window.location.hash)
+      // Auto-dismiss after 3 seconds
+      setTimeout(() => setShowGoogleAuthSuccess(null), 3500)
+    } else if (authType === 'google_login') {
+      setShowGoogleAuthSuccess('login')
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname)
+      // Auto-dismiss after 3 seconds
+      setTimeout(() => setShowGoogleAuthSuccess(null), 3500)
+    }
+  }, [])
+
 // Realistic stats for early stage startup
   const stats = [
   { value: 347, suffix: "+", label: "Beta Users" },
@@ -878,6 +900,139 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                   )}
                 </p>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Google Auth Success Modal */}
+      <AnimatePresence>
+        {showGoogleAuthSuccess && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", damping: 20, stiffness: 300 }}
+              className="text-center max-w-sm"
+            >
+              {/* Sparkle effects */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-emerald-400/30 to-transparent rounded-full blur-2xl"
+              />
+              <motion.div
+                animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute -bottom-4 -left-4 w-24 h-24 bg-gradient-to-tr from-teal-400/30 to-transparent rounded-full blur-xl"
+              />
+              
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center relative"
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute inset-0 rounded-full bg-emerald-500/10"
+                />
+                <motion.svg
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ delay: 0.4, duration: 0.6 }}
+                  className="w-12 h-12 text-emerald-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                >
+                  <motion.path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </motion.svg>
+              </motion.div>
+              
+              {showGoogleAuthSuccess === 'signup' ? (
+                <>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-xl font-bold text-emerald-600 mb-2"
+                  >
+                    Google Sign Up Successful
+                  </motion.p>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-lg font-semibold text-foreground mb-1"
+                  >
+                    Welcome to Fitacle
+                  </motion.p>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="text-muted-foreground"
+                  >
+                    Your fitness journey just got smarter.
+                  </motion.p>
+                </>
+              ) : (
+                <>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-xl font-bold text-emerald-600 mb-2"
+                  >
+                    Google Login Successful
+                  </motion.p>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-lg font-semibold text-foreground mb-1"
+                  >
+                    Welcome back
+                  </motion.p>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="text-muted-foreground"
+                  >
+                    Consistency looks good on you.
+                  </motion.p>
+                </>
+              )}
+              
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+                className="mt-6 flex justify-center gap-1.5"
+              >
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    animate={{ scale: [1, 1.4, 1], opacity: [0.4, 1, 0.4] }}
+                    transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.15 }}
+                    className="w-2 h-2 rounded-full bg-emerald-500"
+                  />
+                ))}
+              </motion.div>
             </motion.div>
           </motion.div>
         )}

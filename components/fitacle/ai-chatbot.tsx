@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { motion, AnimatePresence } from "framer-motion"
@@ -10,12 +10,18 @@ import Image from "next/image"
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false)
   const [input, setInput] = useState("")
+  const messagesEndRef = useRef<HTMLDivElement>(null)
   
-  const { messages, sendMessage, status } = useChat({
+  const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
   })
 
   const isLoading = status === "streaming" || status === "submitted"
+  
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages, isLoading])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -165,6 +171,14 @@ export function AIChatbot() {
                   </div>
                 </motion.div>
               )}
+              
+              {error && (
+                <div className="text-center py-4">
+                  <p className="text-sm text-red-500">Something went wrong. Please try again.</p>
+                </div>
+              )}
+              
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Input */}

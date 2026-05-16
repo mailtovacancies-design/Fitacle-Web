@@ -751,9 +751,17 @@ export function Navbar({ onSignIn }: NavbarProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="text-muted-foreground text-lg"
+                className="text-muted-foreground"
               >
-                See you soon..
+                You&apos;ve signed out safely.
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="text-muted-foreground text-lg mt-1"
+              >
+                See you soon
               </motion.p>
               <motion.div
                 initial={{ opacity: 0 }}
