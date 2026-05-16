@@ -267,4 +267,17 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  
+  /* Safe area for mobile devices */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
 }

@@ -58,7 +58,7 @@ export function AIChatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed bottom-6 right-6 z-50 w-[90vw] max-w-[380px] h-[70vh] max-h-[550px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+            className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[90vw] sm:max-w-[380px] h-[100dvh] sm:h-[70vh] sm:max-h-[550px] bg-card border-0 sm:border border-border sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden safe-area-inset-bottom"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-emerald-500/10 to-teal-500/10">
@@ -182,7 +182,7 @@ export function AIChatbot() {
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSubmit} className="p-4 border-t border-border">
+            <form onSubmit={handleSubmit} className="p-4 pb-safe border-t border-border bg-card">
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -191,19 +191,20 @@ export function AIChatbot() {
                   placeholder="Ask about fitness..."
                   disabled={isLoading}
                   className="flex-1 px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all disabled:opacity-50"
+                  autoComplete="off"
                 />
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   type="submit"
                   disabled={isLoading || !input.trim()}
-                  className="p-2.5 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2.5 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                 >
                   <Send size={18} />
                 </motion.button>
               </div>
               <p className="text-[10px] text-muted-foreground text-center mt-2">
-                Powered by TACLE AI ⚡ - For general guidance only
+                Powered by TACLE AI - For general guidance only
               </p>
             </form>
           </motion.div>

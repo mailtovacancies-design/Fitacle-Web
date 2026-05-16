@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
+import { calculateMacros, type MacroResult, type FitnessGoal as NutritionGoal, type ActivityLevel } from "@/lib/nutrition-calculator"
 
 interface DailyPlanProps {
   onSignUpClick?: () => void
@@ -747,6 +748,7 @@ export function DailyPlan({ onSignUpClick }: DailyPlanProps) {
   const [selectedGoal, setSelectedGoal] = useState<GoalType>("maintain")
   const [selectedCuisine, setSelectedCuisine] = useState<CuisineType>("indian")
   const [user, setUser] = useState<SupabaseUser | null>(null)
+  const [personalizedMacros, setPersonalizedMacros] = useState<MacroResult | null>(null)
 
   useEffect(() => {
     const checkUser = async () => {
@@ -755,6 +757,30 @@ export function DailyPlan({ onSignUpClick }: DailyPlanProps) {
         if (!supabase) return
         const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
+        
+        // Calculate personalized macros if user has profile data
+        if (user?.user_metadata) {
+          const { weight, height, age, fitness_goal } = user.user_metadata
+          if (weight && height && age) {
+            const goalMap: Record<string, NutritionGoal> = {
+              'Fat Loss': 'lose',
+              'Muscle Gain': 'gain',
+              'Maintain': 'maintain',
+              'Build Strength': 'gain',
+              'Improve Endurance': 'maintain'
+            }
+            const goal = goalMap[fitness_goal] || 'maintain'
+            const macros = calculateMacros(
+              parseFloat(weight),
+              parseFloat(height),
+              parseInt(age),
+              'male', // Default to male, could be added to profile
+              'moderate' as ActivityLevel, // Default activity level
+              goal
+            )
+            setPersonalizedMacros(macros)
+          }
+        }
       } catch {
         // Supabase not configured
       }
@@ -889,34 +915,53 @@ export function DailyPlan({ onSignUpClick }: DailyPlanProps) {
                 {selectedCuisine === "indian" ? "Indian" : selectedCuisine === "arabic" ? "Arabic" : selectedCuisine === "asian" ? "Asian" : "European"} Cuisine
               </p>
             </div>
-            <div className="flex justify-center gap-4 sm:gap-6 py-2 sm:py-0">
+            <div className="flex justify-center gap-3 sm:gap-6 py-2 sm:py-0 flex-wrap">
               <div className="text-center">
                 <motion.div 
-                  key={totalDayCalories}
+                  key={personalizedMacros?.targetCalories || totalDayCalories}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   className="text-base sm:text-2xl md:text-3xl font-bold text-foreground"
                 >
-                  {totalDayCalories}
+                  {personalizedMacros?.targetCalories || totalDayCalories}
                 </motion.div>
-                <div className="text-[9px] sm:text-xs text-muted-foreground">cal</div>
+                <div className="text-[9px] sm:text-xs text-muted-foreground">{personalizedMacros ? 'target cal' : 'cal'}</div>
               </div>
               <div className="w-px bg-border" />
               <div className="text-center">
                 <motion.div 
-                  key={totalDayProtein}
+                  key={personalizedMacros?.protein || totalDayProtein}
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   className="text-base sm:text-2xl md:text-3xl font-bold text-foreground"
                 >
-                  {totalDayProtein}g
+                  {personalizedMacros?.protein || totalDayProtein}g
                 </motion.div>
                 <div className="text-[9px] sm:text-xs text-muted-foreground">protein</div>
               </div>
               <div className="w-px bg-border" />
               <div className="text-center">
-                <div className="text-base sm:text-2xl md:text-3xl font-bold text-success">4</div>
-                <div className="text-[9px] sm:text-xs text-muted-foreground">meals</div>
+                <motion.div 
+                  key={personalizedMacros?.carbs || 'carbs'}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-base sm:text-2xl md:text-3xl font-bold text-foreground"
+                >
+                  {personalizedMacros?.carbs || Math.round(totalDayCalories * 0.45 / 4)}g
+                </motion.div>
+                <div className="text-[9px] sm:text-xs text-muted-foreground">carbs</div>
+              </div>
+              <div className="w-px bg-border" />
+              <div className="text-center">
+                <motion.div 
+                  key={personalizedMacros?.fat || 'fat'}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-base sm:text-2xl md:text-3xl font-bold text-foreground"
+                >
+                  {personalizedMacros?.fat || Math.round(totalDayCalories * 0.25 / 9)}g
+                </motion.div>
+                <div className="text-[9px] sm:text-xs text-muted-foreground">fat</div>
               </div>
             </div>
           </div>
