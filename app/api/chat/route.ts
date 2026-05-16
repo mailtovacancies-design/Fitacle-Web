@@ -1,9 +1,9 @@
-import { openai } from '@ai-sdk/openai'
+import { google } from '@ai-sdk/google'
 import { streamText } from 'ai'
 
 export const maxDuration = 30
 
-const SYSTEM_PROMPT = `You are TACLE AI ⚡, a friendly and knowledgeable AI Fitness Companion for the Fitacle platform. You help users with:
+const SYSTEM_PROMPT = `You are TACLE AI, a friendly and knowledgeable AI Fitness Companion for the Fitacle platform. You help users with:
 
 - Workout advice and exercise techniques
 - Nutrition guidance adapted to different cultures (Indian, Arabic, Asian, European cuisines)
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     const { messages } = await req.json()
 
     const result = streamText({
-      model: openai('gpt-4o-mini'),
+      model: google('gemini-1.5-flash'),
       system: SYSTEM_PROMPT,
       messages,
     })

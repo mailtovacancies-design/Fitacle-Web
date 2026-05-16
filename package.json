@@ -9,6 +9,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.75",
     "@ai-sdk/openai": "^3.0.64",
     "@ai-sdk/react": "^3.0.179",
     "@hookform/resolvers": "^3.9.1",
