@@ -443,8 +443,50 @@ export function Navbar({ onSignIn }: NavbarProps) {
   animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden fixed inset-0 z-[80] bg-background flex flex-col h-[100dvh]"
+            className="md:hidden fixed inset-0 z-[80] bg-background flex flex-col h-[100dvh] overflow-hidden"
           >
+            {/* Floating Elements - Transparent Background */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              {[
+                { icon: Dumbbell, x: "10%", y: "15%", delay: 0, duration: 8 },
+                { icon: Heart, x: "85%", y: "20%", delay: 1.5, duration: 7 },
+                { icon: Apple, x: "15%", y: "45%", delay: 2.5, duration: 9 },
+                { icon: Flame, x: "80%", y: "55%", delay: 0.8, duration: 7.5 },
+                { icon: Zap, x: "20%", y: "75%", delay: 1.2, duration: 8.5 },
+                { icon: Target, x: "75%", y: "80%", delay: 2, duration: 7 },
+              ].map((element, i) => (
+                <motion.div
+                  key={`mobile-float-${i}`}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ 
+                    opacity: [0, 0.3, 0.3, 0],
+                    scale: [0.8, 1, 1, 0.8],
+                    y: [0, -10, -15, 0],
+                  }}
+                  transition={{
+                    duration: element.duration,
+                    repeat: Infinity,
+                    delay: element.delay,
+                    ease: "easeInOut",
+                    times: [0, 0.2, 0.8, 1]
+                  }}
+                  className="absolute will-change-transform"
+                  style={{
+                    left: element.x,
+                    top: element.y,
+                  }}
+                >
+                  <div className="p-2 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                    <element.icon 
+                      size={18} 
+                      className="text-emerald-500/30"
+                      strokeWidth={1.5}
+                    />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            
             {/* Header with logo and close button */}
             <div className="flex items-center justify-between p-4 border-b border-border shrink-0">
               <div className="flex items-center gap-3">
