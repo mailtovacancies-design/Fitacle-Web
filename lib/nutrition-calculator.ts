@@ -14,6 +14,13 @@ const ACTIVITY_MULTIPLIERS: Record<ActivityLevel, number> = {
   very_active: 1.9     // Very hard exercise, physical job
 }
 
+// Protein multipliers based on goal
+const PROTEIN_MULTIPLIERS: Record<FitnessGoal, number> = {
+  maintain: 1.6,  // Maintenance
+  lose: 1.8,      // Fat loss (higher to preserve muscle)
+  gain: 2.0       // Muscle gain
+}
+
 // BMI = weight (kg) / height (m)²
 export function calculateBMI(weightKg: number, heightCm: number): number {
   const heightM = heightCm / 100
@@ -44,32 +51,34 @@ export function calculateTDEE(bmr: number, activityLevel: ActivityLevel): number
 // Target calories based on goal
 // Loss: TDEE - 300 to 500 (we use -400 as middle ground)
 // Maintain: TDEE
-// Gain: TDEE + 200 to 350 (we use +300 as middle ground)
+// Gain: TDEE + 200 to 350 (we use +275 as middle ground)
 export function calculateTargetCalories(tdee: number, goal: FitnessGoal): number {
   switch (goal) {
     case 'lose': return Math.round(tdee - 400)
     case 'maintain': return Math.round(tdee)
-    case 'gain': return Math.round(tdee + 300)
+    case 'gain': return Math.round(tdee + 275)
   }
 }
 
-// Protein = weight × 1.6 to 2.0 (we use 1.8 as middle ground for active people)
-// For muscle gain, we use 2.0
-// For fat loss, we use 2.0 (to preserve muscle)
-// For maintenance, we use 1.6
+// Protein = weight × multiplier based on goal
+// Maintain: 1.6g/kg, Fat loss: 1.8g/kg, Gain: 2.0g/kg
 export function calculateProtein(weightKg: number, goal: FitnessGoal): number {
-  const multiplier = goal === 'maintain' ? 1.6 : 2.0
-  return Math.round(weightKg * multiplier)
+  return Math.round(weightKg * PROTEIN_MULTIPLIERS[goal])
 }
 
-// Fat = calories × 0.25 to 0.30 / 9 (we use 0.25)
-export function calculateFat(calories: number): number {
-  return Math.round((calories * 0.25) / 9)
+// Fat = weight × 0.9 (middle of 0.8-1.0 range) OR 27.5% kcal (middle of 25-30%)
+// We use the higher of the two to ensure adequate fat intake
+export function calculateFat(calories: number, weightKg: number): number {
+  const fatByWeight = Math.round(weightKg * 0.9)
+  const fatByCalories = Math.round((calories * 0.275) / 9)
+  return Math.max(fatByWeight, fatByCalories)
 }
 
 // Carbs = (calories - (protein×4 + fat×9)) / 4
+// Minimum 100g for active users
 export function calculateCarbs(calories: number, proteinGrams: number, fatGrams: number): number {
-  return Math.round((calories - (proteinGrams * 4 + fatGrams * 9)) / 4)
+  const carbs = Math.round((calories - (proteinGrams * 4 + fatGrams * 9)) / 4)
+  return Math.max(carbs, 100) // Minimum 100g threshold
 }
 
 // Ideal weight range based on BMI 18.5-24.9
@@ -81,7 +90,7 @@ export function calculateIdealWeightRange(heightCm: number): { min: number; max:
   }
 }
 
-// Complete macro calculation
+// Complete macro calculation with validation
 export interface MacroResult {
   bmi: number
   bmiCategory: string
@@ -92,6 +101,8 @@ export interface MacroResult {
   fat: number      // grams
   carbs: number    // grams
   idealWeightRange: { min: number; max: number }
+  // Verification that macros match calories
+  calculatedCalories: number
 }
 
 export function calculateMacros(
@@ -108,8 +119,23 @@ export function calculateMacros(
   const tdee = calculateTDEE(bmr, activityLevel)
   const targetCalories = calculateTargetCalories(tdee, goal)
   const protein = calculateProtein(weightKg, goal)
-  const fat = calculateFat(targetCalories)
-  const carbs = calculateCarbs(targetCalories, protein, fat)
+  const fat = calculateFat(targetCalories, weightKg)
+  
+  // Calculate carbs with minimum threshold
+  let carbs = calculateCarbs(targetCalories, protein, fat)
+  
+  // If carbs hit minimum (100g), adjust fat down to balance calories
+  const calculatedCalories = (protein * 4) + (fat * 9) + (carbs * 4)
+  let adjustedFat = fat
+  
+  if (calculatedCalories > targetCalories + 50) {
+    // Recalculate fat to balance if over by more than 50 cal
+    const remainingCalories = targetCalories - (protein * 4) - (100 * 4) // 100g carbs minimum
+    adjustedFat = Math.max(Math.round(remainingCalories / 9), Math.round(weightKg * 0.8))
+    carbs = calculateCarbs(targetCalories, protein, adjustedFat)
+  }
+  
+  const finalCalculatedCalories = (protein * 4) + (adjustedFat * 9) + (carbs * 4)
   const idealWeightRange = calculateIdealWeightRange(heightCm)
 
   return {
@@ -119,9 +145,10 @@ export function calculateMacros(
     tdee: Math.round(tdee),
     targetCalories,
     protein,
-    fat,
+    fat: adjustedFat,
     carbs,
-    idealWeightRange
+    idealWeightRange,
+    calculatedCalories: finalCalculatedCalories
   }
 }
 
