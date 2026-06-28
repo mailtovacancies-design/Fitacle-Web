@@ -90,7 +90,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
     { href: "#analyzer", label: "Body Intelligence" },
     { href: "#plan", label: "AI Plan" },
     { href: "#transformation", label: "Progress" },
-    { href: "#partner", label: "Find a Training Partner" },
+    { href: "#members", label: "Find a Training Partner" },
   ]
 
   return (
