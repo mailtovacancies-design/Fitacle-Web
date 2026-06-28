@@ -374,30 +374,39 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
           {isLoading ? (
             <div className="h-14 w-64 mx-auto bg-accent animate-pulse rounded-full" />
           ) : isLoggedIn ? (
-            <motion.button
-              onClick={() => setShowCalculator(!showCalculator)}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-foreground text-background rounded-full font-semibold text-base shadow-lg hover:shadow-xl transition-all"
-            >
-              <Sparkles size={18} />
-              Find Your Fitacle Score
-              <ArrowRight size={18} />
-            </motion.button>
+            <div className="space-y-4">
+              <motion.button
+                onClick={() => setShowCalculator(!showCalculator)}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-foreground text-background rounded-full font-bold text-base shadow-lg hover:shadow-xl hover:bg-foreground/90 transition-all"
+              >
+                <Sparkles size={18} />
+                <span>
+                  Find your <span className="text-emerald-400">daily Fitacle Score</span>
+                </span>
+                <ArrowRight size={18} />
+              </motion.button>
+              <p className="text-sm text-muted-foreground">
+                Enter today&apos;s activity and get personalized AI advice
+              </p>
+            </div>
           ) : (
             <div className="space-y-4">
               <motion.button
                 onClick={onSignUpClick}
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-foreground text-background rounded-full font-semibold text-base shadow-lg hover:shadow-xl transition-all"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-foreground text-background rounded-full font-bold text-base shadow-lg hover:shadow-xl hover:bg-foreground/90 transition-all"
               >
                 <LogIn size={18} />
-                Sign Up to Find Your Fitacle Score
+                <span>
+                  Sign up to find your <span className="text-emerald-400">daily Fitacle Score</span>
+                </span>
                 <ArrowRight size={18} />
               </motion.button>
               <p className="text-sm text-muted-foreground">
-                Get personalized AI recommendations based on your daily activity
+                Enter today&apos;s activity and get personalized AI advice
               </p>
             </div>
           )}
