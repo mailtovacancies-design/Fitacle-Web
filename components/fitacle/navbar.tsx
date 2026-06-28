@@ -7,6 +7,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
+import { ProfileModal } from "@/components/fitacle/profile-modal"
 
 interface NavbarProps {
   onSignIn?: () => void
@@ -18,6 +19,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false)
+  const [showProfileModal, setShowProfileModal] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -88,7 +90,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
     { href: "#analyzer", label: "Body Intelligence" },
     { href: "#plan", label: "AI Plan" },
     { href: "#transformation", label: "Progress" },
-    { href: "#partner", label: "Find a Training Partner" },
+    { href: "#members", label: "Find a Training Partner" },
   ]
 
   return (
@@ -291,10 +293,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
                     <button
                       onClick={() => { 
                         setShowUserMenu(false)
-                        const partnerSection = document.querySelector('#partner')
-                        if (partnerSection) {
-                          partnerSection.scrollIntoView({ behavior: 'smooth' })
-                        }
+                        setShowProfileModal(true)
                       }}
                       className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-accent transition-colors"
                     >
@@ -558,12 +557,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
                     <button 
                       onClick={() => { 
                         setMobileMenuOpen(false)
-                        setTimeout(() => {
-                          const partnerSection = document.querySelector('#partner')
-                          if (partnerSection) {
-                            partnerSection.scrollIntoView({ behavior: 'smooth' })
-                          }
-                        }, 100)
+                        setShowProfileModal(true)
                       }}
                       className="flex-1 py-2.5 text-sm text-foreground font-medium rounded-lg bg-accent hover:bg-accent/80 transition-colors flex items-center justify-center gap-2"
                     >
@@ -682,6 +676,9 @@ export function Navbar({ onSignIn }: NavbarProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Profile Create/Edit Modal */}
+      <ProfileModal open={showProfileModal} onClose={() => setShowProfileModal(false)} />
     </motion.nav>
   )
 }

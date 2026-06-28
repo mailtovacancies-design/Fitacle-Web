@@ -1,5 +1,5 @@
 import { google } from '@ai-sdk/google'
-import { streamText } from 'ai'
+import { streamText, convertToModelMessages, type UIMessage } from 'ai'
 
 export const maxDuration = 30
 
@@ -25,15 +25,15 @@ You represent Fitacle - "Tackle Your Fitness Limits"`
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json()
+    const { messages }: { messages: UIMessage[] } = await req.json()
 
     const result = streamText({
-      model: google('gemini-1.5-flash'),
+      model: google('gemini-2.5-flash'),
       system: SYSTEM_PROMPT,
-      messages,
+      messages: await convertToModelMessages(messages),
     })
 
-    return result.toDataStreamResponse()
+    return result.toUIMessageStreamResponse()
   } catch (error) {
     console.error('[TACLE AI] Error:', error)
     return new Response(

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
   Utensils, Sun, Cloud, Moon, Coffee, ArrowRight, Leaf, Flame, 
-  Dumbbell, Instagram, MessageCircle, ChevronRight, Sparkles,
+  Dumbbell, Sparkles,
   Heart, Target, TrendingUp, Lock
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
@@ -1076,97 +1076,6 @@ export function DailyPlan({ onSignUpClick }: DailyPlanProps) {
           </div>
         </motion.div>
 
-        {/* Instagram CTA for Custom Workout */}
-        <motion.div
-          initial={{ opacity: 0, y: 30, scale: 0.95 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="relative overflow-hidden"
-        >
-          <motion.div
-            animate={{ 
-              background: [
-                "linear-gradient(45deg, rgba(147, 51, 234, 0.1), rgba(236, 72, 153, 0.1), rgba(249, 115, 22, 0.1))",
-                "linear-gradient(90deg, rgba(249, 115, 22, 0.1), rgba(147, 51, 234, 0.1), rgba(236, 72, 153, 0.1))",
-                "linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(249, 115, 22, 0.1), rgba(147, 51, 234, 0.1))",
-              ]
-            }}
-            transition={{ duration: 5, repeat: Infinity }}
-            className="rounded-3xl border border-pink-500/20 p-6 md:p-10"
-          >
-            {/* Animated particles */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {[...Array(6)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-40"
-                  animate={{
-                    y: [100, -20],
-                    x: [Math.random() * 100, Math.random() * 100],
-                    opacity: [0, 0.6, 0],
-                  }}
-                  transition={{
-                    duration: 3 + Math.random() * 2,
-                    repeat: Infinity,
-                    delay: i * 0.5,
-                  }}
-                  style={{ left: `${10 + i * 15}%` }}
-                />
-              ))}
-            </div>
-
-            <div className="flex flex-col lg:flex-row items-center gap-6 md:gap-8 relative">
-              <motion.div 
-                animate={{ scale: [1, 1.05, 1], rotate: [0, 2, -2, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
-                className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center shadow-xl shadow-pink-500/20"
-              >
-                <Instagram size={36} className="text-white md:w-12 md:h-12" />
-              </motion.div>
-              
-              <div className="flex-1 text-center lg:text-left">
-                <motion.h3 
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  className="text-xl md:text-2xl font-semibold text-foreground mb-2"
-                >
-                  Want a Custom Workout Plan?
-                </motion.h3>
-                <p className="text-muted-foreground mb-4 text-sm md:text-base">
-                  Get personalized workout routines tailored to your body type and goals. 
-                  DM us on Instagram for a detailed plan to achieve your transformation within the timeline!
-                </p>
-                <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
-                  {["Personalized Plans", "Expert Guidance", "Free Consultation"].map((tag, i) => (
-                    <motion.span 
-                      key={tag}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.1 }}
-                      className="px-3 py-1 rounded-full bg-background/80 border border-border text-xs font-medium text-muted-foreground"
-                    >
-                      {tag}
-                    </motion.span>
-                  ))}
-                </div>
-              </div>
-
-              <motion.a
-                href="https://instagram.com/fitacle_official"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white rounded-2xl font-semibold shadow-xl shadow-pink-500/30 hover:shadow-pink-500/50 transition-all duration-300 group"
-              >
-                <MessageCircle size={20} className="group-hover:animate-pulse" />
-                <span>DM Us Now</span>
-                <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </motion.a>
-            </div>
-          </motion.div>
-        </motion.div>
           </>
         ) : (
           /* Signup CTA for non-logged users */

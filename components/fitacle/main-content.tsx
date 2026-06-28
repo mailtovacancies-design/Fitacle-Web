@@ -7,7 +7,6 @@ import { EmotionalHook } from "@/components/fitacle/emotional-hook"
 import { BodyAnalyzer } from "@/components/fitacle/body-analyzer"
 import { DailyPlan } from "@/components/fitacle/daily-plan"
 import { Transformation } from "@/components/fitacle/transformation"
-import { GymPartner } from "@/components/fitacle/gym-partner"
 import { MembersShowcase } from "@/components/fitacle/members-showcase"
 import { FitacleScore } from "@/components/fitacle/fitacle-score"
 import { Community } from "@/components/fitacle/community"
@@ -25,7 +24,6 @@ export function MainContent() {
       <BodyAnalyzer />
       <DailyPlan onSignUpClick={() => setShowAuthModal(true)} />
       <Transformation />
-      <GymPartner onSignUpClick={() => setShowAuthModal(true)} />
       <MembersShowcase />
       <FitacleScore onSignUpClick={() => setShowAuthModal(true)} />
       <EmotionalHook />

@@ -358,7 +358,7 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
             <Award size={16} className="text-primary" />
             Performance Dashboard
           </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
             <span className="text-foreground">Your Life,</span>
             <br />
             <span className="text-muted-foreground">Quantified.</span>

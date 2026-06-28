@@ -63,7 +63,7 @@ export function Transformation() {
   return (
     <section 
       id="transformation" 
-      className="py-16 sm:py-24 md:py-32 bg-background relative overflow-hidden"
+      className="pt-16 sm:pt-24 md:pt-32 pb-8 sm:pb-10 md:pb-12 bg-background relative overflow-hidden"
     >
       {/* Simplified Background - No heavy animations */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -343,33 +343,33 @@ export function Transformation() {
           transition={{ duration: 0.6 }}
           className="relative px-2"
         >
-          <div className="bg-gradient-to-r from-purple-500/5 via-pink-500/8 to-orange-500/5 rounded-2xl sm:rounded-3xl border border-pink-500/20 p-5 sm:p-8 md:p-12 overflow-hidden">
-            <div className="relative flex flex-col lg:flex-row items-center gap-5 sm:gap-8">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center shadow-lg flex-shrink-0">
-                <Instagram size={36} className="text-white sm:w-12 sm:h-12" />
+          <div className="bg-gradient-to-r from-purple-500/5 via-pink-500/8 to-orange-500/5 rounded-2xl border border-pink-500/20 p-4 sm:p-6 max-w-3xl mx-auto overflow-hidden">
+            <div className="relative flex flex-col sm:flex-row items-center gap-4 sm:gap-5">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center shadow-lg flex-shrink-0">
+                <Instagram size={26} className="text-white sm:w-7 sm:h-7" />
               </div>
               
-              <div className="flex-1 text-center lg:text-left">
-                <div className="flex items-center gap-2 justify-center lg:justify-start mb-2 sm:mb-3">
-                  <Star className="text-yellow-500 fill-yellow-500" size={16} />
-                  <span className="text-xs sm:text-sm font-medium text-muted-foreground">Exclusive Offer</span>
+              <div className="flex-1 text-center sm:text-left">
+                <div className="flex items-center gap-1.5 justify-center sm:justify-start mb-1.5">
+                  <Star className="text-yellow-500 fill-yellow-500" size={14} />
+                  <span className="text-xs font-medium text-muted-foreground">Exclusive Offer</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2 sm:mb-3">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-1.5">
                   Achieve Your Goal Within
                   <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent"> 90 Days</span>
                 </h3>
-                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-xl">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-3 max-w-xl">
                   Want a personalized workout routine? Follow us on Instagram and DM for a <strong>FREE custom workout plan</strong>!
                 </p>
                 
-                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center lg:justify-start">
+                <div className="flex flex-col sm:flex-row items-center gap-2.5 justify-center sm:justify-start">
                   <a
                     href="https://instagram.com/fitacle_official"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 sm:gap-3 px-5 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base shadow-lg transition-transform hover:scale-105 active:scale-95"
+                    className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white rounded-xl font-semibold text-sm shadow-lg transition-transform hover:scale-105 active:scale-95"
                   >
-                    <Instagram size={18} className="sm:w-5 sm:h-5" />
+                    <Instagram size={16} />
                     <span>Follow @fitacle_official</span>
                   </a>
                   
@@ -377,9 +377,9 @@ export function Transformation() {
                     href="https://instagram.com/fitacle_official"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-card border border-border rounded-xl sm:rounded-2xl font-medium text-sm sm:text-base text-foreground hover:bg-secondary transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-card border border-border rounded-xl font-medium text-sm text-foreground hover:bg-secondary transition-colors"
                   >
-                    <MessageCircle size={18} className="sm:w-5 sm:h-5" />
+                    <MessageCircle size={16} />
                     <span>DM for Details</span>
                   </a>
                 </div>
