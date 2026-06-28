@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { useChat } from "@ai-sdk/react"
+import { DefaultChatTransport, type UIMessage } from "ai"
 import { motion, AnimatePresence, useDragControls } from "framer-motion"
 import { MessageCircle, X, Send, Sparkles, Bot, User, GripVertical } from "lucide-react"
 import Image from "next/image"
@@ -14,11 +15,27 @@ export function AIChatbot() {
   const dragControls = useDragControls()
   const constraintsRef = useRef<HTMLDivElement>(null)
   
-  const { messages, input, setInput, handleSubmit, isLoading, error } = useChat({
-    api: "/api/chat",
+  const [input, setInput] = useState("")
+  const { messages, sendMessage, status, error } = useChat({
+    transport: new DefaultChatTransport({ api: "/api/chat" }),
   })
 
+  const isLoading = status === "submitted" || status === "streaming"
   const hasError = !!error
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input.trim() || isLoading) return
+    sendMessage({ text: input })
+    setInput("")
+  }
+
+  // Extract plain text from a UIMessage's parts array (AI SDK v6)
+  const getMessageText = (message: UIMessage) =>
+    message.parts
+      ?.filter((part) => part.type === "text")
+      .map((part) => part.text)
+      .join("") ?? ""
   
   // Check if desktop on mount and resize
   useEffect(() => {
@@ -166,7 +183,7 @@ export function AIChatbot() {
                       : "bg-accent text-foreground rounded-tl-md"
                   }`}>
                     <div className="text-sm whitespace-pre-wrap">
-                      {message.content}
+                      {getMessageText(message)}
                     </div>
                   </div>
                 </motion.div>
@@ -206,7 +223,7 @@ export function AIChatbot() {
             </div>
 
             {/* Input */}
-            <form onSubmit={(e) => { if (input.trim()) handleSubmit(e) }} className="p-4 pb-safe border-t border-border bg-card">
+            <form onSubmit={handleSubmit} className="p-4 pb-safe border-t border-border bg-card">
               <div className="flex gap-2">
                 <input
                   type="text"
