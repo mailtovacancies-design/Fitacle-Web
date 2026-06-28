@@ -31,7 +31,7 @@ export function Community() {
             Real Community
           </span>
           
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
             <span className="text-foreground">You Are Surrounded by People</span>
             <br />
             <span className="text-muted-foreground">Becoming Better.</span>
