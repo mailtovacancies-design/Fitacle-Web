@@ -1,7 +1,8 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Users, Star, Heart, TrendingUp, Instagram } from "lucide-react"
+import Link from "next/link"
+import { Users, Star, Heart, TrendingUp, Instagram, MessageSquare, ArrowRight } from "lucide-react"
 
 const communityMembers = [
   { name: "Sarah M.", progress: "Lost 12kg in 90 days", badge: "Consistent" },
@@ -36,9 +37,18 @@ export function Community() {
             <span className="text-muted-foreground">Becoming Better.</span>
           </h2>
           
-          <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-3">
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-6">
             Not influencers. Not perfection. Real people improving daily.
           </p>
+
+          <Link
+            href="/community"
+            className="group inline-flex items-center gap-2 px-6 py-3 bg-foreground text-background font-semibold rounded-full shadow-md hover:bg-foreground/90 hover:shadow-lg transition-all"
+          >
+            <MessageSquare size={18} />
+            Visit the Community Hub
+            <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+          </Link>
         </motion.div>
 
         {/* Community Grid */}

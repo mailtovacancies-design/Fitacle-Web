@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ArrowRight, LogOut, User, Edit2, Instagram, Mail, Dumbbell, Heart, Apple, Flame, Zap, Target } from "lucide-react"
+import { Menu, X, ArrowRight, LogOut, User, Edit2, Instagram, Mail, Dumbbell, Heart, Apple, Flame, Zap, Target, Users } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 
@@ -235,8 +236,21 @@ export function Navbar({ onSignIn }: NavbarProps) {
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300" />
             </motion.a>
           ))}
-          
-          
+
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 + navLinks.length * 0.1 }}
+          >
+            <Link
+              href="/community"
+              className="relative inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors duration-300 group"
+            >
+              <Users size={15} />
+              Community
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300" />
+            </Link>
+          </motion.div>
         </div>
 
         <div className="hidden md:flex items-center gap-3">
@@ -480,6 +494,21 @@ export function Navbar({ onSignIn }: NavbarProps) {
                     {link.label}
                   </motion.a>
                 ))}
+
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2, delay: navLinks.length * 0.03 }}
+                >
+                  <Link
+                    href="/community"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 transition-colors py-2.5 font-semibold rounded-lg hover:bg-emerald-500/5 px-3"
+                  >
+                    <Users size={18} />
+                    Community
+                  </Link>
+                </motion.div>
               </div>
               
               {/* Social Links Row */}
