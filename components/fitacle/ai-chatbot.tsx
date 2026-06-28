@@ -150,9 +150,10 @@ export function AIChatbot() {
                       <button
                         key={q}
                         onClick={() => {
-                          setInput(q)
+                          if (isLoading) return
+                          sendMessage({ text: q })
                         }}
-                        className="text-xs px-3 py-1.5 bg-accent rounded-full text-foreground hover:bg-accent/80 transition-colors"
+                        className="text-xs px-3 py-2 bg-accent rounded-full text-foreground hover:bg-accent/80 active:scale-95 transition-all"
                       >
                         {q}
                       </button>
@@ -231,7 +232,8 @@ export function AIChatbot() {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask about fitness..."
                   disabled={isLoading}
-                  className="flex-1 px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all disabled:opacity-50"
+                  enterKeyHint="send"
+                  className="flex-1 px-4 py-2.5 bg-background border border-border rounded-xl text-base sm:text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all disabled:opacity-50"
                   autoComplete="off"
                 />
                 <motion.button
