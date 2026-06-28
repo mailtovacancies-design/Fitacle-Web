@@ -79,34 +79,6 @@ export function EmotionalHook() {
             </motion.div>
           ))}
         </div>
-
-        {/* AI Coach Section - Compact Coming Soon */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-12 bg-card/50 border border-border rounded-2xl p-5 sm:p-6 opacity-70"
-        >
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-            <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-foreground to-foreground/80 flex items-center justify-center">
-              <Brain size={28} className="text-background" />
-            </div>
-            <div className="flex-1 text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                <h3 className="text-lg font-semibold text-foreground">
-                  AI Coach Coming Soon
-                </h3>
-                <span className="text-xs px-2 py-0.5 bg-amber-500/10 text-amber-600 rounded-full border border-amber-500/20">
-                  Beta
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Fatigue detection, recovery adjustment, and personalized habit correction - all in real time.
-              </p>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </section>
   )

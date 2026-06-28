@@ -22,13 +22,13 @@ export function MainContent() {
     <main className="relative overflow-hidden">
       <Navbar onSignIn={() => setShowAuthModal(true)} />
       <Hero showAuthModal={showAuthModal} setShowAuthModal={setShowAuthModal} />
-      <EmotionalHook />
       <BodyAnalyzer />
       <DailyPlan onSignUpClick={() => setShowAuthModal(true)} />
       <Transformation />
       <GymPartner onSignUpClick={() => setShowAuthModal(true)} />
       <MembersShowcase />
       <FitacleScore onSignUpClick={() => setShowAuthModal(true)} />
+      <EmotionalHook />
       <Community />
       <Footer />
       <AIChatbot />
