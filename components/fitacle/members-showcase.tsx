@@ -188,10 +188,10 @@ function MemberCard({
           href={`https://instagram.com/${partner.instagram_id.replace(/^@/, "")}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-shrink-0 p-2 rounded-lg text-[#E1306C] hover:bg-accent transition-colors"
+          className="flex-shrink-0 grid place-items-center w-9 h-9 rounded-xl text-white bg-[radial-gradient(circle_at_30%_107%,#fdf497_0%,#fdf497_5%,#fd5949_45%,#d6249f_60%,#285AEB_90%)] shadow-sm hover:opacity-90 transition-opacity"
           aria-label={`${partner.full_name} on Instagram`}
         >
-          <Instagram size={16} />
+          <Instagram size={18} />
         </a>
       )}
     </motion.div>
