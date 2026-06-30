@@ -9,7 +9,6 @@ import {
   Award,
   MapPin,
   Dumbbell,
-  Instagram,
   Star,
   Loader2,
   ChevronDown,
@@ -188,10 +187,10 @@ function MemberCard({
           href={`https://instagram.com/${partner.instagram_id.replace(/^@/, "")}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-shrink-0 grid place-items-center w-9 h-9 rounded-xl text-white bg-[radial-gradient(circle_at_30%_107%,#fdf497_0%,#fdf497_5%,#fd5949_45%,#d6249f_60%,#285AEB_90%)] shadow-sm hover:opacity-90 transition-opacity"
+          className="flex-shrink-0 grid place-items-center w-9 h-9 hover:opacity-80 transition-opacity"
           aria-label={`${partner.full_name} on Instagram`}
         >
-          <Instagram size={18} />
+          <img src="/icons/instagram.png" alt="" width={24} height={24} className="w-6 h-6" />
         </a>
       )}
     </motion.div>
