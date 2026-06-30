@@ -7,26 +7,26 @@ const steps = [
   {
     icon: Eye,
     number: "01",
-    title: "Observe You",
-    description: "We track sleep, food, movement, hydration, and habits.",
+    title: "Observe",
+    description: "Sleep, food, movement, hydration.",
   },
   {
     icon: Brain,
     number: "02",
-    title: "Understand You",
-    description: "AI identifies your behavioural patterns.",
+    title: "Understand",
+    description: "AI finds behaviour patterns.",
   },
   {
     icon: RefreshCw,
     number: "03",
-    title: "Adapt to You",
-    description: "Plans change based on your real-life actions.",
+    title: "Adapt",
+    description: "Plans change with your actions.",
   },
   {
     icon: Sparkles,
     number: "04",
-    title: "Transform You",
-    description: "Small daily actions become visible physical change.",
+    title: "Transform",
+    description: "Small actions → real change.",
   },
 ]
 
@@ -48,12 +48,12 @@ export function EmotionalHook() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold mb-6 text-foreground leading-tight">
-            &ldquo;Your body is not your problem.
+            &ldquo;Your body is not the problem.
             <br />
             <span className="text-muted-foreground">Your patterns are.&rdquo;</span>
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
-            We don&apos;t give generic plans. We study your life and adapt in real time.
+            No generic plans. AI adapts to your real life.
           </p>
         </motion.div>
 

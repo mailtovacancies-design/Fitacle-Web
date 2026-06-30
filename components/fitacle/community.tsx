@@ -7,8 +7,8 @@ import { Users, Star, Heart, TrendingUp, Instagram, MessageSquare, ArrowRight } 
 const communityMembers = [
   { name: "Sarah M.", progress: "Lost 12kg in 90 days", badge: "Consistent" },
   { name: "James K.", progress: "200+ workout streak", badge: "Dedicated" },
-  { name: "Priya S.", progress: "Complete lifestyle change", badge: "Transformed" },
-  { name: "Michael R.", progress: "First marathon completed", badge: "Achiever" },
+  { name: "Priya S.", progress: "Lifestyle change", badge: "Transformed" },
+  { name: "Michael R.", progress: "First marathon", badge: "Achiever" },
 ]
 
 export function Community() {
@@ -43,17 +43,17 @@ export function Community() {
 
           <Link
             href="/community"
-            className="group inline-flex items-center gap-2 px-6 py-3 bg-foreground text-background font-semibold rounded-full shadow-md hover:bg-foreground/90 hover:shadow-lg transition-all"
+            className="group inline-flex items-center gap-2.5 px-8 py-4 bg-foreground text-background text-xl sm:text-2xl font-bold rounded-full shadow-md hover:bg-foreground/90 hover:shadow-lg transition-all"
           >
-            <MessageSquare size={18} />
-            Visit the Community Hub
-            <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+            <MessageSquare size={22} />
+            Visit Community Hub
+            <ArrowRight size={20} className="group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </motion.div>
 
         {/* Community Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          {communityMembers.map((member, index) => (
+          {communityMembers.slice(0, 5).map((member, index) => (
             <motion.div
               key={member.name}
               initial={{ opacity: 0, y: 20 }}
