@@ -6,10 +6,40 @@ import { Instagram, Star, X, Loader2, CheckCircle2, AlertCircle, Eye, EyeOff } f
 import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 
-const experienceLevels = ["Beginner", "Intermediate", "Advanced", "Pro"]
-const fitnessFocusOptions = ["Strength Training", "Bodybuilding", "CrossFit", "HIIT", "Running", "Cycling", "Powerlifting", "Calisthenics", "Yoga", "Swimming", "Boxing", "Martial Arts", "Other"]
-const scheduleOptions = ["Morning", "Afternoon", "Evening", "Night", "Flexible"]
-const gymTimeOptions = ["5-7 AM", "7-9 AM", "9-11 AM", "11 AM-1 PM", "1-3 PM", "3-5 PM", "5-7 PM", "7-9 PM", "9-11 PM", "Flexible"]
+const experienceLevels = ["Beginner", "Intermediate", "Advanced"]
+const activityOptions = [
+  "Gym Workout",
+  "Running",
+  "Cycling",
+  "Swimming",
+  "Yoga",
+  "CrossFit",
+  "Boxing",
+  "Calisthenics",
+  "Hiking",
+  "Home Workout",
+  "Other",
+]
+const locationOptions = ["Gym", "Home", "Park", "Track", "Pool"]
+const workoutTimeOptions = ["Morning", "Afternoon", "Evening", "Flexible"]
+const goalOptions = ["Weight Loss", "Muscle Gain", "Strength", "Endurance", "General Fitness", "Stay Active"]
+
+// Proper Case (Excel style): trim, collapse spaces, capitalize each word.
+function toProperCase(value: string) {
+  return value
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+// Accept "@handle" or "handle", strip spaces and leading @.
+function cleanInstagram(value: string) {
+  return value.replace(/\s+/g, "").replace(/^@+/, "")
+}
+
+// Letters, spaces, hyphens, apostrophes and periods only.
+const TEXT_ONLY = /^[A-Za-z\s'.-]+$/
 
 interface ProfileModalProps {
   open: boolean
@@ -31,16 +61,17 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
     age: "",
     country: "",
     city: "",
+    preferred_location: "Gym",
     gym_name: "",
-    usual_gym_time: "Flexible",
     weight_kg: "",
     height_cm: "",
     body_fat_percentage: "",
-    fitness_focus: "Strength Training",
+    fitness_focus: "Gym Workout",
     experience_level: "Beginner",
     schedule_preference: "Flexible",
+    goal: "General Fitness",
     is_visible: true,
-    is_trainer: false
+    is_trainer: false,
   })
   const [showTrainerNote, setShowTrainerNote] = useState(false)
 
@@ -50,7 +81,9 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
       try {
         const supabase = createClient()
         if (!supabase) return
-        const { data: { user } } = await supabase.auth.getUser()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
         setUser(user)
 
         if (user) {
@@ -68,16 +101,26 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
               age: profile.age?.toString() || "",
               country: profile.country || "",
               city: profile.city || "",
+              // Preferred Location reuses the existing usual_gym_time column.
+              preferred_location: locationOptions.includes(profile.usual_gym_time)
+                ? profile.usual_gym_time
+                : "Gym",
               gym_name: profile.gym_name || "",
-              usual_gym_time: profile.usual_gym_time || "Flexible",
               weight_kg: profile.weight_kg?.toString() || "",
               height_cm: profile.height_cm?.toString() || "",
               body_fat_percentage: profile.body_fat_percentage?.toString() || "",
-              fitness_focus: profile.fitness_focus || "Strength Training",
-              experience_level: profile.experience_level || "Beginner",
-              schedule_preference: profile.schedule_preference || "Flexible",
+              fitness_focus: activityOptions.includes(profile.fitness_focus)
+                ? profile.fitness_focus
+                : "Gym Workout",
+              experience_level: experienceLevels.includes(profile.experience_level)
+                ? profile.experience_level
+                : "Beginner",
+              schedule_preference: workoutTimeOptions.includes(profile.schedule_preference)
+                ? profile.schedule_preference
+                : "Flexible",
+              goal: goalOptions.includes(profile.goal) ? profile.goal : "General Fitness",
               is_visible: profile.is_visible,
-              is_trainer: profile.is_trainer || false
+              is_trainer: profile.is_trainer || false,
             })
           }
         }
@@ -97,46 +140,57 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
       errors.full_name = "Please enter your full name (min 2 characters)"
     }
 
-    if (!formData.instagram_id.trim() || formData.instagram_id.trim().length < 2) {
-      errors.instagram_id = "Please enter a valid Instagram username"
+    // Instagram is optional. Validate only if provided.
+    if (formData.instagram_id.trim()) {
+      const handle = cleanInstagram(formData.instagram_id)
+      if (handle.length < 2) {
+        errors.instagram_id = "Please enter a valid Instagram username"
+      }
     }
 
     if (formData.age) {
       const age = parseInt(formData.age)
-      if (isNaN(age) || age <= 0 || age < 16 || age > 100) {
+      if (isNaN(age) || age < 16 || age > 100) {
         errors.age = "Enter realistic age (16-100)"
       }
     }
 
     if (!formData.country.trim() || formData.country.trim().length < 2) {
       errors.country = "Please enter your country"
+    } else if (!TEXT_ONLY.test(formData.country.trim())) {
+      errors.country = "Country must contain letters only"
     }
 
     if (!formData.city.trim() || formData.city.trim().length < 2) {
       errors.city = "Please enter your city"
+    } else if (!TEXT_ONLY.test(formData.city.trim())) {
+      errors.city = "City must contain letters only"
     }
 
-    if (!formData.gym_name.trim() || formData.gym_name.trim().length < 2) {
-      errors.gym_name = "Please enter your gym name"
+    // Gym Name required only when Preferred Location is Gym.
+    if (formData.preferred_location === "Gym") {
+      if (!formData.gym_name.trim() || formData.gym_name.trim().length < 2) {
+        errors.gym_name = "Please enter your gym name"
+      }
     }
 
     if (formData.weight_kg) {
       const weight = parseFloat(formData.weight_kg)
-      if (isNaN(weight) || weight <= 0 || weight < 30 || weight > 300) {
+      if (isNaN(weight) || weight < 30 || weight > 300) {
         errors.weight_kg = "Enter realistic weight (30-300 kg)"
       }
     }
 
     if (formData.height_cm) {
       const height = parseFloat(formData.height_cm)
-      if (isNaN(height) || height <= 0 || height < 100 || height > 250) {
+      if (isNaN(height) || height < 100 || height > 250) {
         errors.height_cm = "Enter realistic height (100-250 cm)"
       }
     }
 
     if (formData.body_fat_percentage) {
       const bodyFat = parseFloat(formData.body_fat_percentage)
-      if (isNaN(bodyFat) || bodyFat <= 0 || bodyFat < 3 || bodyFat > 60) {
+      if (isNaN(bodyFat) || bodyFat < 3 || bodyFat > 60) {
         errors.body_fat_percentage = "Enter realistic body fat (3-60%)"
       }
     }
@@ -162,38 +216,38 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
     setFieldErrors({})
 
     try {
+      const properName = toProperCase(formData.full_name)
+      const isGym = formData.preferred_location === "Gym"
+
       const profileData = {
         user_id: user.id,
-        full_name: formData.full_name.trim(),
-        instagram_id: formData.instagram_id.replace("@", "").trim(),
+        full_name: properName,
+        instagram_id: formData.instagram_id.trim() ? cleanInstagram(formData.instagram_id) : null,
         age: formData.age ? parseInt(formData.age) : null,
         country: formData.country.trim(),
         city: formData.city.trim(),
-        gym_name: formData.gym_name.trim(),
-        usual_gym_time: formData.usual_gym_time,
+        // Preferred Location stored in the existing usual_gym_time column.
+        usual_gym_time: formData.preferred_location,
+        gym_name: isGym ? formData.gym_name.trim() : null,
         weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,
         height_cm: formData.height_cm ? parseFloat(formData.height_cm) : null,
         body_fat_percentage: formData.body_fat_percentage ? parseFloat(formData.body_fat_percentage) : null,
         fitness_focus: formData.fitness_focus,
         experience_level: formData.experience_level,
         schedule_preference: formData.schedule_preference,
+        goal: formData.goal,
         is_visible: formData.is_visible,
         is_trainer: formData.is_trainer,
-        avatar_initial: formData.full_name.trim().charAt(0).toUpperCase()
+        avatar_initial: properName.charAt(0).toUpperCase(),
       }
 
       if (hasProfile) {
-        const { error } = await supabase
-          .from("fitness_partners")
-          .update(profileData)
-          .eq("user_id", user.id)
+        const { error } = await supabase.from("fitness_partners").update(profileData).eq("user_id", user.id)
 
         if (error) throw error
         setSuccess("Profile updated successfully!")
       } else {
-        const { error } = await supabase
-          .from("fitness_partners")
-          .insert(profileData)
+        const { error } = await supabase.from("fitness_partners").insert(profileData)
 
         if (error) throw error
         setHasProfile(true)
@@ -207,6 +261,8 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
       setSubmitting(false)
     }
   }
+
+  const isGymLocation = formData.preferred_location === "Gym"
 
   return (
     <AnimatePresence>
@@ -227,7 +283,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
             className="w-full max-w-lg bg-card rounded-2xl border border-border shadow-2xl overflow-hidden my-8"
           >
             <div className="p-5 sm:p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-2">
                 <h2 className="text-lg sm:text-xl font-bold text-foreground">
                   {hasProfile ? "Edit Your Profile" : "Create Your Profile"}
                 </h2>
@@ -235,6 +291,9 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                   <X size={20} className="text-muted-foreground" />
                 </button>
               </div>
+              <p className="text-xs text-muted-foreground mb-5">
+                Used to improve partner matching and personalised recommendations.
+              </p>
 
               {error && (
                 <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2 text-red-600 text-sm">
@@ -255,13 +314,14 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                         setFormData({ ...formData, full_name: e.target.value })
                         if (fieldErrors.full_name) setFieldErrors({ ...fieldErrors, full_name: "" })
                       }}
+                      onBlur={(e) => setFormData({ ...formData, full_name: toProperCase(e.target.value) })}
                       placeholder="Nithin Francis"
-                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.full_name ? "border-red-500" : "border-border"}`}
+                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.full_name ? "border-red-500" : "border-border"}`}
                     />
                     {fieldErrors.full_name && <p className="text-xs text-red-500 mt-1">{fieldErrors.full_name}</p>}
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1.5">Instagram *</label>
+                    <label className="block text-xs font-medium text-foreground mb-1.5">Instagram (Optional)</label>
                     <div className="relative">
                       <Instagram size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                       <input
@@ -271,8 +331,9 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                           setFormData({ ...formData, instagram_id: e.target.value })
                           if (fieldErrors.instagram_id) setFieldErrors({ ...fieldErrors, instagram_id: "" })
                         }}
+                        onBlur={(e) => setFormData({ ...formData, instagram_id: cleanInstagram(e.target.value) })}
                         placeholder="_its_nithin_"
-                        className={`w-full pl-9 pr-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.instagram_id ? "border-red-500" : "border-border"}`}
+                        className={`w-full pl-9 pr-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.instagram_id ? "border-red-500" : "border-border"}`}
                       />
                     </div>
                     {fieldErrors.instagram_id && <p className="text-xs text-red-500 mt-1">{fieldErrors.instagram_id}</p>}
@@ -287,12 +348,12 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                     inputMode="numeric"
                     value={formData.age}
                     onChange={(e) => {
-                      const val = e.target.value.replace(/[^0-9]/g, '')
+                      const val = e.target.value.replace(/[^0-9]/g, "")
                       setFormData({ ...formData, age: val })
                       if (fieldErrors.age) setFieldErrors({ ...fieldErrors, age: "" })
                     }}
                     placeholder="28"
-                    className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.age ? "border-red-500" : "border-border"}`}
+                    className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.age ? "border-red-500" : "border-border"}`}
                   />
                   {fieldErrors.age && <p className="text-xs text-red-500 mt-1">{fieldErrors.age}</p>}
                 </div>
@@ -309,7 +370,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                         if (fieldErrors.country) setFieldErrors({ ...fieldErrors, country: "" })
                       }}
                       placeholder="United Kingdom"
-                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.country ? "border-red-500" : "border-border"}`}
+                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.country ? "border-red-500" : "border-border"}`}
                     />
                     {fieldErrors.country && <p className="text-xs text-red-500 mt-1">{fieldErrors.country}</p>}
                   </div>
@@ -323,14 +384,49 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                         if (fieldErrors.city) setFieldErrors({ ...fieldErrors, city: "" })
                       }}
                       placeholder="Telford"
-                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.city ? "border-red-500" : "border-border"}`}
+                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.city ? "border-red-500" : "border-border"}`}
                     />
                     {fieldErrors.city && <p className="text-xs text-red-500 mt-1">{fieldErrors.city}</p>}
                   </div>
                 </div>
 
-                {/* Gym Info */}
+                {/* Fitness: Activity + Preferred Location */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-foreground mb-1.5">Primary Activity</label>
+                    <select
+                      value={formData.fitness_focus}
+                      onChange={(e) => setFormData({ ...formData, fitness_focus: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                    >
+                      {activityOptions.map((activity) => (
+                        <option key={activity} value={activity}>
+                          {activity}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-foreground mb-1.5">Preferred Location</label>
+                    <select
+                      value={formData.preferred_location}
+                      onChange={(e) => {
+                        setFormData({ ...formData, preferred_location: e.target.value })
+                        if (fieldErrors.gym_name) setFieldErrors({ ...fieldErrors, gym_name: "" })
+                      }}
+                      className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                    >
+                      {locationOptions.map((loc) => (
+                        <option key={loc} value={loc}>
+                          {loc}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Gym Name — only when Preferred Location is Gym */}
+                {isGymLocation && (
                   <div>
                     <label className="block text-xs font-medium text-foreground mb-1.5">Gym Name *</label>
                     <input
@@ -341,23 +437,26 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                         if (fieldErrors.gym_name) setFieldErrors({ ...fieldErrors, gym_name: "" })
                       }}
                       placeholder="The Gym Group"
-                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.gym_name ? "border-red-500" : "border-border"}`}
+                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.gym_name ? "border-red-500" : "border-border"}`}
                     />
                     {fieldErrors.gym_name && <p className="text-xs text-red-500 mt-1">{fieldErrors.gym_name}</p>}
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium text-foreground mb-1.5">Usual Gym Time *</label>
-                    <select
-                      value={formData.usual_gym_time}
-                      onChange={(e) => setFormData({ ...formData, usual_gym_time: e.target.value })}
-                      className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
-                      required
-                    >
-                      {gymTimeOptions.map((time) => (
-                        <option key={time} value={time}>{time}</option>
-                      ))}
-                    </select>
-                  </div>
+                )}
+
+                {/* Workout Time */}
+                <div>
+                  <label className="block text-xs font-medium text-foreground mb-1.5">Workout Time</label>
+                  <select
+                    value={formData.schedule_preference}
+                    onChange={(e) => setFormData({ ...formData, schedule_preference: e.target.value })}
+                    className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                  >
+                    {workoutTimeOptions.map((time) => (
+                      <option key={time} value={time}>
+                        {time}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Body Metrics */}
@@ -369,12 +468,12 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                       inputMode="decimal"
                       value={formData.weight_kg}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/[^0-9.]/g, '')
+                        const val = e.target.value.replace(/[^0-9.]/g, "")
                         setFormData({ ...formData, weight_kg: val })
                         if (fieldErrors.weight_kg) setFieldErrors({ ...fieldErrors, weight_kg: "" })
                       }}
                       placeholder="94"
-                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.weight_kg ? "border-red-500" : "border-border"}`}
+                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.weight_kg ? "border-red-500" : "border-border"}`}
                     />
                     {fieldErrors.weight_kg && <p className="text-xs text-red-500 mt-1">{fieldErrors.weight_kg}</p>}
                   </div>
@@ -385,12 +484,12 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                       inputMode="decimal"
                       value={formData.height_cm}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/[^0-9.]/g, '')
+                        const val = e.target.value.replace(/[^0-9.]/g, "")
                         setFormData({ ...formData, height_cm: val })
                         if (fieldErrors.height_cm) setFieldErrors({ ...fieldErrors, height_cm: "" })
                       }}
                       placeholder="183"
-                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.height_cm ? "border-red-500" : "border-border"}`}
+                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.height_cm ? "border-red-500" : "border-border"}`}
                     />
                     {fieldErrors.height_cm && <p className="text-xs text-red-500 mt-1">{fieldErrors.height_cm}</p>}
                   </div>
@@ -401,56 +500,49 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                       inputMode="decimal"
                       value={formData.body_fat_percentage}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/[^0-9.]/g, '')
+                        const val = e.target.value.replace(/[^0-9.]/g, "")
                         setFormData({ ...formData, body_fat_percentage: val })
                         if (fieldErrors.body_fat_percentage) setFieldErrors({ ...fieldErrors, body_fat_percentage: "" })
                       }}
                       placeholder="18"
-                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.body_fat_percentage ? "border-red-500" : "border-border"}`}
+                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.body_fat_percentage ? "border-red-500" : "border-border"}`}
                     />
-                    {fieldErrors.body_fat_percentage && <p className="text-xs text-red-500 mt-1">{fieldErrors.body_fat_percentage}</p>}
+                    {fieldErrors.body_fat_percentage && (
+                      <p className="text-xs text-red-500 mt-1">{fieldErrors.body_fat_percentage}</p>
+                    )}
                   </div>
                 </div>
 
-                {/* Fitness Preferences */}
+                {/* Experience + Goal */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1.5">Fitness Focus</label>
-                    <select
-                      value={formData.fitness_focus}
-                      onChange={(e) => setFormData({ ...formData, fitness_focus: e.target.value })}
-                      className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
-                    >
-                      {fitnessFocusOptions.map((focus) => (
-                        <option key={focus} value={focus}>{focus}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-foreground mb-1.5">Experience Level</label>
+                    <label className="block text-xs font-medium text-foreground mb-1.5">Experience</label>
                     <select
                       value={formData.experience_level}
                       onChange={(e) => setFormData({ ...formData, experience_level: e.target.value })}
-                      className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                      className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
                     >
                       {experienceLevels.map((level) => (
-                        <option key={level} value={level}>{level}</option>
+                        <option key={level} value={level}>
+                          {level}
+                        </option>
                       ))}
                     </select>
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-foreground mb-1.5">Schedule Preference</label>
-                  <select
-                    value={formData.schedule_preference}
-                    onChange={(e) => setFormData({ ...formData, schedule_preference: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
-                  >
-                    {scheduleOptions.map((schedule) => (
-                      <option key={schedule} value={schedule}>{schedule}</option>
-                    ))}
-                  </select>
+                  <div>
+                    <label className="block text-xs font-medium text-foreground mb-1.5">Goal</label>
+                    <select
+                      value={formData.goal}
+                      onChange={(e) => setFormData({ ...formData, goal: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                    >
+                      {goalOptions.map((goal) => (
+                        <option key={goal} value={goal}>
+                          {goal}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 {/* Are you a trainer? */}
@@ -459,9 +551,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                     <Star size={18} className={formData.is_trainer ? "text-amber-500" : "text-muted-foreground"} />
                     <div>
                       <p className="text-sm font-medium text-foreground">Are you a certified trainer?</p>
-                      <p className="text-xs text-muted-foreground">
-                        Get highlighted as a Fitacle Community Trainer
-                      </p>
+                      <p className="text-xs text-muted-foreground">Become a verified Fitacle Community Trainer</p>
                     </div>
                   </div>
                   <button
@@ -473,7 +563,9 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                     }}
                     className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${formData.is_trainer ? "bg-amber-500" : "bg-muted"}`}
                   >
-                    <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.is_trainer ? "left-7" : "left-1"}`} />
+                    <span
+                      className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.is_trainer ? "left-7" : "left-1"}`}
+                    />
                   </button>
                 </div>
 
@@ -489,9 +581,9 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                       <div className="flex items-start gap-3">
                         <AlertCircle size={18} className="text-amber-500 mt-0.5 flex-shrink-0" />
                         <div>
-                          <p className="text-sm font-medium text-foreground mb-1">Verification Notice</p>
+                          <p className="text-sm font-medium text-foreground mb-1">Trainer Verification</p>
                           <p className="text-xs text-muted-foreground">
-                            Fitacle may contact you for verification. You may be asked to provide certification details at a later stage.
+                            We may ask for certification details to verify your trainer profile.
                           </p>
                           <button
                             type="button"
@@ -509,11 +601,17 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                 {/* Visibility Toggle */}
                 <div className="flex items-center justify-between p-4 bg-accent rounded-xl">
                   <div className="flex items-center gap-3">
-                    {formData.is_visible ? <Eye size={18} className="text-emerald-500" /> : <EyeOff size={18} className="text-muted-foreground" />}
+                    {formData.is_visible ? (
+                      <Eye size={18} className="text-emerald-500" />
+                    ) : (
+                      <EyeOff size={18} className="text-muted-foreground" />
+                    )}
                     <div>
                       <p className="text-sm font-medium text-foreground">Profile Visibility</p>
                       <p className="text-xs text-muted-foreground">
-                        {formData.is_visible ? "Your profile is visible to others" : "Your profile is hidden"}
+                        {formData.is_visible
+                          ? "Visible to the Fitacle Community"
+                          : "Your profile is hidden"}
                       </p>
                     </div>
                   </div>
@@ -522,7 +620,9 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                     onClick={() => setFormData({ ...formData, is_visible: !formData.is_visible })}
                     className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${formData.is_visible ? "bg-emerald-500" : "bg-muted"}`}
                   >
-                    <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.is_visible ? "left-7" : "left-1"}`} />
+                    <span
+                      className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.is_visible ? "left-7" : "left-1"}`}
+                    />
                   </button>
                 </div>
 
