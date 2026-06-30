@@ -318,7 +318,7 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
   ]
 
   return (
-    <section id="score" className="py-24 md:py-32 bg-accent/30 relative overflow-hidden">
+      <section id="score" className="pt-24 md:pt-32 pb-12 md:pb-16 bg-accent/30 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
@@ -376,12 +376,12 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
               >
                 <Sparkles size={18} />
                 <span>
-                  Find your <span className="text-emerald-400">daily Fitacle Score</span>
+                  Log daily activity for <span className="text-emerald-400">AI recommendations</span>
                 </span>
                 <ArrowRight size={18} />
               </motion.button>
               <p className="text-sm text-muted-foreground">
-                Get your daily Fitacle Score with AI insights based on your activity.
+                Get AI insights from your activity.
               </p>
             </div>
           ) : (
@@ -399,7 +399,7 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
                 <ArrowRight size={18} />
               </motion.button>
               <p className="text-sm text-muted-foreground">
-                Get your daily Fitacle Score with AI insights based on your activity.
+                Get AI insights from your activity.
               </p>
             </div>
           )}

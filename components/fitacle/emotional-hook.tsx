@@ -32,7 +32,7 @@ const steps = [
 
 export function EmotionalHook() {
   return (
-    <section className="py-20 md:py-28 bg-secondary/30 relative overflow-hidden">
+    <section className="pt-10 md:pt-14 pb-20 md:pb-28 bg-secondary/30 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 left-0 w-[500px] h-[500px] bg-accent/30 rounded-full blur-3xl" />
