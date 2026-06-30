@@ -49,6 +49,7 @@ const activityOptions = [
   "Yoga",
   "CrossFit",
   "Boxing",
+  "Martial Arts",
   "Calisthenics",
   "Hiking",
   "Home Workout",
@@ -187,7 +188,7 @@ function MemberCard({
           href={`https://instagram.com/${partner.instagram_id.replace(/^@/, "")}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-shrink-0 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          className="flex-shrink-0 p-2 rounded-lg text-[#E1306C] hover:bg-accent transition-colors"
           aria-label={`${partner.full_name} on Instagram`}
         >
           <Instagram size={16} />
@@ -401,7 +402,8 @@ export function MembersShowcase() {
             <Users size={14} />
             Accountability Network
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground text-balance mb-3">Never Train Alone Again.</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground text-balance mb-1">Never Train Alone Again.</h2>
+          <p className="text-lg sm:text-xl font-semibold text-emerald-600 mb-3">Find a Training Partner</p>
           <p className="text-muted-foreground max-w-xl mx-auto text-pretty">
             Fitness is not a solo journey. Consistency is built through people. Find accountability partners using real
             profile data like goals, activity, schedule, and location.

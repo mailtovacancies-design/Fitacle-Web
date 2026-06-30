@@ -15,6 +15,7 @@ const activityOptions = [
   "Yoga",
   "CrossFit",
   "Boxing",
+  "Martial Arts",
   "Calisthenics",
   "Hiking",
   "Home Workout",
