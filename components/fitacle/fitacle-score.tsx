@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Activity, Zap, Heart, Brain, TrendingUp, Award, Trophy, Droplets, Moon, Flame, Target, Sparkles, ArrowRight, Lock, LogIn } from "lucide-react"
+import { Activity, Zap, Heart, Brain, TrendingUp, Award, Droplets, Moon, Flame, Target, Sparkles, ArrowRight, Lock, LogIn } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
 interface ScoreRingProps {
@@ -306,13 +306,6 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
     { day: "Sun", score: 78 },
   ]
 
-  const achievements = [
-    { title: "7-Day Streak", icon: Activity, unlocked: true },
-    { title: "Calorie Master", icon: Zap, unlocked: true },
-    { title: "Early Bird", icon: TrendingUp, unlocked: true },
-    { title: "Hydration King", icon: Heart, unlocked: false },
-  ]
-  
   const handleCalculate = () => {
     const result = calculateScore(dailyInput, goalMode)
     setCalculatedResult(result)
@@ -325,7 +318,7 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
   ]
 
   return (
-    <section id="score" className="py-24 md:py-32 bg-accent/30 relative overflow-hidden">
+      <section id="score" className="pt-24 md:pt-32 pb-12 md:pb-16 bg-accent/30 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
@@ -364,10 +357,10 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
             <span className="text-muted-foreground">Quantified.</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto text-pretty mb-2">
-            Not just fitness. Your entire lifestyle translated into data.
+            Not just fitness. Your entire lifestyle in data.
           </p>
           <p className="text-sm text-muted-foreground/70 max-w-lg mx-auto text-pretty mb-8">
-            What gets measured gets improved. What gets ignored disappears.
+            What gets measured improves, what gets ignored disappears.
           </p>
           
           {/* Find Your Fitacle Score CTA */}
@@ -383,12 +376,12 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
               >
                 <Sparkles size={18} />
                 <span>
-                  Find your <span className="text-emerald-400">daily Fitacle Score</span>
+                  Log daily activity for <span className="text-emerald-400">AI recommendations</span>
                 </span>
                 <ArrowRight size={18} />
               </motion.button>
               <p className="text-sm text-muted-foreground">
-                Enter today&apos;s activity and get personalized AI advice
+                Get AI insights from your activity.
               </p>
             </div>
           ) : (
@@ -406,7 +399,7 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
                 <ArrowRight size={18} />
               </motion.button>
               <p className="text-sm text-muted-foreground">
-                Enter today&apos;s activity and get personalized AI advice
+                Get AI insights from your activity.
               </p>
             </div>
           )}
@@ -632,44 +625,6 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Achievements - Coming Soon */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-card rounded-2xl border border-border p-6 shadow-sm opacity-60"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <Trophy className="w-5 h-5 text-amber-500" />
-              <h3 className="text-base font-semibold text-foreground">Achievements</h3>
-            </div>
-            <span className="text-xs px-3 py-1 bg-amber-500/10 text-amber-600 rounded-full border border-amber-500/20">
-              Coming Soon
-            </span>
-          </div>
-          <div className="flex items-center gap-3 overflow-x-auto pb-2">
-            {achievements.slice(0, 4).map((achievement, index) => (
-              <motion.div
-                key={achievement.title}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-                className="flex-shrink-0 p-4 rounded-xl text-center bg-accent/50 border border-border w-24"
-              >
-                <div className="w-10 h-10 rounded-xl mx-auto mb-2 flex items-center justify-center bg-muted">
-                  <achievement.icon size={18} className="text-muted-foreground" />
-                </div>
-                <h4 className="text-xs font-medium text-muted-foreground truncate">
-                  {achievement.title}
-                </h4>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
       </div>
     </section>
   )
