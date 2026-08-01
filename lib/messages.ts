@@ -119,3 +119,64 @@ export async function fetchInbox(me: string): Promise<Conversation[]> {
 
   return [...map.values()].sort((a, b) => (a.lastAt < b.lastAt ? 1 : -1))
 }
+
+export interface AppNotification {
+  id: string
+  type: string
+  title: string
+  body: string | null
+  ref_id: string | null
+  is_read: boolean
+  created_at: string
+}
+
+/** Latest notifications for the current user (newest first). */
+export async function fetchNotifications(limit = 20): Promise<AppNotification[]> {
+  const supabase = createClient()
+  if (!supabase) return []
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("id, type, title, body, ref_id, is_read, created_at")
+    .order("created_at", { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return (data as AppNotification[]) ?? []
+}
+
+/** Mark a single notification as read. */
+export async function markNotificationRead(id: string): Promise<void> {
+  const supabase = createClient()
+  if (!supabase) return
+  await supabase.from("notifications").update({ is_read: true }).eq("id", id)
+}
+
+/** Mark all of the current user's notifications as read. */
+export async function markAllNotificationsRead(): Promise<void> {
+  const supabase = createClient()
+  if (!supabase) return
+  const { data: userData } = await supabase.auth.getUser()
+  const me = userData.user?.id
+  if (!me) return
+  await supabase.from("notifications").update({ is_read: true }).eq("user_id", me).eq("is_read", false)
+}
+
+/** Look up a partner's display name + initial by their user_id (for opening a thread from a notification). */
+export async function fetchPartnerByUserId(
+  userId: string,
+): Promise<{ userId: string; name: string; initial: string } | null> {
+  const supabase = createClient()
+  if (!supabase) return null
+  const { data } = await supabase
+    .from("fitness_partners")
+    .select("user_id, full_name, avatar_initial")
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle()
+  if (!data) return { userId, name: "Fitacle member", initial: "F" }
+  const p = data as { user_id: string; full_name: string; avatar_initial: string | null }
+  return {
+    userId,
+    name: p.full_name || "Fitacle member",
+    initial: (p.avatar_initial || p.full_name?.charAt(0) || "F").toUpperCase(),
+  }
+}

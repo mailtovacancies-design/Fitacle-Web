@@ -15,6 +15,7 @@ import {
   SlidersHorizontal,
   X,
   MessageCircle,
+  Lock,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { fetchCurrentUserId, fetchInbox } from "@/lib/messages"
@@ -357,6 +358,9 @@ export function MembersShowcase() {
   const [inboxOpen, setInboxOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
 
+  // Gate the partner grid for signed-out visitors. `undefined` = still checking (don't flash the gate).
+  const showGate = currentUserId === null
+
   const handleMessage = (p: Partner) => {
     if (!currentUserId) {
       setAuthOpen(true)
@@ -490,7 +494,16 @@ export function MembersShowcase() {
             We couldn&apos;t load members right now. Please try again later.
           </div>
         ) : (
-          <>
+          <div className="relative">
+            {/* Gated content: blurred + non-interactive for signed-out visitors */}
+            <div
+              className={
+                showGate
+                  ? "pointer-events-none select-none blur-sm opacity-60 transition"
+                  : "transition"
+              }
+              aria-hidden={showGate}
+            >
             {/* Filters */}
             <div className="mb-10 bg-card border border-border rounded-2xl overflow-hidden">
               <button
@@ -643,7 +656,35 @@ export function MembersShowcase() {
                 currentUserId={currentUserId ?? null}
               />
             </div>
-          </>
+            </div>
+
+            {/* Sign-in overlay */}
+            {showGate && (
+              <div className="absolute inset-0 z-10 flex items-start justify-center pt-16 sm:pt-24">
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35 }}
+                  className="max-w-sm w-full mx-4 bg-card border border-border rounded-2xl shadow-xl p-6 sm:p-8 text-center"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 grid place-items-center mx-auto mb-4">
+                    <Lock size={22} />
+                  </div>
+                  <h3 className="text-lg font-bold text-foreground mb-1">Sign in to unlock</h3>
+                  <p className="text-sm text-muted-foreground mb-6 text-pretty">
+                    Create a free Fitacle account to browse members, filter by goals and location, and message
+                    training partners.
+                  </p>
+                  <button
+                    onClick={() => setAuthOpen(true)}
+                    className="w-full py-3 rounded-xl bg-foreground text-background font-semibold hover:bg-foreground/90 transition-colors"
+                  >
+                    Sign in to continue
+                  </button>
+                </motion.div>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
