@@ -14,11 +14,18 @@ import {
   ChevronDown,
   SlidersHorizontal,
   X,
+  MessageCircle,
+  Lock,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { fetchCurrentUserId, fetchInbox } from "@/lib/messages"
+import { MessageDialog } from "@/components/fitacle/message-dialog"
+import { MessageInbox } from "@/components/fitacle/message-inbox"
+import { CommunityAuthDialog } from "@/components/community/community-auth-dialog"
 
 interface Partner {
   id: string
+  user_id: string | null
   full_name: string
   instagram_id: string | null
   country: string | null
@@ -91,7 +98,7 @@ const fetcher = async (): Promise<Partner[]> => {
   const { data, error } = await supabase
     .from("fitness_partners")
     .select(
-      "id, full_name, instagram_id, country, city, gym_name, fitness_focus, experience_level, schedule_preference, usual_gym_time, goal, is_trainer, is_premium, is_featured, avatar_initial, created_at",
+      "id, user_id, full_name, instagram_id, country, city, gym_name, fitness_focus, experience_level, schedule_preference, usual_gym_time, goal, is_trainer, is_premium, is_featured, avatar_initial, created_at",
     )
     .eq("is_visible", true)
     .order("created_at", { ascending: false })
@@ -118,10 +125,14 @@ function MemberCard({
   partner,
   accent,
   pinnedLabel,
+  onMessage,
+  isSelf,
 }: {
   partner: Partner
   accent: "emerald" | "sky"
   pinnedLabel?: string
+  onMessage: (p: Partner) => void
+  isSelf: boolean
 }) {
   const location = [partner.city, partner.country].filter(Boolean).join(", ")
   const ring =
@@ -182,17 +193,29 @@ function MemberCard({
         </div>
       </div>
 
-      {partner.instagram_id && (
-        <a
-          href={`https://instagram.com/${partner.instagram_id.replace(/^@/, "")}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-shrink-0 grid place-items-center w-9 h-9 hover:opacity-80 transition-opacity"
-          aria-label={`${partner.full_name} on Instagram`}
-        >
-          <img src="/icons/instagram.png" alt="" width={24} height={24} className="w-6 h-6" />
-        </a>
-      )}
+      <div className="flex-shrink-0 flex items-center gap-1">
+        {partner.instagram_id && (
+          <a
+            href={`https://instagram.com/${partner.instagram_id.replace(/^@/, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="grid place-items-center w-9 h-9 hover:opacity-80 transition-opacity"
+            aria-label={`${partner.full_name} on Instagram`}
+          >
+            <img src="/icons/instagram.png" alt="" width={24} height={24} className="w-6 h-6" />
+          </a>
+        )}
+        {partner.user_id && !isSelf && (
+          <button
+            type="button"
+            onClick={() => onMessage(partner)}
+            className="grid place-items-center w-9 h-9 rounded-full text-emerald-600 hover:bg-emerald-500/10 transition-colors"
+            aria-label={`Message ${partner.full_name}`}
+          >
+            <MessageCircle size={20} />
+          </button>
+        )}
+      </div>
     </motion.div>
   )
 }
@@ -236,6 +259,8 @@ function MemberSection({
   emptyText,
   pinnedIds,
   pinnedLabel,
+  onMessage,
+  currentUserId,
 }: {
   title: string
   description: string
@@ -245,6 +270,8 @@ function MemberSection({
   emptyText: string
   pinnedIds: Set<string>
   pinnedLabel: string
+  onMessage: (p: Partner) => void
+  currentUserId: string | null
 }) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT)
   const visible = partners.slice(0, visibleCount)
@@ -274,6 +301,8 @@ function MemberSection({
                 partner={p}
                 accent={accent}
                 pinnedLabel={pinnedIds.has(p.id) ? pinnedLabel : undefined}
+                onMessage={onMessage}
+                isSelf={!!currentUserId && p.user_id === currentUserId}
               />
             ))}
           </div>
@@ -313,6 +342,37 @@ export function MembersShowcase() {
 
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
   const [showFilters, setShowFilters] = useState(false)
+
+  // Messaging state
+  const { data: currentUserId, mutate: mutateUser } = useSWR("current-user-id", fetchCurrentUserId, {
+    revalidateOnFocus: false,
+  })
+  const { data: inbox } = useSWR(
+    currentUserId ? ["inbox", currentUserId] : null,
+    () => fetchInbox(currentUserId as string),
+    { refreshInterval: 15000 },
+  )
+  const unreadTotal = (inbox ?? []).reduce((sum, c) => sum + c.unread, 0)
+
+  const [messageTarget, setMessageTarget] = useState<{ userId: string; name: string; initial: string } | null>(null)
+  const [inboxOpen, setInboxOpen] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
+
+  // Gate the partner grid for signed-out visitors. `undefined` = still checking (don't flash the gate).
+  const showGate = currentUserId === null
+
+  const handleMessage = (p: Partner) => {
+    if (!currentUserId) {
+      setAuthOpen(true)
+      return
+    }
+    if (!p.user_id) return
+    setMessageTarget({
+      userId: p.user_id,
+      name: p.full_name,
+      initial: (p.avatar_initial || p.full_name?.charAt(0) || "F").toUpperCase(),
+    })
+  }
 
   const partners = useMemo(() => data ?? [], [data])
 
@@ -407,6 +467,21 @@ export function MembersShowcase() {
             Fitness is not a solo journey. Consistency is built through people. Find accountability partners using real
             profile data like goals, activity, schedule, and location.
           </p>
+
+          {currentUserId && (
+            <button
+              onClick={() => setInboxOpen(true)}
+              className="relative inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-full bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors"
+            >
+              <MessageCircle size={16} />
+              My Messages
+              {unreadTotal > 0 && (
+                <span className="min-w-[20px] h-5 px-1.5 grid place-items-center text-[11px] font-bold rounded-full bg-emerald-500 text-white">
+                  {unreadTotal}
+                </span>
+              )}
+            </button>
+          )}
         </motion.div>
 
         {isLoading ? (
@@ -419,7 +494,16 @@ export function MembersShowcase() {
             We couldn&apos;t load members right now. Please try again later.
           </div>
         ) : (
-          <>
+          <div className="relative">
+            {/* Gated content: blurred + non-interactive for signed-out visitors */}
+            <div
+              className={
+                showGate
+                  ? "pointer-events-none select-none blur-sm opacity-60 transition"
+                  : "transition"
+              }
+              aria-hidden={showGate}
+            >
             {/* Filters */}
             <div className="mb-10 bg-card border border-border rounded-2xl overflow-hidden">
               <button
@@ -549,6 +633,8 @@ export function MembersShowcase() {
                   emptyText={isFilterActive ? "No members match these filters." : "No members yet — be the first to join."}
                   pinnedIds={memberPinnedIds}
                   pinnedLabel="Pinned"
+                  onMessage={handleMessage}
+                  currentUserId={currentUserId ?? null}
                 />
               )}
 
@@ -566,11 +652,69 @@ export function MembersShowcase() {
                 emptyText={isFilterActive ? "No trainers match these filters." : "No trainers yet."}
                 pinnedIds={trainerPinnedIds}
                 pinnedLabel="Featured"
+                onMessage={handleMessage}
+                currentUserId={currentUserId ?? null}
               />
             </div>
-          </>
+            </div>
+
+            {/* Sign-in overlay */}
+            {showGate && (
+              <div className="absolute inset-0 z-10 flex items-start justify-center pt-16 sm:pt-24">
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35 }}
+                  className="max-w-sm w-full mx-4 bg-card border border-border rounded-2xl shadow-xl p-6 sm:p-8 text-center"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 grid place-items-center mx-auto mb-4">
+                    <Lock size={22} />
+                  </div>
+                  <h3 className="text-lg font-bold text-foreground mb-1">Sign in to unlock</h3>
+                  <p className="text-sm text-muted-foreground mb-6 text-pretty">
+                    Create a free Fitacle account to browse members, filter by goals and location, and message
+                    training partners.
+                  </p>
+                  <button
+                    onClick={() => setAuthOpen(true)}
+                    className="w-full py-3 rounded-xl bg-foreground text-background font-semibold hover:bg-foreground/90 transition-colors"
+                  >
+                    Sign in to continue
+                  </button>
+                </motion.div>
+              </div>
+            )}
+          </div>
         )}
       </div>
+
+      {inboxOpen && currentUserId && (
+        <MessageInbox
+          currentUserId={currentUserId}
+          onClose={() => setInboxOpen(false)}
+          onOpenThread={(recipient) => {
+            setInboxOpen(false)
+            setMessageTarget(recipient)
+          }}
+        />
+      )}
+
+      {messageTarget && currentUserId && (
+        <MessageDialog
+          currentUserId={currentUserId}
+          recipient={messageTarget}
+          onClose={() => setMessageTarget(null)}
+        />
+      )}
+
+      <CommunityAuthDialog
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
+        onSignedIn={() => {
+          setAuthOpen(false)
+          mutateUser()
+        }}
+      />
     </section>
   )
 }

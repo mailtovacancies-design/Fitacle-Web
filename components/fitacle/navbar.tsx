@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ArrowRight, LogOut, User, Edit2, Instagram, Mail, Dumbbell, Heart, Apple, Flame, Zap, Target, Users } from "lucide-react"
+import { Menu, X, ArrowRight, LogOut, User, Edit2, Instagram, Mail, Dumbbell, Heart, Apple, Flame, Zap, Target, Users, LayoutDashboard } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { ProfileModal } from "@/components/fitacle/profile-modal"
+import { NotificationsBell } from "@/components/fitacle/notifications-bell"
 
 interface NavbarProps {
   onSignIn?: () => void
@@ -257,7 +258,9 @@ export function Navbar({ onSignIn }: NavbarProps) {
 
         <div className="hidden md:flex items-center gap-3">
           {user ? (
-            /* User is logged in - show user menu */
+            /* User is logged in - show notifications + user menu */
+            <div className="flex items-center gap-2">
+            <NotificationsBell />
             <div className="relative">
               <motion.button 
                 initial={{ opacity: 0, x: 20 }}
@@ -290,6 +293,14 @@ export function Navbar({ onSignIn }: NavbarProps) {
                       <p className="text-xs text-muted-foreground">Signed in as</p>
                       <p className="text-sm font-medium text-foreground truncate">{user.email}</p>
                     </div>
+                    <a
+                      href="/#score"
+                      onClick={() => setShowUserMenu(false)}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-accent transition-colors"
+                    >
+                      <LayoutDashboard size={16} />
+                      Dashboard
+                    </a>
                     <button
                       onClick={() => { 
                         setShowUserMenu(false)
@@ -310,6 +321,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
                   </motion.div>
                 )}
               </AnimatePresence>
+            </div>
             </div>
           ) : (
             /* User is not logged in - show sign in/get started */
@@ -553,6 +565,14 @@ export function Navbar({ onSignIn }: NavbarProps) {
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                   </div>
+                  <a
+                    href="/#score"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-2.5 text-sm text-foreground font-medium rounded-lg bg-accent hover:bg-accent/80 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <LayoutDashboard size={14} />
+                    Dashboard
+                  </a>
                   <div className="flex gap-2">
                     <button 
                       onClick={() => { 

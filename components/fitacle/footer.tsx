@@ -16,18 +16,18 @@ const footerLinks = {
     { label: "About Us", href: "#" },
     { label: "Careers", href: "#" },
     { label: "Press Kit", href: "#" },
-    { label: "Contact", href: "mailto:contact@fitacle.com" },
+    { label: "Contact", href: "/contact" },
   ],
   resources: [
     { label: "Blog", href: "#" },
-    { label: "Help Center", href: "#" },
-    { label: "Community", href: "#" },
-    { label: "API Docs", href: "#" },
+    { label: "Help Center", href: "/help" },
+    { label: "Community", href: "/community" },
+    { label: "Contact Support", href: "/contact" },
   ],
   legal: [
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms of Service", href: "#" },
-    { label: "Cookie Policy", href: "#" },
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms of Service", href: "/terms" },
+    { label: "Cookie Policy", href: "/cookies" },
   ],
 }
 

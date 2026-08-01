@@ -11,7 +11,7 @@ interface CommunityAuthDialogProps {
   onSignedIn?: () => void
 }
 
-type Mode = "signin" | "signup"
+type Mode = "signin" | "signup" | "reset"
 
 export function CommunityAuthDialog({ open, onClose, onSignedIn }: CommunityAuthDialogProps) {
   const [mode, setMode] = useState<Mode>("signin")
@@ -21,10 +21,39 @@ export function CommunityAuthDialog({ open, onClose, onSignedIn }: CommunityAuth
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [checkEmail, setCheckEmail] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
 
   const reset = () => {
     setError(null)
     setCheckEmail(false)
+    setResetSent(false)
+  }
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    const supabase = createClient()
+    if (!supabase) {
+      setError("Password reset is not available right now. Please try again later.")
+      return
+    }
+    if (!email.trim()) {
+      setError("Please enter your email address.")
+      return
+    }
+    setLoading(true)
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      })
+      if (resetError) throw resetError
+      setResetSent(true)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Something went wrong. Please try again."
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,7 +144,28 @@ export function CommunityAuthDialog({ open, onClose, onSignedIn }: CommunityAuth
             </button>
 
             <div className="p-6 sm:p-8">
-              {checkEmail ? (
+              {resetSent ? (
+                <div className="text-center py-4">
+                  <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="text-emerald-600" size={28} />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground mb-2">Check your email</h2>
+                  <p className="text-sm text-muted-foreground mb-6 text-pretty">
+                    {"We sent a password reset link to "}
+                    <span className="font-medium text-foreground">{email}</span>
+                    {". Open it to set a new password."}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setMode("signin")
+                      reset()
+                    }}
+                    className="w-full py-3 rounded-xl bg-foreground text-background font-semibold hover:bg-foreground/90 transition-colors"
+                  >
+                    Back to sign in
+                  </button>
+                </div>
+              ) : checkEmail ? (
                 <div className="text-center py-4">
                   <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
                     <CheckCircle2 className="text-emerald-600" size={28} />
@@ -140,16 +190,18 @@ export function CommunityAuthDialog({ open, onClose, onSignedIn }: CommunityAuth
                 <>
                   <div className="mb-6">
                     <h2 className="text-2xl font-bold text-foreground mb-1">
-                      {mode === "signin" ? "Welcome back" : "Join the community"}
+                      {mode === "signin" ? "Welcome back" : mode === "reset" ? "Reset your password" : "Join the community"}
                     </h2>
                     <p className="text-sm text-muted-foreground">
                       {mode === "signin"
                         ? "Sign in to post, comment, and connect."
+                        : mode === "reset"
+                        ? "Enter your email and we'll send you a reset link."
                         : "Create a free account to share your journey."}
                     </p>
                   </div>
 
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={mode === "reset" ? handleForgotPassword : handleSubmit} className="space-y-4">
                     {mode === "signup" && (
                       <div>
                         <label htmlFor="auth-name" className="sr-only">
@@ -193,26 +245,42 @@ export function CommunityAuthDialog({ open, onClose, onSignedIn }: CommunityAuth
                       </div>
                     </div>
 
-                    <div>
-                      <label htmlFor="auth-password" className="sr-only">
-                        Password
-                      </label>
-                      <div className="relative">
-                        <Lock
-                          size={16}
-                          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-                        />
-                        <input
-                          id="auth-password"
-                          type="password"
-                          autoComplete={mode === "signin" ? "current-password" : "new-password"}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="Password"
-                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition"
-                        />
+                    {mode !== "reset" && (
+                      <div>
+                        <label htmlFor="auth-password" className="sr-only">
+                          Password
+                        </label>
+                        <div className="relative">
+                          <Lock
+                            size={16}
+                            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                          />
+                          <input
+                            id="auth-password"
+                            type="password"
+                            autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Password"
+                            className="w-full pl-10 pr-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition"
+                          />
+                        </div>
+                        {mode === "signin" && (
+                          <div className="text-right mt-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setMode("reset")
+                                reset()
+                              }}
+                              className="text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+                            >
+                              Forgot password?
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    </div>
+                    )}
 
                     {error && (
                       <p className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">
@@ -226,21 +294,38 @@ export function CommunityAuthDialog({ open, onClose, onSignedIn }: CommunityAuth
                       className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-foreground text-background font-semibold hover:bg-foreground/90 transition-colors disabled:opacity-60"
                     >
                       {loading && <Loader2 size={16} className="animate-spin" />}
-                      {mode === "signin" ? "Sign In" : "Create Account"}
+                      {mode === "signin" ? "Sign In" : mode === "reset" ? "Send Reset Link" : "Create Account"}
                     </button>
                   </form>
 
                   <p className="text-sm text-muted-foreground text-center mt-6">
-                    {mode === "signin" ? "New to Fitacle?" : "Already have an account?"}{" "}
-                    <button
-                      onClick={() => {
-                        setMode(mode === "signin" ? "signup" : "signin")
-                        reset()
-                      }}
-                      className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
-                    >
-                      {mode === "signin" ? "Create one" : "Sign in"}
-                    </button>
+                    {mode === "reset" ? (
+                      <>
+                        Remembered it?{" "}
+                        <button
+                          onClick={() => {
+                            setMode("signin")
+                            reset()
+                          }}
+                          className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+                        >
+                          Back to sign in
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        {mode === "signin" ? "New to Fitacle?" : "Already have an account?"}{" "}
+                        <button
+                          onClick={() => {
+                            setMode(mode === "signin" ? "signup" : "signin")
+                            reset()
+                          }}
+                          className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+                        >
+                          {mode === "signin" ? "Create one" : "Sign in"}
+                        </button>
+                      </>
+                    )}
                   </p>
                 </>
               )}

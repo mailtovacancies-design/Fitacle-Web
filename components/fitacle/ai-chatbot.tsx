@@ -7,6 +7,34 @@ import { motion, AnimatePresence, useDragControls } from "framer-motion"
 import { MessageCircle, X, Send, Sparkles, Bot, User, GripVertical } from "lucide-react"
 import Image from "next/image"
 
+// Rotating welcome greetings shown inside the chat window (never as popups).
+const WELCOME_GREETINGS = [
+  "Hi! I'm TACLE AI. What can we work on today?",
+  "Ready to tackle your fitness limits? Ask me anything.",
+  "Hey there! Fitness, food, or motivation - where do we start?",
+  "Welcome back! Let's make today count. What's on your mind?",
+  "Hi! Need a plan, a push, or a training partner? I've got you.",
+]
+
+// Conversation starters. Mix of fitness Q&A and partner-feature nudges.
+const STARTER_PROMPTS = [
+  "Best exercises for fat loss?",
+  "Indian diet for muscle gain",
+  "How to stay motivated?",
+  "Looking for a gym buddy or someone to join my fitness journey?",
+  "I keep training alone - can you help?",
+  "How do I find a workout partner?",
+  "Beginner full-body workout plan",
+  "Ready to stop training alone?",
+  "Find me an accountability partner",
+  "Healthy high-protein snacks",
+]
+
+function pickRandom<T>(arr: T[], count: number): T[] {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5)
+  return shuffled.slice(0, count)
+}
+
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -16,6 +44,8 @@ export function AIChatbot() {
   const constraintsRef = useRef<HTMLDivElement>(null)
   
   const [input, setInput] = useState("")
+  const [greeting, setGreeting] = useState(WELCOME_GREETINGS[0])
+  const [starters, setStarters] = useState<string[]>(() => STARTER_PROMPTS.slice(0, 3))
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
   })
@@ -37,6 +67,14 @@ export function AIChatbot() {
       .map((part) => part.text)
       .join("") ?? ""
   
+  // Shuffle greeting + starters each time the chat opens on an empty conversation
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      setGreeting(WELCOME_GREETINGS[Math.floor(Math.random() * WELCOME_GREETINGS.length)])
+      setStarters(pickRandom(STARTER_PROMPTS, 3))
+    }
+  }, [isOpen, messages.length])
+
   // Check if desktop on mount and resize
   useEffect(() => {
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 640)
@@ -69,16 +107,42 @@ export function AIChatbot() {
         dragElastic={0.1}
         whileDrag={{ scale: 1.1 }}
         initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 1, type: "spring", damping: 15 }}
+        animate={{
+          scale: 1,
+          y: [0, -6, 0],
+        }}
+        transition={{
+          scale: { delay: 1, type: "spring", damping: 15 },
+          y: { delay: 1.6, duration: 3.5, repeat: Infinity, ease: "easeInOut" },
+        }}
         onClick={() => setIsOpen(true)}
         className={`fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 w-14 h-14 rounded-full bg-emerald-500 text-white shadow-lg hover:bg-emerald-600 transition-colors flex items-center justify-center cursor-grab active:cursor-grabbing ${isOpen ? "hidden" : ""}`}
       >
-        <MessageCircle size={24} />
+        {/* Soft expanding glow rings (GPU transform/opacity only) */}
+        <motion.span
+          aria-hidden
+          className="absolute inset-0 rounded-full bg-emerald-500/50"
+          animate={{ scale: [1, 1.6], opacity: [0.5, 0] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: "easeOut" }}
+        />
+        <motion.span
+          aria-hidden
+          className="absolute inset-0 rounded-full bg-emerald-400/40"
+          animate={{ scale: [1, 1.6], opacity: [0.4, 0] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: "easeOut", delay: 1.2 }}
+        />
+        {/* Steady gentle glow */}
+        <motion.span
+          aria-hidden
+          className="absolute -inset-1 rounded-full bg-emerald-500/30 blur-md"
+          animate={{ opacity: [0.35, 0.7, 0.35] }}
+          transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <MessageCircle size={24} className="relative z-10" />
         <motion.div
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="absolute -top-1 -right-1 w-4 h-4 bg-foreground rounded-full flex items-center justify-center"
+          className="absolute -top-1 -right-1 z-10 w-4 h-4 bg-foreground rounded-full flex items-center justify-center"
         >
           <Sparkles size={10} className="text-background" />
         </motion.div>
@@ -94,7 +158,7 @@ export function AIChatbot() {
             dragConstraints={constraintsRef}
             dragElastic={0.1}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1, x: position.x, ...position }}
+            animate={{ opacity: 1, scale: 1, ...position }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
             onDragEnd={(_, info) => setPosition({ x: position.x + info.offset.x, y: position.y + info.offset.y })}
@@ -141,12 +205,12 @@ export function AIChatbot() {
                   <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-500/10 flex items-center justify-center">
                     <Bot size={32} className="text-emerald-500" />
                   </div>
-                  <h4 className="font-semibold text-foreground mb-2">Hi! I&apos;m TACLE AI <span className="text-amber-500">⚡</span></h4>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Ask me anything about fitness, nutrition, or workouts!
-                  </p>
+                  <h4 className="font-semibold text-foreground mb-2 flex items-center justify-center gap-1">
+                    TACLE AI <span className="text-amber-500">⚡</span>
+                  </h4>
+                  <p className="text-sm text-muted-foreground mb-4 text-pretty">{greeting}</p>
                   <div className="flex flex-wrap justify-center gap-2">
-                    {["Best exercises for fat loss?", "Indian diet for muscle gain", "How to stay motivated?"].map((q) => (
+                    {starters.map((q) => (
                       <button
                         key={q}
                         onClick={() => {
