@@ -21,9 +21,12 @@ const STARTER_PROMPTS = [
   "Best exercises for fat loss?",
   "Indian diet for muscle gain",
   "How to stay motivated?",
+  "Build me a free AI fitness plan",
   "Looking for a gym buddy or someone to join my fitness journey?",
   "I keep training alone - can you help?",
   "How do I find a workout partner?",
+  "Find me a walking partner",
+  "Anyone to walk my dog with?",
   "Beginner full-body workout plan",
   "Ready to stop training alone?",
   "Find me an accountability partner",
@@ -35,46 +38,23 @@ function pickRandom<T>(arr: T[], count: number): T[] {
   return shuffled.slice(0, count)
 }
 
-// Proactive teaser bubbles shown above the chat button to spark engagement.
-// Each optionally carries a `prompt` that is auto-sent when the user taps it.
-type Teaser = { text: string; prompt?: string }
-const TEASERS: Teaser[] = [
-  // Fitness questions
-  { text: "Want a workout that actually fits your schedule?", prompt: "Build me a workout plan that fits a busy schedule" },
-  { text: "Not sure what to eat for your goal? Ask me.", prompt: "What should I eat to reach my fitness goal?" },
-  { text: "Struggling to stay consistent? Let's fix that.", prompt: "How do I stay consistent with my fitness routine?" },
-  { text: "Curious how many calories your body needs?", prompt: "How many calories should I eat per day?" },
-  // AI fitness plan promotion
-  { text: "I can build you a free AI fitness plan in seconds.", prompt: "Create a personalized AI fitness plan for me" },
-  { text: "Get a plan built around your body and habits.", prompt: "Design a fitness plan around my habits and lifestyle" },
-  // Find My Fitness Partner promotion
-  { text: "Training alone? Find your Fitness Partner here.", prompt: "How do I find a fitness partner on Fitacle?" },
-  { text: "Someone out there shares your goals. Let's match you.", prompt: "Help me find an accountability partner" },
+// In-conversation follow-up suggestions. These appear inside the chat (never as
+// popups), rotate randomly, and gently promote Fitacle features so the assistant
+// keeps the conversation going naturally.
+const IN_CHAT_SUGGESTIONS = [
+  "Build me a free AI fitness plan",
+  "Find my fitness partner",
+  "I don't want to train alone",
+  "Find me a walking partner",
+  "Anyone to walk my dog with?",
+  "I need an accountability partner",
+  "What should I eat for my goal?",
+  "How do I stay consistent?",
+  "A workout that fits a busy schedule",
+  "How many calories should I eat?",
+  "Best exercises for fat loss",
+  "Match me with a running partner",
 ]
-
-const TEASER_STORAGE_KEY = "fitacle_chat_teaser_v1"
-const TEASER_FIRST_DELAY_MS = 12_000 // first nudge 12s after load
-const TEASER_REPEAT_MS = 3.5 * 60_000 // ~3.5 min between nudges in a session
-const TEASER_AUTO_HIDE_MS = 11_000 // auto-dismiss if ignored
-const TEASER_DISMISS_SNOOZE_MS = 8 * 60 * 60_000 // 8h after manual dismiss
-const TEASER_OPEN_SNOOZE_MS = 24 * 60 * 60_000 // 24h once they engage
-
-type TeaserState = { snoozeUntil?: number }
-function readTeaserState(): TeaserState {
-  if (typeof window === "undefined") return {}
-  try {
-    return JSON.parse(localStorage.getItem(TEASER_STORAGE_KEY) || "{}") as TeaserState
-  } catch {
-    return {}
-  }
-}
-function writeTeaserState(next: TeaserState) {
-  try {
-    localStorage.setItem(TEASER_STORAGE_KEY, JSON.stringify(next))
-  } catch {
-    /* ignore private-mode/quota errors */
-  }
-}
 
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false)
@@ -84,11 +64,6 @@ export function AIChatbot() {
   const dragControls = useDragControls()
   const constraintsRef = useRef<HTMLDivElement>(null)
 
-  // Proactive engagement teaser (non-spam, snooze-aware)
-  const [teaser, setTeaser] = useState<Teaser | null>(null)
-  const teaserHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const teaserNextTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  
   const [input, setInput] = useState("")
   const [greeting, setGreeting] = useState(WELCOME_GREETINGS[0])
   const [starters, setStarters] = useState<string[]>(() => STARTER_PROMPTS.slice(0, 3))
@@ -141,9 +116,8 @@ export function AIChatbot() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Open the chat, optionally auto-sending a starter prompt from a teaser.
+  // Open the chat, optionally auto-sending a starter prompt.
   const openChat = (prompt?: string) => {
-    setTeaser(null)
     setIsOpen(true)
     if (prompt && !isLoading) {
       // small delay so the window mounts before the message appears
@@ -151,91 +125,18 @@ export function AIChatbot() {
     }
   }
 
-  // Schedule proactive teasers. They never show while the chat is open, are
-  // snooze-aware via localStorage, and auto-hide so they never feel spammy.
+  // Rotating in-chat suggestions shown after the assistant replies.
+  const [suggestions, setSuggestions] = useState<string[]>(() => pickRandom(IN_CHAT_SUGGESTIONS, 3))
   useEffect(() => {
-    const clearTeaserTimers = () => {
-      if (teaserHideTimer.current) clearTimeout(teaserHideTimer.current)
-      if (teaserNextTimer.current) clearTimeout(teaserNextTimer.current)
+    if (!isLoading && messages.length > 0) {
+      setSuggestions(pickRandom(IN_CHAT_SUGGESTIONS, 3))
     }
-
-    const scheduleTeaser = (delay: number) => {
-      if (teaserNextTimer.current) clearTimeout(teaserNextTimer.current)
-      teaserNextTimer.current = setTimeout(() => {
-        const state = readTeaserState()
-        if (state.snoozeUntil && Date.now() < state.snoozeUntil) return
-        if (isOpen) {
-          scheduleTeaser(TEASER_REPEAT_MS)
-          return
-        }
-        setTeaser(TEASERS[Math.floor(Math.random() * TEASERS.length)])
-        if (teaserHideTimer.current) clearTimeout(teaserHideTimer.current)
-        teaserHideTimer.current = setTimeout(() => {
-          setTeaser(null)
-          scheduleTeaser(TEASER_REPEAT_MS)
-        }, TEASER_AUTO_HIDE_MS)
-      }, delay)
-    }
-
-    const state = readTeaserState()
-    if (state.snoozeUntil && Date.now() < state.snoozeUntil) return
-    scheduleTeaser(TEASER_FIRST_DELAY_MS)
-    return clearTeaserTimers
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Hide any visible teaser the moment the chat opens.
-  useEffect(() => {
-    if (isOpen) setTeaser(null)
-  }, [isOpen])
-
-  const dismissTeaser = () => {
-    setTeaser(null)
-    if (teaserHideTimer.current) clearTimeout(teaserHideTimer.current)
-    writeTeaserState({ snoozeUntil: Date.now() + TEASER_DISMISS_SNOOZE_MS })
-  }
+  }, [isLoading, messages.length])
 
   return (
     <>
       {/* Drag constraints container */}
       <div ref={constraintsRef} className="fixed inset-0 pointer-events-none z-40" />
-
-      {/* Proactive engagement teaser bubble */}
-      <AnimatePresence>
-        {teaser && !isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.9 }}
-            transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed bottom-36 right-4 sm:bottom-24 sm:right-6 z-40 w-[calc(100vw-6rem)] max-w-[260px]"
-          >
-            <div className="relative rounded-2xl rounded-br-md bg-card border border-border shadow-xl p-3 pr-8">
-              <button
-                onClick={dismissTeaser}
-                aria-label="Dismiss message"
-                className="absolute top-1.5 right-1.5 p-1 rounded-md text-muted-foreground hover:bg-accent transition-colors"
-              >
-                <X size={13} />
-              </button>
-              <button
-                onClick={() => {
-                  writeTeaserState({ snoozeUntil: Date.now() + TEASER_OPEN_SNOOZE_MS })
-                  openChat(teaser.prompt)
-                }}
-                className="flex items-start gap-2 text-left w-full"
-              >
-                <span className="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 grid place-items-center">
-                  <Sparkles size={13} />
-                </span>
-                <span className="text-[13px] leading-snug text-foreground text-pretty">{teaser.text}</span>
-              </button>
-            </div>
-            {/* little pointer toward the chat button */}
-            <div className="absolute -bottom-1 right-6 w-3 h-3 rotate-45 bg-card border-b border-r border-border" />
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Floating Chat Button - Draggable */}
       <motion.button
@@ -420,7 +321,30 @@ export function AIChatbot() {
                   <p className="text-sm text-red-500">Something went wrong. Please try again.</p>
                 </div>
               )}
-              
+
+              {/* In-conversation suggestions (never popups) - keep the chat flowing */}
+              {messages.length > 0 && !isLoading && !hasError && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex flex-wrap gap-2 pt-1"
+                >
+                  <span className="w-full text-[11px] text-muted-foreground flex items-center gap-1">
+                    <Sparkles size={11} className="text-emerald-500" /> You might also ask
+                  </span>
+                  {suggestions.map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => { if (!isLoading) sendMessage({ text: q }) }}
+                      className="text-xs px-3 py-1.5 bg-emerald-500/10 text-emerald-700 rounded-full hover:bg-emerald-500/20 active:scale-95 transition-all"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+
               <div ref={messagesEndRef} />
             </div>
 

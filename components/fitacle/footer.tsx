@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion"
 import { Instagram, Twitter, Youtube, Linkedin, Mail, ArrowRight, ArrowUpRight, Sparkles } from "lucide-react"
 import Image from "next/image"
 import { useRef, useEffect, useState } from "react"
+import { useStats } from "@/lib/use-stats"
 
 const footerLinks = {
   product: [
@@ -208,6 +209,7 @@ function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: strin
 
 // Finale experience component
 function FinaleExperience() {
+  const stats = useStats()
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -350,9 +352,9 @@ function FinaleExperience() {
           className="grid grid-cols-3 gap-4 sm:gap-8 max-w-lg mx-auto mb-8 sm:mb-12"
         >
           {[
-            { value: 847, suffix: "+", label: "Active Users" },
-            { value: 12, suffix: "K+", label: "Workouts Done" },
-            { value: 94, suffix: "%", label: "Success Rate" },
+            { value: stats.betaUsers, suffix: "+", label: "Active Users" },
+            { value: stats.workoutsTracked, suffix: "+", label: "Workouts Done" },
+            { value: stats.satisfaction, suffix: "%", label: "Success Rate" },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}

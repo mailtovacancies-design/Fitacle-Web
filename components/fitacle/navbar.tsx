@@ -623,6 +623,14 @@ export function Navbar({ onSignIn }: NavbarProps) {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md"
           >
+            <button
+              type="button"
+              onClick={() => setShowLogoutSuccess(false)}
+              aria-label="Close"
+              className="absolute right-4 top-4 p-2 rounded-full text-muted-foreground hover:bg-accent transition-colors"
+            >
+              <X size={20} />
+            </button>
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}

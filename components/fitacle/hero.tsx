@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from "framer-motion"
-import { Instagram, Play, ArrowDown, Sparkles, ChevronRight, Mail, ArrowRight, Heart, Dumbbell, Apple, Leaf, Flame, Timer, Zap, Target, TrendingUp, Footprints, Bike, Salad, Droplets, Activity, Trophy, Loader2, Check, AlertCircle } from "lucide-react"
+import { Instagram, Play, ArrowDown, Sparkles, ChevronRight, Mail, ArrowRight, Heart, Dumbbell, Apple, Leaf, Flame, Timer, Zap, Target, TrendingUp, Footprints, Bike, Salad, Droplets, Activity, Trophy, Loader2, Check, AlertCircle, X } from "lucide-react"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
+import { useStats } from "@/lib/use-stats"
 
 // Floating fitness element data - positioned around the main headline on mobile
 const floatingElements = [
@@ -267,6 +268,16 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     setAuthSuccess(null)
     setFormData({ fullName: "", email: "", password: "" })
   }
+
+  // Safety net: never show the sign in / sign up form to a logged-in user.
+  // Other sections (Daily Plan, Fitacle Score) can request the modal directly,
+  // so if that happens while signed in we close it and route to the dashboard.
+  useEffect(() => {
+    if (showAuthModal && isSignedIn) {
+      setShowAuthModal?.(false)
+      window.location.href = "/#score"
+    }
+  }, [showAuthModal, isSignedIn])
   
   const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 }
   const y = useSpring(useTransform(scrollY, [0, 800], [0, 100]), springConfig)
@@ -299,11 +310,12 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     }
   }, [])
 
-// Realistic stats for early stage startup
+// Live stats derived from the real registered-user count (see /api/stats).
+  const liveStats = useStats()
   const stats = [
-  { value: 347, suffix: "+", label: "Beta Users" },
-  { value: 2, suffix: "K+", label: "Workouts Tracked" },
-  { value: 92, suffix: "%", label: "Satisfaction" },
+  { value: liveStats.betaUsers, suffix: "+", label: "Beta Users" },
+  { value: liveStats.workoutsTracked, suffix: "+", label: "Workouts Tracked" },
+  { value: liveStats.satisfaction, suffix: "%", label: "Satisfaction" },
   ]
 
   return (
@@ -575,7 +587,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.8 }}
-            className="grid grid-cols-3 gap-4 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-10 md:gap-16 mb-8 sm:mb-16 max-w-sm sm:max-w-none mx-auto"
+            className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-10 md:gap-16 mb-8 sm:mb-16 w-full max-w-xs sm:max-w-none mx-auto px-2"
           >
             {stats.map((stat, index) => (
               <motion.div
@@ -717,8 +729,16 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm bg-card rounded-2xl border border-border shadow-2xl overflow-hidden"
+              className="relative w-full max-w-sm bg-card rounded-2xl border border-border shadow-2xl overflow-hidden"
             >
+              <button
+                type="button"
+                onClick={() => { setShowAuthModal(false); resetAuthState(); }}
+                aria-label="Close"
+                className="absolute right-3 top-3 z-10 p-2 rounded-full text-muted-foreground hover:bg-accent transition-colors"
+              >
+                <X size={18} />
+              </button>
               <div className="p-6">
                 {/* Logo with animated effects */}
                 <div className="flex justify-center mb-4">
@@ -1076,6 +1096,14 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md"
           >
+            <button
+              type="button"
+              onClick={() => setShowGoogleAuthSuccess(null)}
+              aria-label="Close"
+              className="absolute right-4 top-4 p-2 rounded-full text-muted-foreground hover:bg-accent transition-colors"
+            >
+              <X size={20} />
+            </button>
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
