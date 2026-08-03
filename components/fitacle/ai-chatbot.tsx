@@ -38,7 +38,7 @@ function pickRandom<T>(arr: T[], count: number): T[] {
   return shuffled.slice(0, count)
 }
 
-// Proactive teaser bubbles shown ONCE above the chat button to spark engagement.
+// Proactive teaser bubbles shown above the chat button to spark engagement.
 // Each carries a `prompt` that is auto-sent into the chat when tapped.
 type Teaser = { text: string; prompt: string }
 const TEASERS: Teaser[] = [
@@ -50,10 +50,13 @@ const TEASERS: Teaser[] = [
   { text: "Curious how many calories you need?", prompt: "How many calories should I eat per day?" },
 ]
 
-// Non-spam timing: one gentle nudge per session, snooze-aware across visits.
+// Non-spam timing: gentle nudges that can repeat during a session with a
+// comfortable gap between them, snooze-aware across visits.
 const TEASER_STORAGE_KEY = "fitacle_chat_teaser_v2"
-const TEASER_FIRST_DELAY_MS = 8_000 // wait 8s so it never interrupts arrival
+const TEASER_FIRST_DELAY_MS = 8_000 // first nudge 8s after load
+const TEASER_REPEAT_GAP_MS = 45_000 // wait ~45s after one hides before the next
 const TEASER_AUTO_HIDE_MS = 12_000 // auto-dismiss if ignored
+const TEASER_MAX_PER_SESSION = 4 // cap so it never feels spammy
 const TEASER_DISMISS_SNOOZE_MS = 12 * 60 * 60_000 // 12h after manual dismiss
 const TEASER_OPEN_SNOOZE_MS = 24 * 60 * 60_000 // 24h once they engage
 
@@ -101,8 +104,11 @@ export function AIChatbot() {
   const constraintsRef = useRef<HTMLDivElement>(null)
 
   const [teaser, setTeaser] = useState<Teaser | null>(null)
-  const teaserShownRef = useRef(false)
+  const teaserCountRef = useRef(0)
+  const teaserLastIndexRef = useRef(-1)
+  const teaserStoppedRef = useRef(false)
   const teaserHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const teaserNextTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [input, setInput] = useState("")
   const [greeting, setGreeting] = useState(WELCOME_GREETINGS[0])
@@ -156,10 +162,17 @@ export function AIChatbot() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  // Stop any pending teaser activity for the rest of this session.
+  const stopTeaserCycle = () => {
+    teaserStoppedRef.current = true
+    if (teaserHideTimer.current) clearTimeout(teaserHideTimer.current)
+    if (teaserNextTimer.current) clearTimeout(teaserNextTimer.current)
+    setTeaser(null)
+  }
+
   // Open the chat, optionally auto-sending a starter prompt.
   const openChat = (prompt?: string) => {
-    setTeaser(null)
-    if (teaserHideTimer.current) clearTimeout(teaserHideTimer.current)
+    stopTeaserCycle()
     writeTeaserState({ snoozeUntil: Date.now() + TEASER_OPEN_SNOOZE_MS })
     setIsOpen(true)
     if (prompt && !isLoading) {
@@ -168,29 +181,49 @@ export function AIChatbot() {
     }
   }
 
-  // Show ONE proactive teaser per session (non-spam). It waits, auto-hides if
-  // ignored, never appears while the chat is open, and respects the snooze window.
+  // Show proactive teasers that CAN repeat during a session (non-spam). Each one
+  // waits, auto-hides if ignored, never appears while the chat is open, avoids
+  // repeating the previous message, is capped per session, and respects snoozes.
   useEffect(() => {
     const state = readTeaserState()
     if (state.snoozeUntil && Date.now() < state.snoozeUntil) return
-    if (teaserShownRef.current) return
 
-    const showTimer = setTimeout(() => {
-      if (isOpen || teaserShownRef.current) return
-      teaserShownRef.current = true
-      setTeaser(TEASERS[Math.floor(Math.random() * TEASERS.length)])
-      // mark shown for this session so a reload within the tab won't repeat it
-      try {
-        sessionStorage.setItem(TEASER_STORAGE_KEY, JSON.stringify({ snoozeUntil: Date.now() + TEASER_OPEN_SNOOZE_MS }))
-      } catch {
-        /* ignore */
+    const pickNextTeaser = (): Teaser => {
+      if (TEASERS.length <= 1) return TEASERS[0]
+      let idx = Math.floor(Math.random() * TEASERS.length)
+      while (idx === teaserLastIndexRef.current) {
+        idx = Math.floor(Math.random() * TEASERS.length)
       }
-      teaserHideTimer.current = setTimeout(() => setTeaser(null), TEASER_AUTO_HIDE_MS)
-    }, TEASER_FIRST_DELAY_MS)
+      teaserLastIndexRef.current = idx
+      return TEASERS[idx]
+    }
+
+    const scheduleNext = (delay: number) => {
+      teaserNextTimer.current = setTimeout(() => {
+        // Skip (but keep the cycle alive) if the chat is open right now.
+        if (teaserStoppedRef.current) return
+        if (isOpen) {
+          scheduleNext(TEASER_REPEAT_GAP_MS)
+          return
+        }
+        if (teaserCountRef.current >= TEASER_MAX_PER_SESSION) return
+
+        teaserCountRef.current += 1
+        setTeaser(pickNextTeaser())
+        teaserHideTimer.current = setTimeout(() => {
+          setTeaser(null)
+          if (!teaserStoppedRef.current && teaserCountRef.current < TEASER_MAX_PER_SESSION) {
+            scheduleNext(TEASER_REPEAT_GAP_MS)
+          }
+        }, TEASER_AUTO_HIDE_MS)
+      }, delay)
+    }
+
+    scheduleNext(TEASER_FIRST_DELAY_MS)
 
     return () => {
-      clearTimeout(showTimer)
       if (teaserHideTimer.current) clearTimeout(teaserHideTimer.current)
+      if (teaserNextTimer.current) clearTimeout(teaserNextTimer.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -201,8 +234,7 @@ export function AIChatbot() {
   }, [isOpen])
 
   const dismissTeaser = () => {
-    setTeaser(null)
-    if (teaserHideTimer.current) clearTimeout(teaserHideTimer.current)
+    stopTeaserCycle()
     writeTeaserState({ snoozeUntil: Date.now() + TEASER_DISMISS_SNOOZE_MS })
   }
 
