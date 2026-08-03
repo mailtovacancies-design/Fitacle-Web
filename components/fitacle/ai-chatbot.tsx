@@ -51,27 +51,30 @@ const TEASERS: Teaser[] = [
 ]
 
 // Non-spam timing: gentle nudges that can repeat during a session with a
-// comfortable gap between them, snooze-aware across visits.
-const TEASER_STORAGE_KEY = "fitacle_chat_teaser_v2"
+// comfortable gap between them. Snooze is SESSION-scoped (sessionStorage) so the
+// popups reliably return on each new visit instead of being silenced for hours.
+const TEASER_STORAGE_KEY = "fitacle_chat_teaser_v3"
 const TEASER_FIRST_DELAY_MS = 8_000 // first nudge 8s after load
 const TEASER_REPEAT_GAP_MS = 45_000 // wait ~45s after one hides before the next
 const TEASER_AUTO_HIDE_MS = 12_000 // auto-dismiss if ignored
 const TEASER_MAX_PER_SESSION = 4 // cap so it never feels spammy
-const TEASER_DISMISS_SNOOZE_MS = 12 * 60 * 60_000 // 12h after manual dismiss
-const TEASER_OPEN_SNOOZE_MS = 24 * 60 * 60_000 // 24h once they engage
+const TEASER_DISMISS_SNOOZE_MS = 15 * 60_000 // 15 min after manual dismiss (this session)
+const TEASER_OPEN_SNOOZE_MS = 30 * 60_000 // 30 min once they engage (this session)
 
 type TeaserState = { snoozeUntil?: number }
 function readTeaserState(): TeaserState {
   if (typeof window === "undefined") return {}
   try {
-    return JSON.parse(sessionStorage.getItem(TEASER_STORAGE_KEY) || localStorage.getItem(TEASER_STORAGE_KEY) || "{}") as TeaserState
+    return JSON.parse(sessionStorage.getItem(TEASER_STORAGE_KEY) || "{}") as TeaserState
   } catch {
     return {}
   }
 }
 function writeTeaserState(next: TeaserState) {
   try {
-    localStorage.setItem(TEASER_STORAGE_KEY, JSON.stringify(next))
+    // Session-scoped: clears when the tab/session ends, so a returning visitor
+    // sees the engagement nudges again on their next visit.
+    sessionStorage.setItem(TEASER_STORAGE_KEY, JSON.stringify(next))
   } catch {
     /* ignore private-mode/quota errors */
   }
