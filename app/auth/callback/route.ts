@@ -4,6 +4,17 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl
   const code = searchParams.get('code')
+  const type = searchParams.get('type')
+  const tokenHash = searchParams.get('token_hash')
+
+  // Recovery links must land on the reset-password screen, not be silently
+  // exchanged into a normal session and sent home. Forward them along with
+  // whatever tokens Supabase provided so the reset page can complete the flow.
+  if (type === 'recovery' || (tokenHash && type)) {
+    const target = new URL(`${origin}/auth/reset-password`)
+    searchParams.forEach((value, key) => target.searchParams.set(key, value))
+    return NextResponse.redirect(target)
+  }
 
   if (code) {
     const supabase = await createClient()
