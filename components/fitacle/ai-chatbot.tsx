@@ -38,6 +38,42 @@ function pickRandom<T>(arr: T[], count: number): T[] {
   return shuffled.slice(0, count)
 }
 
+// Proactive teaser bubbles shown ONCE above the chat button to spark engagement.
+// Each carries a `prompt` that is auto-sent into the chat when tapped.
+type Teaser = { text: string; prompt: string }
+const TEASERS: Teaser[] = [
+  { text: "Want a workout that fits your schedule?", prompt: "Build me a workout plan that fits a busy schedule" },
+  { text: "Not sure what to eat for your goal?", prompt: "What should I eat to reach my fitness goal?" },
+  { text: "Struggling to stay consistent? Let's fix that.", prompt: "How do I stay consistent with my fitness routine?" },
+  { text: "Want a free AI fitness plan in seconds?", prompt: "Create a personalized AI fitness plan for me" },
+  { text: "Training alone? Find your Fitness Partner.", prompt: "How do I find a fitness partner on Fitacle?" },
+  { text: "Curious how many calories you need?", prompt: "How many calories should I eat per day?" },
+]
+
+// Non-spam timing: one gentle nudge per session, snooze-aware across visits.
+const TEASER_STORAGE_KEY = "fitacle_chat_teaser_v2"
+const TEASER_FIRST_DELAY_MS = 15_000 // wait 15s so it never interrupts arrival
+const TEASER_AUTO_HIDE_MS = 12_000 // auto-dismiss if ignored
+const TEASER_DISMISS_SNOOZE_MS = 12 * 60 * 60_000 // 12h after manual dismiss
+const TEASER_OPEN_SNOOZE_MS = 24 * 60 * 60_000 // 24h once they engage
+
+type TeaserState = { snoozeUntil?: number }
+function readTeaserState(): TeaserState {
+  if (typeof window === "undefined") return {}
+  try {
+    return JSON.parse(sessionStorage.getItem(TEASER_STORAGE_KEY) || localStorage.getItem(TEASER_STORAGE_KEY) || "{}") as TeaserState
+  } catch {
+    return {}
+  }
+}
+function writeTeaserState(next: TeaserState) {
+  try {
+    localStorage.setItem(TEASER_STORAGE_KEY, JSON.stringify(next))
+  } catch {
+    /* ignore private-mode/quota errors */
+  }
+}
+
 // In-conversation follow-up suggestions. These appear inside the chat (never as
 // popups), rotate randomly, and gently promote Fitacle features so the assistant
 // keeps the conversation going naturally.
@@ -63,6 +99,10 @@ export function AIChatbot() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const dragControls = useDragControls()
   const constraintsRef = useRef<HTMLDivElement>(null)
+
+  const [teaser, setTeaser] = useState<Teaser | null>(null)
+  const teaserShownRef = useRef(false)
+  const teaserHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [input, setInput] = useState("")
   const [greeting, setGreeting] = useState(WELCOME_GREETINGS[0])
@@ -118,11 +158,52 @@ export function AIChatbot() {
 
   // Open the chat, optionally auto-sending a starter prompt.
   const openChat = (prompt?: string) => {
+    setTeaser(null)
+    if (teaserHideTimer.current) clearTimeout(teaserHideTimer.current)
+    writeTeaserState({ snoozeUntil: Date.now() + TEASER_OPEN_SNOOZE_MS })
     setIsOpen(true)
     if (prompt && !isLoading) {
       // small delay so the window mounts before the message appears
       setTimeout(() => sendMessage({ text: prompt }), 250)
     }
+  }
+
+  // Show ONE proactive teaser per session (non-spam). It waits, auto-hides if
+  // ignored, never appears while the chat is open, and respects the snooze window.
+  useEffect(() => {
+    const state = readTeaserState()
+    if (state.snoozeUntil && Date.now() < state.snoozeUntil) return
+    if (teaserShownRef.current) return
+
+    const showTimer = setTimeout(() => {
+      if (isOpen || teaserShownRef.current) return
+      teaserShownRef.current = true
+      setTeaser(TEASERS[Math.floor(Math.random() * TEASERS.length)])
+      // mark shown for this session so a reload within the tab won't repeat it
+      try {
+        sessionStorage.setItem(TEASER_STORAGE_KEY, JSON.stringify({ snoozeUntil: Date.now() + TEASER_OPEN_SNOOZE_MS }))
+      } catch {
+        /* ignore */
+      }
+      teaserHideTimer.current = setTimeout(() => setTeaser(null), TEASER_AUTO_HIDE_MS)
+    }, TEASER_FIRST_DELAY_MS)
+
+    return () => {
+      clearTimeout(showTimer)
+      if (teaserHideTimer.current) clearTimeout(teaserHideTimer.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Hide the teaser the moment the chat opens.
+  useEffect(() => {
+    if (isOpen) setTeaser(null)
+  }, [isOpen])
+
+  const dismissTeaser = () => {
+    setTeaser(null)
+    if (teaserHideTimer.current) clearTimeout(teaserHideTimer.current)
+    writeTeaserState({ snoozeUntil: Date.now() + TEASER_DISMISS_SNOOZE_MS })
   }
 
   // Rotating in-chat suggestions shown after the assistant replies.
@@ -137,6 +218,40 @@ export function AIChatbot() {
     <>
       {/* Drag constraints container */}
       <div ref={constraintsRef} className="fixed inset-0 pointer-events-none z-40" />
+
+      {/* Proactive engagement teaser (one gentle, dismissible nudge) */}
+      <AnimatePresence>
+        {teaser && !isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 12, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.9 }}
+            transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            className="fixed bottom-36 right-4 sm:bottom-24 sm:right-6 z-40 w-[calc(100vw-5rem)] max-w-[250px]"
+          >
+            <div className="relative rounded-2xl rounded-br-md bg-card border border-border shadow-xl p-3 pr-8">
+              <button
+                onClick={dismissTeaser}
+                aria-label="Dismiss message"
+                className="absolute top-1.5 right-1.5 p-1 rounded-md text-muted-foreground hover:bg-accent transition-colors"
+              >
+                <X size={13} />
+              </button>
+              <button
+                onClick={() => openChat(teaser.prompt)}
+                className="flex items-start gap-2 text-left w-full"
+              >
+                <span className="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 grid place-items-center">
+                  <Sparkles size={13} />
+                </span>
+                <span className="text-[13px] leading-snug text-foreground text-pretty">{teaser.text}</span>
+              </button>
+            </div>
+            {/* little pointer toward the chat button */}
+            <div className="absolute -bottom-1 right-6 w-3 h-3 rotate-45 bg-card border-b border-r border-border" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Floating Chat Button - Draggable */}
       <motion.button
