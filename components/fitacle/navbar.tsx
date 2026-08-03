@@ -226,19 +226,42 @@ export function Navbar({ onSignIn }: NavbarProps) {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link, index) => (
-            <motion.a
-              key={link.href}
-              href={link.href}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
-              className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 group"
-            >
-              {link.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300" />
-            </motion.a>
-          ))}
+          {navLinks.map((link, index) =>
+            link.href === "#members" ? (
+              <motion.a
+                key={link.href}
+                href={link.href}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                className="group relative inline-flex items-center gap-1.5 pl-3.5 pr-3.5 py-2 text-sm font-semibold text-white rounded-full bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/25 hover:shadow-md hover:shadow-emerald-500/30 transition-all duration-300 overflow-hidden"
+              >
+                {/* subtle shimmer sweep */}
+                <motion.span
+                  aria-hidden
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent"
+                  animate={{ x: ["-150%", "150%"] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 3.5 }}
+                />
+                <Heart size={14} className="relative fill-white/90 group-hover:scale-110 transition-transform duration-300" />
+                <span className="relative">{link.label}</span>
+              </motion.a>
+            ) : (
+              <motion.a
+                key={link.href}
+                href={link.href}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
+                className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 group"
+              >
+                {link.label}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300" />
+              </motion.a>
+            )
+          )}
 
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -496,26 +519,51 @@ export function Navbar({ onSignIn }: NavbarProps) {
             <div className="flex-1 overflow-y-auto p-4">
               {/* Navigation Links */}
               <div className="space-y-1">
-                {navLinks.map((link, index) => (
-                  <motion.a
-                    key={link.href}
-                    href={link.href}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.2, delay: index * 0.03 }}
-                    className="flex items-center text-foreground hover:text-primary transition-colors py-2.5 font-medium rounded-lg hover:bg-accent/50 px-3"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      setMobileMenuOpen(false)
-                      const target = document.querySelector(link.href)
-                      if (target) {
-                        setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
-                      }
-                    }}
-                  >
-                    {link.label}
-                  </motion.a>
-                ))}
+                {navLinks.map((link, index) => {
+                  const handleNavClick = (e: React.MouseEvent) => {
+                    e.preventDefault()
+                    setMobileMenuOpen(false)
+                    const target = document.querySelector(link.href)
+                    if (target) {
+                      setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
+                    }
+                  }
+                  return link.href === "#members" ? (
+                    <motion.a
+                      key={link.href}
+                      href={link.href}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2, delay: index * 0.03 }}
+                      className="relative flex items-center gap-2.5 text-white py-3 font-semibold rounded-xl bg-emerald-600 shadow-sm shadow-emerald-600/25 px-3.5 my-1 min-h-12 overflow-hidden active:scale-[0.98] transition-transform"
+                      onClick={handleNavClick}
+                    >
+                      <motion.span
+                        aria-hidden
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                        animate={{ x: ["-150%", "150%"] }}
+                        transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 3.5 }}
+                      />
+                      <Heart size={18} className="relative fill-white/90" />
+                      <span className="relative">{link.label}</span>
+                      <span className="relative ml-auto text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-white/20 text-white">
+                        New
+                      </span>
+                    </motion.a>
+                  ) : (
+                    <motion.a
+                      key={link.href}
+                      href={link.href}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2, delay: index * 0.03 }}
+                      className="flex items-center text-foreground hover:text-primary transition-colors py-2.5 font-medium rounded-lg hover:bg-accent/50 px-3 min-h-11"
+                      onClick={handleNavClick}
+                    >
+                      {link.label}
+                    </motion.a>
+                  )
+                })}
 
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
