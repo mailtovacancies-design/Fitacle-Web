@@ -22,7 +22,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
-  const { installable, promptInstall } = usePWA()
+  const { isStandalone, promptInstall } = usePWA()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -291,7 +291,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
             </Link>
           </motion.div>
 
-          {installable && (
+          {!isStandalone && (
             <motion.button
               onClick={() => promptInstall()}
               initial={{ opacity: 0, y: -10 }}
@@ -299,8 +299,20 @@ export function Navbar({ onSignIn }: NavbarProps) {
               transition={{ duration: 0.5, delay: 0.2 + navLinks.length * 0.1 }}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
-              className="group relative inline-flex items-center gap-1.5 pl-3.5 pr-4 py-2 text-sm font-semibold text-emerald-700 rounded-full bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/15 hover:border-emerald-500/50 transition-all duration-300"
+              className="group relative inline-flex items-center gap-1.5 pl-3.5 pr-4 py-2 text-sm font-semibold text-emerald-700 rounded-full bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/15 hover:border-emerald-500/50 transition-all duration-300 overflow-hidden"
             >
+              {/* subtle shimmer sweep */}
+              <motion.span
+                aria-hidden
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400/25 to-transparent"
+                animate={{ x: ["-150%", "150%"] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 3 }}
+              />
+              {/* pulsing dot badge */}
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
               <Download size={15} className="relative transition-transform duration-300 group-hover:translate-y-0.5" />
               <span className="relative">Download App</span>
             </motion.button>
@@ -605,7 +617,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
                   </Link>
                 </motion.div>
 
-                {installable && (
+                {!isStandalone && (
                   <motion.button
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -614,11 +626,23 @@ export function Navbar({ onSignIn }: NavbarProps) {
                       setMobileMenuOpen(false)
                       promptInstall()
                     }}
-                    className="relative flex w-full items-center gap-2.5 text-emerald-700 py-3 font-semibold rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3.5 min-h-12 active:scale-[0.98] transition-transform"
+                    className="relative flex w-full items-center gap-2.5 text-emerald-700 py-3 font-semibold rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3.5 min-h-12 active:scale-[0.98] transition-transform overflow-hidden"
                   >
-                    <Download size={18} />
-                    Download App
-                    <span className="ml-auto text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-500 text-white">
+                    {/* subtle shimmer sweep */}
+                    <motion.span
+                      aria-hidden
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400/25 to-transparent"
+                      animate={{ x: ["-150%", "150%"] }}
+                      transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 3 }}
+                    />
+                    {/* pulsing dot badge */}
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                    </span>
+                    <Download size={18} className="relative" />
+                    <span className="relative">Download App</span>
+                    <span className="relative ml-auto text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-500 text-white">
                       Free
                     </span>
                   </motion.button>
