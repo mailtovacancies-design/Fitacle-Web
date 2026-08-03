@@ -52,7 +52,7 @@ const TEASERS: Teaser[] = [
 
 // Non-spam timing: one gentle nudge per session, snooze-aware across visits.
 const TEASER_STORAGE_KEY = "fitacle_chat_teaser_v2"
-const TEASER_FIRST_DELAY_MS = 15_000 // wait 15s so it never interrupts arrival
+const TEASER_FIRST_DELAY_MS = 8_000 // wait 8s so it never interrupts arrival
 const TEASER_AUTO_HIDE_MS = 12_000 // auto-dismiss if ignored
 const TEASER_DISMISS_SNOOZE_MS = 12 * 60 * 60_000 // 12h after manual dismiss
 const TEASER_OPEN_SNOOZE_MS = 24 * 60 * 60_000 // 24h once they engage
