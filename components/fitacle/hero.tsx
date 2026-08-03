@@ -784,6 +784,16 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                     transition={{ type: "spring", damping: 15, stiffness: 300 }}
                     className="p-6 mb-4 bg-gradient-to-br from-emerald-500/10 via-green-500/5 to-teal-500/10 border border-emerald-500/20 rounded-2xl text-center relative overflow-hidden"
                   >
+                    {/* Close button - works on mobile and desktop */}
+                    <button
+                      type="button"
+                      onClick={() => setAuthSuccess(null)}
+                      aria-label="Close"
+                      className="absolute top-2 right-2 z-20 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-foreground/10 active:bg-foreground/20 transition-colors"
+                    >
+                      <X size={18} />
+                    </button>
+
                     {/* Sparkle effects */}
                     <motion.div
                       animate={{ rotate: 360 }}
