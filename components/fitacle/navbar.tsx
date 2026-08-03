@@ -247,11 +247,22 @@ export function Navbar({ onSignIn }: NavbarProps) {
           >
             <Link
               href="/community"
-              className="relative inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors duration-300 group"
+              className="group relative inline-flex items-center gap-1.5 pl-3.5 pr-4 py-2 text-sm font-semibold text-emerald-700 rounded-full bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/15 hover:border-emerald-500/50 transition-all duration-300 overflow-hidden"
             >
-              <Users size={15} />
-              Community
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300" />
+              {/* subtle shimmer sweep */}
+              <motion.span
+                aria-hidden
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400/25 to-transparent"
+                animate={{ x: ["-150%", "150%"] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 3 }}
+              />
+              {/* pulsing live dot badge */}
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+              <Users size={15} className="relative" />
+              <span className="relative">Community</span>
             </Link>
           </motion.div>
         </div>
@@ -510,14 +521,22 @@ export function Navbar({ onSignIn }: NavbarProps) {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.2, delay: navLinks.length * 0.03 }}
+                  className="pt-1"
                 >
                   <Link
                     href="/community"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 transition-colors py-2.5 font-semibold rounded-lg hover:bg-emerald-500/5 px-3"
+                    className="relative flex items-center gap-2.5 text-emerald-700 py-3 font-semibold rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3.5 overflow-hidden"
                   >
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                    </span>
                     <Users size={18} />
                     Community
+                    <span className="ml-auto text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-500 text-white">
+                      Join
+                    </span>
                   </Link>
                 </motion.div>
               </div>

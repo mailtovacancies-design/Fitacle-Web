@@ -9,7 +9,6 @@ import { DailyPlan } from "@/components/fitacle/daily-plan"
 import { Transformation } from "@/components/fitacle/transformation"
 import { MembersShowcase } from "@/components/fitacle/members-showcase"
 import { FitacleScore } from "@/components/fitacle/fitacle-score"
-import { Community } from "@/components/fitacle/community"
 
 import { Footer } from "@/components/fitacle/footer"
 import { AIChatbot } from "@/components/fitacle/ai-chatbot"
@@ -27,7 +26,6 @@ export function MainContent() {
       <MembersShowcase />
       <FitacleScore onSignUpClick={() => setShowAuthModal(true)} />
       <EmotionalHook />
-      <Community />
       <Footer />
       <AIChatbot />
     </main>
