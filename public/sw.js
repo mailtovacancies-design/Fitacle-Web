@@ -6,7 +6,7 @@
  *  - API / auth / Supabase / cross-origin: always network (never cached) so
  *    user accounts, sessions, and data stay live and fresh.
  */
-const VERSION = "fitacle-v1"
+const VERSION = "fitacle-v2"
 const STATIC_CACHE = `${VERSION}-static`
 const RUNTIME_CACHE = `${VERSION}-runtime`
 const OFFLINE_URL = "/offline.html"
