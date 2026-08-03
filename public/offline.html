@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <title>Offline — Fitacle</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { height: 100%; }
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: #0a0a0a;
+        color: #fafafa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 24px;
+        min-height: 100dvh;
+      }
+      .wrap { max-width: 360px; }
+      .logo {
+        width: 88px;
+        height: 88px;
+        margin: 0 auto 24px;
+        border-radius: 22px;
+        background: #ffffff;
+        display: grid;
+        place-items: center;
+        box-shadow: 0 10px 40px rgba(5, 150, 105, 0.25);
+        animation: float 3s ease-in-out infinite;
+      }
+      .logo img { width: 62%; height: 62%; object-fit: contain; }
+      @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+      h1 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+      p { font-size: 15px; line-height: 1.6; color: #a1a1aa; margin-bottom: 24px; }
+      button {
+        appearance: none;
+        border: 0;
+        cursor: pointer;
+        background: #059669;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        padding: 13px 22px;
+        border-radius: 9999px;
+        transition: background 0.2s ease, transform 0.1s ease;
+      }
+      button:hover { background: #10b981; }
+      button:active { transform: scale(0.97); }
+      .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #059669; margin-right: 8px; animation: pulse 1.4s ease-in-out infinite; }
+      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="logo"><img src="/icons/icon-512.png" alt="Fitacle" /></div>
+      <h1>You're offline</h1>
+      <p><span class="dot"></span>No internet connection right now. Your data is safe — reconnect to pick up right where you left off.</p>
+      <button onclick="location.reload()">Try again</button>
+    </div>
+  </body>
+</html>

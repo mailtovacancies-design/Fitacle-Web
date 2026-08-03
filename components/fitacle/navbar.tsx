@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ArrowRight, LogOut, User, Edit2, Instagram, Mail, Dumbbell, Heart, Apple, Flame, Zap, Target, Users, LayoutDashboard } from "lucide-react"
+import { Menu, X, ArrowRight, LogOut, User, Edit2, Instagram, Mail, Dumbbell, Heart, Apple, Flame, Zap, Target, Users, LayoutDashboard, Download } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { ProfileModal } from "@/components/fitacle/profile-modal"
 import { NotificationsBell } from "@/components/fitacle/notifications-bell"
+import { usePWA } from "@/components/pwa/pwa-context"
 
 interface NavbarProps {
   onSignIn?: () => void
@@ -21,6 +22,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
+  const { installable, promptInstall } = usePWA()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -288,6 +290,21 @@ export function Navbar({ onSignIn }: NavbarProps) {
               <span className="relative">Community</span>
             </Link>
           </motion.div>
+
+          {installable && (
+            <motion.button
+              onClick={() => promptInstall()}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 + navLinks.length * 0.1 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              className="group relative inline-flex items-center gap-1.5 pl-3.5 pr-4 py-2 text-sm font-semibold text-emerald-700 rounded-full bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/15 hover:border-emerald-500/50 transition-all duration-300"
+            >
+              <Download size={15} className="relative transition-transform duration-300 group-hover:translate-y-0.5" />
+              <span className="relative">Download App</span>
+            </motion.button>
+          )}
         </div>
 
         <div className="hidden md:flex items-center gap-3">
@@ -587,6 +604,25 @@ export function Navbar({ onSignIn }: NavbarProps) {
                     </span>
                   </Link>
                 </motion.div>
+
+                {installable && (
+                  <motion.button
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2, delay: (navLinks.length + 1) * 0.03 }}
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      promptInstall()
+                    }}
+                    className="relative flex w-full items-center gap-2.5 text-emerald-700 py-3 font-semibold rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3.5 min-h-12 active:scale-[0.98] transition-transform"
+                  >
+                    <Download size={18} />
+                    Download App
+                    <span className="ml-auto text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-500 text-white">
+                      Free
+                    </span>
+                  </motion.button>
+                )}
               </div>
               
               {/* Social Links Row */}
