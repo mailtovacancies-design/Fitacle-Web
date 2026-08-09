@@ -1,7 +1,9 @@
 // Central place for SEO-related site constants. Additive only — no UI/behavior impact.
-// Override in production by setting NEXT_PUBLIC_SITE_URL to the canonical domain.
+// Canonical production domain. Google Search Console is verified for www.fitacle.com,
+// so the sitemap/robots/canonicals MUST use this exact host (same-domain requirement).
+// NEXT_PUBLIC_SITE_URL can override it, but it defaults to the live domain.
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://fitacle.vercel.app"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.fitacle.com"
 ).replace(/\/$/, "")
 
 export const SITE_NAME = "Fitacle"
