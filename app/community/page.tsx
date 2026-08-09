@@ -4,9 +4,12 @@ import { CommunityBottomNav } from "@/components/community/community-bottom-nav"
 import { CommunityHub } from "@/components/community/community-hub"
 
 export const metadata: Metadata = {
-  title: "Community Hub | Fitacle",
+  title: "Community Hub — Find a Fitness Partner | Fitacle",
   description:
-    "Ask questions, share experiences, request features, and celebrate wins with the Fitacle community.",
+    "Join the Fitacle community to find a fitness partner near you — a gym buddy, workout partner, running or walking companion. Ask questions, share experiences, and celebrate wins together.",
+  alternates: {
+    canonical: "/community",
+  },
 }
 
 export default function CommunityPage() {

@@ -4,6 +4,9 @@ import { LegalPage, LegalSection } from "@/components/legal/legal-page"
 export const metadata: Metadata = {
   title: "Cookie Policy | Fitacle",
   description: "How Fitacle uses cookies and similar technologies, and how you can control them.",
+  alternates: {
+    canonical: "/cookies",
+  },
 }
 
 export default function CookiesPage() {

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { PWAProvider } from '@/components/pwa/pwa-context'
+import { SITE_URL, SITE_NAME, FITNESS_PARTNER_KEYWORDS } from '@/lib/site'
 import './globals.css'
 
 const inter = Inter({ 
@@ -14,11 +15,30 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'FITACLE | Premium AI Fitness Platform',
-  description: 'Become the version you respect. Real fitness. Intelligent results. Sustainable transformation. Your premium AI fitness companion for lasting change.',
-  keywords: ['fitness', 'AI fitness', 'body analyzer', 'gym partner', 'workout', 'nutrition', 'transformation'],
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'Fitacle | Find a Fitness Partner & AI Fitness Platform',
+    template: '%s | Fitacle',
+  },
+  description:
+    'Fitacle helps you find a fitness partner near you — a gym buddy, workout partner, running or walking companion — plus AI fitness plans. Become the version you respect.',
+  keywords: ['fitness', 'AI fitness', 'body analyzer', 'gym partner', 'workout', 'nutrition', 'transformation', ...FITNESS_PARTNER_KEYWORDS],
   authors: [{ name: 'FITACLE' }],
   applicationName: 'Fitacle',
+  alternates: {
+    canonical: '/',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
   appleWebApp: {
     capable: true,
     title: 'Fitacle',
@@ -32,9 +52,18 @@ export const metadata: Metadata = {
     apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   openGraph: {
-    title: 'FITACLE | Premium AI Fitness Platform',
-    description: 'Become the version you respect. Your premium AI fitness companion for lasting change.',
+    title: 'Fitacle | Find a Fitness Partner & AI Fitness Platform',
+    description:
+      'Find a fitness partner near you — gym buddy, workout partner, running or walking companion — plus AI fitness plans. Never train alone.',
     type: 'website',
+    url: SITE_URL,
+    siteName: SITE_NAME,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Fitacle | Find a Fitness Partner & AI Fitness Platform',
+    description:
+      'Find a fitness partner near you — gym buddy, workout partner, running or walking companion. Never train alone.',
   },
 }
 
