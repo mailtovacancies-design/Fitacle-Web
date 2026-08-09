@@ -7,7 +7,9 @@ export const metadata: Metadata = {
   description:
     "Looking for a fitness partner? Fitacle matches you with a gym buddy, workout partner, running or walking companion near you — and builds AI fitness plans. Never train alone.",
   alternates: {
-    canonical: "/",
+    // Explicit trailing-slash absolute URL so the homepage canonical exactly
+    // matches the sitemap entry (https://www.fitacle.com/).
+    canonical: `${SITE_URL}/`,
   },
 }
 
