@@ -79,26 +79,16 @@ export function GuideTour() {
     return () => clearTimeout(timer)
   }, [])
 
-  // Gently scroll the relevant section into view as the user advances.
-  const scrollToTarget = useCallback((id?: string) => {
-    if (!id) return
-    const el = document.getElementById(id)
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" })
-  }, [])
-
   const finish = useCallback(() => {
     markTourDone()
     setOpen(false)
   }, [])
 
-  const goTo = useCallback(
-    (next: number) => {
-      const clamped = Math.max(0, Math.min(STEPS.length - 1, next))
-      setStep(clamped)
-      scrollToTarget(STEPS[clamped].target)
-    },
-    [scrollToTarget],
-  )
+  // Navigate steps without moving the page. The tour is a centered modal only —
+  // it must never scroll the page or disturb existing navigation/animations.
+  const goTo = useCallback((next: number) => {
+    setStep(Math.max(0, Math.min(STEPS.length - 1, next)))
+  }, [])
 
   const isLast = step === STEPS.length - 1
   const current = STEPS[step]
