@@ -13,14 +13,51 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'FITACLE | Premium AI Fitness Platform',
-  description: 'Become the version you respect. Real fitness. Intelligent results. Sustainable transformation. Your premium AI fitness companion for lasting change.',
-  keywords: ['fitness', 'AI fitness', 'body analyzer', 'gym partner', 'workout', 'nutrition', 'transformation'],
-  authors: [{ name: 'FITACLE' }],
+  metadataBase: new URL('https://fitacle.com'),
+  title: {
+    default: 'Fitacle | Find a Workout Partner & AI Fitness Platform',
+    template: '%s | Fitacle',
+  },
+  description:
+    'Find a workout partner, gym buddy, or accountability partner near you. Fitacle matches you with training partners by goals, activity, schedule, and location — powered by AI fitness intelligence.',
+  keywords: [
+    'find a workout partner',
+    'find a gym partner',
+    'workout partner',
+    'gym buddy',
+    'fitness partner',
+    'training partner',
+    'accountability partner',
+    'find a fitness partner near me',
+    'workout buddy app',
+    'AI fitness',
+    'body analyzer',
+    'nutrition',
+    'transformation',
+  ],
+  authors: [{ name: 'Fitacle' }],
+  creator: 'Fitacle',
+  applicationName: 'Fitacle',
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: 'FITACLE | Premium AI Fitness Platform',
-    description: 'Become the version you respect. Your premium AI fitness companion for lasting change.',
+    title: 'Find a Workout Partner | Fitacle AI Fitness Platform',
+    description:
+      'Never train alone. Find a workout partner, gym buddy, or accountability partner matched by goals, activity, schedule, and location on Fitacle.',
+    url: 'https://fitacle.com',
+    siteName: 'Fitacle',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Find a Workout Partner | Fitacle',
+    description:
+      'Never train alone. Find a workout partner or gym buddy matched by goals, schedule, and location on Fitacle.',
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 }
 
