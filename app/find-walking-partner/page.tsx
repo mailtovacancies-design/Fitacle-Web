@@ -3,11 +3,11 @@ import { Suspense } from "react"
 import { FindPartnerLanding } from "@/components/fitacle/find-partner-landing"
 import { buildPartnerJsonLd, buildPartnerMetadata, getPartnerVariant } from "@/lib/partner-pages"
 
-const variant = getPartnerVariant("find-fitness-partner")!
+const variant = getPartnerVariant("find-walking-partner")!
 
 export const metadata: Metadata = buildPartnerMetadata(variant)
 
-export default function FindFitnessPartnerPage() {
+export default function FindWalkingPartnerPage() {
   return (
     <>
       <script
