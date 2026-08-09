@@ -16,7 +16,7 @@ const structuredData = {
       name: "Fitacle",
       applicationCategory: "HealthApplication",
       operatingSystem: "Web",
-      url: "https://fitacle.com",
+      url: "https://www.fitacle.com",
       description:
         "Find a workout partner, gym buddy, or accountability partner near you. Fitacle matches you with training partners by goals, activity, schedule, and location, powered by AI fitness intelligence.",
       offers: {

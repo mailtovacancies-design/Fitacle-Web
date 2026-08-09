@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://fitacle.com'),
+  metadataBase: new URL('https://www.fitacle.com'),
   title: {
     default: 'Fitacle | Find a Workout Partner & AI Fitness Platform',
     template: '%s | Fitacle',
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     title: 'Find a Workout Partner | Fitacle AI Fitness Platform',
     description:
       'Never train alone. Find a workout partner, gym buddy, or accountability partner matched by goals, activity, schedule, and location on Fitacle.',
-    url: 'https://fitacle.com',
+    url: 'https://www.fitacle.com',
     siteName: 'Fitacle',
     type: 'website',
   },
