@@ -61,6 +61,30 @@ const structuredData = {
             text: "Yes. Fitacle helps you find a workout buddy, gym partner, running buddy, walking partner or training partner so you never have to train alone.",
           },
         },
+        {
+          "@type": "Question",
+          name: "Where can I find a workout partner or gym partner near me?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Use Fitacle's Find My Fitness Partner feature to discover a workout partner or gym partner near you. Matches are based on your location, schedule and fitness goals so you can train with someone nearby.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Can I find a running partner or walking partner near me?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes. Fitacle matches you with a running partner, running buddy or walking partner near you, so you always have a fitness companion for your runs and walks.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "I'm looking for someone to workout with — can Fitacle help?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Absolutely. If you're looking for a fitness partner or someone to workout with, Fitacle connects you with a like-minded training partner or accountability companion near you.",
+          },
+        },
       ],
     },
   ],
