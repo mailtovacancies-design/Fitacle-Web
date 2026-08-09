@@ -14,8 +14,6 @@ import { Community } from "@/components/fitacle/community"
 import { Footer } from "@/components/fitacle/footer"
 import { AIChatbot } from "@/components/fitacle/ai-chatbot"
 import { PartnerNudge } from "@/components/fitacle/partner-nudge"
-import { ProfileCompletionPrompt } from "@/components/fitacle/profile-completion-prompt"
-import { GuideTour } from "@/components/fitacle/guide-tour"
 
 export function MainContent() {
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -34,8 +32,6 @@ export function MainContent() {
       <Footer />
       <AIChatbot />
       <PartnerNudge />
-      <ProfileCompletionPrompt />
-      <GuideTour />
     </main>
   )
 }

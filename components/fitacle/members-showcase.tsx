@@ -462,10 +462,10 @@ export function MembersShowcase() {
             Accountability Network
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground text-balance mb-1">Never Train Alone Again.</h2>
-          <p className="text-lg sm:text-xl font-semibold text-emerald-600 mb-3">Find a Workout Partner</p>
+          <p className="text-lg sm:text-xl font-semibold text-emerald-600 mb-3">Find a Training Partner</p>
           <p className="text-muted-foreground max-w-xl mx-auto text-pretty">
-            Fitness is not a solo journey. Consistency is built through people. Find a workout partner, gym buddy, or
-            accountability partner near you using real profile data like goals, activity, schedule, and location.
+            Fitness is not a solo journey. Consistency is built through people. Find accountability partners using real
+            profile data like goals, activity, schedule, and location.
           </p>
 
           {currentUserId && (

@@ -99,7 +99,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [authSuccess, setAuthSuccess] = useState<string | null>(null)
-  const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", password: "" })
+  const [formData, setFormData] = useState({ fullName: "", email: "", password: "" })
   const [supabaseClient, setSupabaseClient] = useState<ReturnType<typeof createClient> | null>(null)
   const [userAuthProvider, setUserAuthProvider] = useState<"google" | "email" | null>(null)
   const [isSignedIn, setIsSignedIn] = useState(false)
@@ -167,20 +167,13 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
       ? `${window.location.origin}/auth/callback` 
       : 'https://fitacle.com/auth/callback'
     
-    const fullName = [formData.firstName, formData.lastName]
-      .map((v) => v.trim())
-      .filter(Boolean)
-      .join(" ")
-
     const { error } = await supabaseClient.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
         emailRedirectTo: emailRedirectUrl,
         data: {
-          full_name: fullName,
-          first_name: formData.firstName.trim(),
-          last_name: formData.lastName.trim(),
+          full_name: formData.fullName,
         },
       },
     })
@@ -191,7 +184,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
       setAuthError(error.message)
     } else {
       setAuthSuccess("signup")
-      setFormData({ firstName: "", lastName: "", email: "", password: "" })
+      setFormData({ fullName: "", email: "", password: "" })
     }
   }
 
@@ -272,7 +265,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
   const resetAuthState = () => {
     setAuthError(null)
     setAuthSuccess(null)
-    setFormData({ firstName: "", lastName: "", email: "", password: "" })
+    setFormData({ fullName: "", email: "", password: "" })
   }
   
   const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 }
@@ -958,28 +951,16 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                   }
                 >
                   {authMode === "signup" && (
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs font-medium text-foreground mb-1.5">First Name</label>
-                        <input
-                          type="text"
-                          placeholder="John"
-                          value={formData.firstName}
-                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                          className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-foreground mb-1.5">Last Name</label>
-                        <input
-                          type="text"
-                          placeholder="Doe"
-                          value={formData.lastName}
-                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                          className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
-                        />
-                      </div>
+                    <div>
+                      <label className="block text-xs font-medium text-foreground mb-1.5">Full Name</label>
+                      <input
+                        type="text"
+                        placeholder="John Doe"
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                        required
+                      />
                     </div>
                   )}
                   <div>

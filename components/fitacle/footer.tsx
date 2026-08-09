@@ -9,7 +9,7 @@ const footerLinks = {
   product: [
     { label: "Body Analyzer", href: "#analyzer" },
     { label: "Daily Plans", href: "#plan" },
-    { label: "Find a Workout Partner", href: "#members" },
+    { label: "Gym Partner", href: "#partner" },
     { label: "Fitacle Score", href: "#score" },
   ],
   company: [

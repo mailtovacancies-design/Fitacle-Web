@@ -39,20 +39,6 @@ function cleanInstagram(value: string) {
   return value.replace(/\s+/g, "").replace(/^@+/, "")
 }
 
-// Split an existing single full name into first + last while preserving all data.
-// The first token becomes the first name; everything after is the surname.
-function splitFullName(value: string): { first: string; last: string } {
-  const parts = (value || "").trim().replace(/\s+/g, " ").split(" ").filter(Boolean)
-  if (parts.length === 0) return { first: "", last: "" }
-  if (parts.length === 1) return { first: parts[0], last: "" }
-  return { first: parts[0], last: parts.slice(1).join(" ") }
-}
-
-// Combine first + last back into the single full_name column (no schema change).
-function joinFullName(first: string, last: string): string {
-  return toProperCase([first, last].map((v) => v.trim()).filter(Boolean).join(" "))
-}
-
 // Letters, spaces, hyphens, apostrophes and periods only.
 const TEXT_ONLY = /^[A-Za-z\s'.-]+$/
 
@@ -71,8 +57,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
 
   // Form state
   const [formData, setFormData] = useState({
-    first_name: "",
-    last_name: "",
+    full_name: "",
     instagram_id: "",
     age: "",
     country: "",
@@ -111,10 +96,8 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
 
           if (profile) {
             setHasProfile(true)
-            const { first, last } = splitFullName(profile.full_name || "")
             setFormData({
-              first_name: first,
-              last_name: last,
+              full_name: profile.full_name || "",
               instagram_id: profile.instagram_id || "",
               age: profile.age?.toString() || "",
               country: profile.country || "",
@@ -154,15 +137,8 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {}
 
-    if (!formData.first_name.trim() || formData.first_name.trim().length < 2) {
-      errors.first_name = "Please enter your first name (min 2 characters)"
-    } else if (!TEXT_ONLY.test(formData.first_name.trim())) {
-      errors.first_name = "First name must contain letters only"
-    }
-
-    // Surname is optional (preserves single-name profiles), but validate if provided.
-    if (formData.last_name.trim() && !TEXT_ONLY.test(formData.last_name.trim())) {
-      errors.last_name = "Last name must contain letters only"
+    if (!formData.full_name.trim() || formData.full_name.trim().length < 2) {
+      errors.full_name = "Please enter your full name (min 2 characters)"
     }
 
     // Instagram is optional. Validate only if provided.
@@ -241,7 +217,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
     setFieldErrors({})
 
     try {
-      const properName = joinFullName(formData.first_name, formData.last_name)
+      const properName = toProperCase(formData.full_name)
       const isGym = formData.preferred_location === "Gym"
 
       const profileData = {
@@ -328,58 +304,41 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
               )}
 
               <form onSubmit={handleSubmitProfile} className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-                {/* Basic Info: First + Last Name */}
+                {/* Basic Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1.5">First Name *</label>
+                    <label className="block text-xs font-medium text-foreground mb-1.5">Full Name *</label>
                     <input
                       type="text"
-                      value={formData.first_name}
+                      value={formData.full_name}
                       onChange={(e) => {
-                        setFormData({ ...formData, first_name: e.target.value })
-                        if (fieldErrors.first_name) setFieldErrors({ ...fieldErrors, first_name: "" })
+                        setFormData({ ...formData, full_name: e.target.value })
+                        if (fieldErrors.full_name) setFieldErrors({ ...fieldErrors, full_name: "" })
                       }}
-                      onBlur={(e) => setFormData({ ...formData, first_name: toProperCase(e.target.value) })}
-                      placeholder="Nithin"
-                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.first_name ? "border-red-500" : "border-border"}`}
+                      onBlur={(e) => setFormData({ ...formData, full_name: toProperCase(e.target.value) })}
+                      placeholder="Nithin Francis"
+                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.full_name ? "border-red-500" : "border-border"}`}
                     />
-                    {fieldErrors.first_name && <p className="text-xs text-red-500 mt-1">{fieldErrors.first_name}</p>}
+                    {fieldErrors.full_name && <p className="text-xs text-red-500 mt-1">{fieldErrors.full_name}</p>}
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1.5">Last Name</label>
-                    <input
-                      type="text"
-                      value={formData.last_name}
-                      onChange={(e) => {
-                        setFormData({ ...formData, last_name: e.target.value })
-                        if (fieldErrors.last_name) setFieldErrors({ ...fieldErrors, last_name: "" })
-                      }}
-                      onBlur={(e) => setFormData({ ...formData, last_name: toProperCase(e.target.value) })}
-                      placeholder="Francis"
-                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.last_name ? "border-red-500" : "border-border"}`}
-                    />
-                    {fieldErrors.last_name && <p className="text-xs text-red-500 mt-1">{fieldErrors.last_name}</p>}
+                    <label className="block text-xs font-medium text-foreground mb-1.5">Instagram (Optional)</label>
+                    <div className="relative">
+                      <Instagram size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <input
+                        type="text"
+                        value={formData.instagram_id}
+                        onChange={(e) => {
+                          setFormData({ ...formData, instagram_id: e.target.value })
+                          if (fieldErrors.instagram_id) setFieldErrors({ ...fieldErrors, instagram_id: "" })
+                        }}
+                        onBlur={(e) => setFormData({ ...formData, instagram_id: cleanInstagram(e.target.value) })}
+                        placeholder="_its_nithin_"
+                        className={`w-full pl-9 pr-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.instagram_id ? "border-red-500" : "border-border"}`}
+                      />
+                    </div>
+                    {fieldErrors.instagram_id && <p className="text-xs text-red-500 mt-1">{fieldErrors.instagram_id}</p>}
                   </div>
-                </div>
-
-                {/* Instagram */}
-                <div>
-                  <label className="block text-xs font-medium text-foreground mb-1.5">Instagram (Optional)</label>
-                  <div className="relative">
-                    <Instagram size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <input
-                      type="text"
-                      value={formData.instagram_id}
-                      onChange={(e) => {
-                        setFormData({ ...formData, instagram_id: e.target.value })
-                        if (fieldErrors.instagram_id) setFieldErrors({ ...fieldErrors, instagram_id: "" })
-                      }}
-                      onBlur={(e) => setFormData({ ...formData, instagram_id: cleanInstagram(e.target.value) })}
-                      placeholder="_its_nithin_"
-                      className={`w-full pl-9 pr-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.instagram_id ? "border-red-500" : "border-border"}`}
-                    />
-                  </div>
-                  {fieldErrors.instagram_id && <p className="text-xs text-red-500 mt-1">{fieldErrors.instagram_id}</p>}
                 </div>
 
                 {/* Age */}
