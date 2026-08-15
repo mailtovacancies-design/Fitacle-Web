@@ -21,16 +21,21 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     
     if (!error && data.user) {
-      // Check if user has incomplete profile data
-      const metadata = data.user.user_metadata || {}
-      const hasCompleteProfile = metadata.weight && metadata.height && metadata.age && metadata.fitness_goal
-      
-      if (!hasCompleteProfile) {
+      // A profile is "complete" when the user has a fitness_partners row (the
+      // profile form). Only users without one are routed to the completion flow;
+      // users who already completed their profile go straight home.
+      const { data: partner } = await supabase
+        .from('fitness_partners')
+        .select('user_id')
+        .eq('user_id', data.user.id)
+        .maybeSingle()
+
+      if (!partner) {
         // Redirect to Join the Network section to complete profile
         return NextResponse.redirect(`${origin}/#partner`)
       }
-      
-      // User has complete profile, redirect to home
+
+      // User has a complete profile, redirect to home
       return NextResponse.redirect(`${origin}/`)
     }
   }

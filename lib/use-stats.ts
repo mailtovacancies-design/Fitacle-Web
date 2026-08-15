@@ -4,7 +4,6 @@ import useSWR from "swr"
 
 export interface SiteStats {
   users: number
-  betaUsers: number
   workoutsTracked: number
   satisfaction: number
 }
@@ -23,7 +22,6 @@ export function useStats(): SiteStats {
 
   return {
     users: data?.users ?? 0,
-    betaUsers: data?.betaUsers ?? 500,
     workoutsTracked: data?.workoutsTracked ?? 0,
     satisfaction: data?.satisfaction ?? 93,
   }

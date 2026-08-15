@@ -100,7 +100,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [authSuccess, setAuthSuccess] = useState<string | null>(null)
-  const [formData, setFormData] = useState({ fullName: "", email: "", password: "" })
+  const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", password: "" })
   const [supabaseClient, setSupabaseClient] = useState<ReturnType<typeof createClient> | null>(null)
   const [userAuthProvider, setUserAuthProvider] = useState<"google" | "email" | null>(null)
   const [isSignedIn, setIsSignedIn] = useState(false)
@@ -168,13 +168,20 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
       ? `${window.location.origin}/auth/callback` 
       : 'https://fitacle.com/auth/callback'
     
+    const firstName = formData.firstName.trim()
+    const lastName = formData.lastName.trim()
+    const fullName = [firstName, lastName].filter(Boolean).join(" ")
+
     const { error } = await supabaseClient.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
         emailRedirectTo: emailRedirectUrl,
         data: {
-          full_name: formData.fullName,
+          first_name: firstName,
+          last_name: lastName,
+          // Keep full_name in sync so all existing readers (navbar, profile, etc.) still work.
+          full_name: fullName,
         },
       },
     })
@@ -185,7 +192,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
       setAuthError(error.message)
     } else {
       setAuthSuccess("signup")
-      setFormData({ fullName: "", email: "", password: "" })
+      setFormData({ firstName: "", lastName: "", email: "", password: "" })
     }
   }
 
@@ -210,10 +217,19 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
       setAuthError(error.message)
     } else {
       setAuthSuccess("login")
-      // Check if profile is incomplete, redirect to partner section
-      const metadata = data.user?.user_metadata || {}
-      const hasCompleteProfile = metadata.weight && metadata.height && metadata.age && metadata.fitness_goal
-      
+      // A profile is "complete" when the user has a fitness_partners row (the
+      // profile form). Only nudge users who haven't completed it yet; users
+      // with an existing profile are never sent to the completion flow.
+      let hasCompleteProfile = false
+      if (data.user) {
+        const { data: partner } = await supabaseClient
+          .from("fitness_partners")
+          .select("user_id")
+          .eq("user_id", data.user.id)
+          .maybeSingle()
+        hasCompleteProfile = !!partner
+      }
+
       setTimeout(() => {
         setShowAuthModal(false)
         if (!hasCompleteProfile) {
@@ -266,7 +282,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
   const resetAuthState = () => {
     setAuthError(null)
     setAuthSuccess(null)
-    setFormData({ fullName: "", email: "", password: "" })
+    setFormData({ firstName: "", lastName: "", email: "", password: "" })
   }
 
   // Safety net: never show the sign in / sign up form to a logged-in user.
@@ -313,7 +329,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
 // Live stats derived from the real registered-user count (see /api/stats).
   const liveStats = useStats()
   const stats = [
-  { value: liveStats.betaUsers, suffix: "+", label: "Beta Users" },
+  { value: liveStats.users, suffix: "+", label: "Users" },
   { value: liveStats.workoutsTracked, suffix: "+", label: "Workouts Tracked" },
   { value: liveStats.satisfaction, suffix: "%", label: "Satisfaction" },
   ]
@@ -981,16 +997,28 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                   }
                 >
                   {authMode === "signup" && (
-                    <div>
-                      <label className="block text-xs font-medium text-foreground mb-1.5">Full Name</label>
-                      <input
-                        type="text"
-                        placeholder="John Doe"
-                        value={formData.fullName}
-                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
-                        required
-                      />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-foreground mb-1.5">First Name</label>
+                        <input
+                          type="text"
+                          placeholder="John"
+                          value={formData.firstName}
+                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                          className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-foreground mb-1.5">Last Name</label>
+                        <input
+                          type="text"
+                          placeholder="Doe"
+                          value={formData.lastName}
+                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                          className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                        />
+                      </div>
                     </div>
                   )}
                   <div>

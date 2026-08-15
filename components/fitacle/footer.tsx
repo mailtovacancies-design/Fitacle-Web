@@ -352,7 +352,7 @@ function FinaleExperience() {
           className="grid grid-cols-3 gap-4 sm:gap-8 max-w-lg mx-auto mb-8 sm:mb-12"
         >
           {[
-            { value: stats.betaUsers, suffix: "+", label: "Active Users" },
+            { value: stats.users, suffix: "+", label: "Active Users" },
             { value: stats.workoutsTracked, suffix: "+", label: "Workouts Done" },
             { value: stats.satisfaction, suffix: "%", label: "Success Rate" },
           ].map((stat, i) => (

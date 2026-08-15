@@ -2,8 +2,8 @@ import { createClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
 
 // Homepage statistics derived from the real registered-user count.
-//   Beta Users       = registered users + 500
-//   Workouts Tracked = registered users x 10
+//   Users            = actual registered users
+//   Workouts Tracked = registered users + 100
 //   Satisfaction     = fixed at 93%
 // Uses the service-role key so the count bypasses RLS (read-only, server-only).
 
@@ -35,8 +35,7 @@ export async function GET() {
 
   const payload = {
     users,
-    betaUsers: users + 500,
-    workoutsTracked: users * 10,
+    workoutsTracked: users + 100,
     satisfaction: SATISFACTION,
   }
 
