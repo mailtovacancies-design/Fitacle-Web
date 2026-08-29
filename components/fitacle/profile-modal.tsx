@@ -24,6 +24,7 @@ const activityOptions = [
 const locationOptions = ["Gym", "Home", "Park", "Track", "Pool"]
 const workoutTimeOptions = ["Morning", "Afternoon", "Evening", "Flexible"]
 const goalOptions = ["Weight Loss", "Muscle Gain", "Strength", "Endurance", "General Fitness", "Stay Active"]
+const foodOptions = ["No Preference", "Kerala Food", "South Indian", "North Indian", "Vegetarian", "Vegan", "Non-Vegetarian", "Keto", "High Protein"]
 
 // Proper Case (Excel style): trim, collapse spaces, capitalize each word.
 function toProperCase(value: string) {
@@ -80,6 +81,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
     experience_level: "Beginner",
     schedule_preference: "Flexible",
     goal: "General Fitness",
+    food_preference: "No Preference",
     is_visible: true,
     is_trainer: false,
   })
@@ -131,6 +133,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                 ? profile.schedule_preference
                 : "Flexible",
               goal: goalOptions.includes(profile.goal) ? profile.goal : "General Fitness",
+              food_preference: foodOptions.includes(profile.food_preference) ? profile.food_preference : "No Preference",
               is_visible: profile.is_visible,
               is_trainer: profile.is_trainer || false,
             })
@@ -259,6 +262,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
         experience_level: formData.experience_level,
         schedule_preference: formData.schedule_preference,
         goal: formData.goal,
+        food_preference: formData.food_preference,
         is_visible: formData.is_visible,
         is_trainer: formData.is_trainer,
         avatar_initial: properName.charAt(0).toUpperCase(),
@@ -580,6 +584,21 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                         </option>
                       ))}
                     </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-foreground mb-1.5">Food Preference</label>
+                    <select
+                      value={formData.food_preference}
+                      onChange={(e) => setFormData({ ...formData, food_preference: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                    >
+                      {foodOptions.map((food) => (
+                        <option key={food} value={food}>
+                          {food}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-[11px] text-muted-foreground mt-1">Personalizes your diet plan and Fitacle AI meal suggestions.</p>
                   </div>
                 </div>
 

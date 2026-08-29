@@ -757,29 +757,51 @@ export function DailyPlan({ onSignUpClick }: DailyPlanProps) {
         if (!supabase) return
         const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
-        
-        // Calculate personalized macros if user has profile data
-        if (user?.user_metadata) {
-          const { weight, height, age, fitness_goal } = user.user_metadata
-          if (weight && height && age) {
-            const goalMap: Record<string, NutritionGoal> = {
-              'Fat Loss': 'lose',
-              'Muscle Gain': 'gain',
-              'Maintain': 'maintain',
-              'Build Strength': 'gain',
-              'Improve Endurance': 'maintain'
-            }
-            const goal = goalMap[fitness_goal] || 'maintain'
-            const macros = calculateMacros(
-              parseFloat(weight),
-              parseFloat(height),
-              parseInt(age),
-              'male', // Default to male, could be added to profile
-              'moderate' as ActivityLevel, // Default activity level
-              goal
-            )
-            setPersonalizedMacros(macros)
-          }
+        if (!user) return
+
+        // Pull the real saved profile so the plan reflects the user's goal,
+        // body metrics, and food preference (incl. Kerala Food).
+        const { data: p } = await supabase
+          .from("fitness_partners")
+          .select("goal, food_preference, weight_kg, height_cm, age")
+          .eq("user_id", user.id)
+          .maybeSingle()
+        if (!p) return
+
+        // Map profile goal -> nutrition goal and preselect the goal tab.
+        const goalMap: Record<string, NutritionGoal> = {
+          "Weight Loss": "lose",
+          "Muscle Gain": "gain",
+          "Strength": "gain",
+          "Endurance": "maintain",
+          "General Fitness": "maintain",
+          "Stay Active": "maintain",
+        }
+        const nutritionGoal = goalMap[p.goal] || "maintain"
+        setSelectedGoal(nutritionGoal)
+
+        // Map the food preference to the closest available cuisine plan.
+        const cuisineMap: Record<string, CuisineType> = {
+          "Kerala Food": "indian",
+          "South Indian": "indian",
+          "North Indian": "indian",
+          "Vegetarian": "indian",
+        }
+        if (p.food_preference && cuisineMap[p.food_preference]) {
+          setSelectedCuisine(cuisineMap[p.food_preference])
+        }
+
+        // Compute real macros from the saved body metrics.
+        if (p.weight_kg && p.height_cm && p.age) {
+          const macros = calculateMacros(
+            Number(p.weight_kg),
+            Number(p.height_cm),
+            Number(p.age),
+            "male", // gender not collected yet; default keeps calc deterministic
+            "moderate" as ActivityLevel,
+            nutritionGoal
+          )
+          setPersonalizedMacros(macros)
         }
       } catch {
         // Supabase not configured
@@ -1006,7 +1028,7 @@ export function DailyPlan({ onSignUpClick }: DailyPlanProps) {
                 </div>
 
                 <div className="space-y-1.5 sm:space-y-2 md:space-y-3">
-                  {meal.items.map((item, i) => (
+                  {(meal.items as MealItem[]).map((item: MealItem, i: number) => (
                     <div
                       key={i}
                       className="flex items-center justify-between py-1.5 sm:py-2 border-b border-border/50 last:border-0"

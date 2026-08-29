@@ -6,6 +6,7 @@ import { DefaultChatTransport, type UIMessage } from "ai"
 import { motion, AnimatePresence, useDragControls } from "framer-motion"
 import { MessageCircle, X, Send, Sparkles, Bot, User, GripVertical } from "lucide-react"
 import Image from "next/image"
+import { createClient } from "@/lib/supabase/client"
 
 // Rotating welcome greetings shown inside the chat window (never as popups).
 const WELCOME_GREETINGS = [
@@ -116,6 +117,9 @@ export function AIChatbot() {
   const [input, setInput] = useState("")
   const [greeting, setGreeting] = useState(WELCOME_GREETINGS[0])
   const [starters, setStarters] = useState<string[]>(() => STARTER_PROMPTS.slice(0, 3))
+  // Compact, low-token profile summary sent alongside each message so TACLE AI
+  // can personalize advice (goals, body, food preference) without bloating tokens.
+  const profileSummaryRef = useRef<string>("")
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
   })
@@ -123,10 +127,39 @@ export function AIChatbot() {
   const isLoading = status === "submitted" || status === "streaming"
   const hasError = !!error
 
+  // Load the signed-in user's profile once and build a tiny summary string.
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const supabase = createClient()
+        if (!supabase) return
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data: p } = await supabase
+          .from("fitness_partners")
+          .select("goal, food_preference, weight_kg, height_cm, age, experience_level, body_fat_percentage")
+          .eq("user_id", user.id)
+          .maybeSingle()
+        if (!p) return
+        const parts: string[] = []
+        if (p.goal) parts.push(`goal=${p.goal}`)
+        if (p.food_preference && p.food_preference !== "No Preference") parts.push(`food=${p.food_preference}`)
+        if (p.weight_kg && p.height_cm) parts.push(`${p.weight_kg}kg/${p.height_cm}cm`)
+        if (p.age) parts.push(`age ${p.age}`)
+        if (p.body_fat_percentage) parts.push(`bf ${p.body_fat_percentage}%`)
+        if (p.experience_level) parts.push(`exp ${p.experience_level}`)
+        profileSummaryRef.current = parts.join("; ")
+      } catch {
+        // ignore - personalization is best-effort
+      }
+    }
+    loadProfile()
+  }, [])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || isLoading) return
-    sendMessage({ text: input })
+    sendMessage({ text: input }, { body: { profile: profileSummaryRef.current } })
     setInput("")
   }
 
@@ -180,7 +213,7 @@ export function AIChatbot() {
     setIsOpen(true)
     if (prompt && !isLoading) {
       // small delay so the window mounts before the message appears
-      setTimeout(() => sendMessage({ text: prompt }), 250)
+      setTimeout(() => sendMessage({ text: prompt }, { body: { profile: profileSummaryRef.current } }), 250)
     }
   }
 
@@ -403,7 +436,7 @@ export function AIChatbot() {
                         key={q}
                         onClick={() => {
                           if (isLoading) return
-                          sendMessage({ text: q })
+                          sendMessage({ text: q }, { body: { profile: profileSummaryRef.current } })
                         }}
                         className="text-xs px-3 py-2 bg-accent rounded-full text-foreground hover:bg-accent/80 active:scale-95 transition-all"
                       >
@@ -486,7 +519,7 @@ export function AIChatbot() {
                   {suggestions.map((q) => (
                     <button
                       key={q}
-                      onClick={() => { if (!isLoading) sendMessage({ text: q }) }}
+                      onClick={() => { if (!isLoading) sendMessage({ text: q }, { body: { profile: profileSummaryRef.current } }) }}
                       className="text-xs px-3 py-1.5 bg-emerald-500/10 text-emerald-700 rounded-full hover:bg-emerald-500/20 active:scale-95 transition-all"
                     >
                       {q}

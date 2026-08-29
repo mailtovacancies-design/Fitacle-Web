@@ -33,11 +33,19 @@ You represent Fitacle - "Tackle Your Fitness Limits"`
 
 export async function POST(req: Request) {
   try {
-    const { messages }: { messages: UIMessage[] } = await req.json()
+    const { messages, profile }: { messages: UIMessage[]; profile?: string } = await req.json()
+
+    // Compact, low-token personalization: `profile` is a short single-line
+    // summary built client-side (e.g. "goal=Muscle Gain; food=Kerala Food;
+    // ~2100 kcal, P160/C210/F58g"). Appended only when present.
+    const system =
+      profile && typeof profile === 'string' && profile.trim()
+        ? `${SYSTEM_PROMPT}\n\nUser profile (use to personalize advice, meals, and macros; honor the food preference): ${profile.trim().slice(0, 400)}`
+        : SYSTEM_PROMPT
 
     const result = streamText({
       model: google('gemini-2.5-flash'),
-      system: SYSTEM_PROMPT,
+      system,
       messages: await convertToModelMessages(messages),
     })
 
