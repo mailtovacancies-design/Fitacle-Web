@@ -10,6 +10,7 @@ import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { ProfileModal } from "@/components/fitacle/profile-modal"
 import { NotificationsBell } from "@/components/fitacle/notifications-bell"
 import { usePWA } from "@/components/pwa/pwa-context"
+import { isProfileComplete } from "@/lib/profile-completion"
 
 interface NavbarProps {
   onSignIn?: () => void
@@ -22,6 +23,8 @@ export function Navbar({ onSignIn }: NavbarProps) {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
+  const [profileIncomplete, setProfileIncomplete] = useState(false)
+  const [reminderDismissed, setReminderDismissed] = useState(false)
   const { isStandalone, promptInstall } = usePWA()
 
   useEffect(() => {
@@ -57,19 +60,32 @@ export function Navbar({ onSignIn }: NavbarProps) {
     }
   }, [mobileMenuOpen])
 
-  // Check for logged in user
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const supabase = createClient()
-        if (!supabase) return
-        const { data: { user } } = await supabase.auth.getUser()
-        setUser(user)
-      } catch {
-        // Supabase not configured yet
+  // Check for logged in user + whether their profile is complete
+  const refreshProfileStatus = async () => {
+    try {
+      const supabase = createClient()
+      if (!supabase) return
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      if (!user) {
+        setProfileIncomplete(false)
+        return
       }
+      const { data: p } = await supabase
+        .from("fitness_partners")
+        .select(
+          "full_name, age, country, city, fitness_focus, usual_gym_time, gym_name, schedule_preference, weight_kg, height_cm, experience_level, goal",
+        )
+        .eq("user_id", user.id)
+        .maybeSingle()
+      setProfileIncomplete(!isProfileComplete(p))
+    } catch {
+      // Supabase not configured yet
     }
-    checkUser()
+  }
+
+  useEffect(() => {
+    refreshProfileStatus()
   }, [])
 
   const handleSignOut = async () => {
@@ -832,8 +848,48 @@ export function Navbar({ onSignIn }: NavbarProps) {
         )}
       </AnimatePresence>
 
+      {/* Incomplete-profile reminder */}
+      <AnimatePresence>
+        {user && profileIncomplete && !reminderDismissed && !showProfileModal && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3 }}
+            className="mx-auto mt-2 max-w-7xl px-4"
+          >
+            <div className="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 backdrop-blur-sm">
+              <Target className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <p className="flex-1 text-xs sm:text-sm text-foreground text-pretty">
+                Complete your profile to unlock personalized diet plans and smarter Fitacle AI recommendations.
+              </p>
+              <button
+                onClick={() => setShowProfileModal(true)}
+                className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                Complete profile
+              </button>
+              <button
+                onClick={() => setReminderDismissed(true)}
+                aria-label="Dismiss reminder"
+                className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Profile Create/Edit Modal */}
-      <ProfileModal open={showProfileModal} onClose={() => setShowProfileModal(false)} />
+      <ProfileModal
+        open={showProfileModal}
+        onClose={() => {
+          setShowProfileModal(false)
+          // Re-evaluate completeness so the reminder disappears once saved.
+          refreshProfileStatus()
+        }}
+      />
     </motion.nav>
   )
 }
