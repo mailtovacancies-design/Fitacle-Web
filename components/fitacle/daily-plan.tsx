@@ -16,7 +16,7 @@ interface DailyPlanProps {
 }
 
 type GoalType = "lose" | "maintain" | "gain"
-type CuisineType = "indian" | "arabic" | "asian" | "european"
+type CuisineType = "indian" | "kerala" | "arabic" | "asian" | "european"
 
 interface MealItem {
   name: string
@@ -368,6 +368,173 @@ const indianMealPlans: Record<GoalType, MealPlan> = {
       ],
       totalCalories: 1220,
       totalProtein: 43,
+    },
+  },
+}
+
+// Kerala meal plans by goal - familiar Kerala foods with goal-appropriate
+// portions, preparation and oil (realistic swaps, nothing exotic).
+const keralaMealPlans: Record<GoalType, MealPlan> = {
+  lose: {
+    breakfast: {
+      icon: Sun,
+      time: "7:00 AM",
+      name: "Light Kerala Start",
+      items: [
+        { name: "Puttu (Small) ", calories: 180, protein: 5 },
+        { name: "Kadala Curry (Less Oil)", calories: 150, protein: 9 },
+        { name: "Boiled Egg (1)", calories: 70, protein: 6 },
+        { name: "Black Coffee", calories: 5, protein: 0 },
+      ],
+      totalCalories: 405,
+      totalProtein: 20,
+    },
+    lunch: {
+      icon: Cloud,
+      time: "12:30 PM",
+      name: "Matta Rice Meal",
+      items: [
+        { name: "Matta Rice (Controlled)", calories: 200, protein: 4 },
+        { name: "Fish Curry (Meen Curry)", calories: 170, protein: 30 },
+        { name: "Cabbage Thoran", calories: 90, protein: 3 },
+        { name: "Rasam", calories: 40, protein: 2 },
+      ],
+      totalCalories: 500,
+      totalProtein: 39,
+    },
+    dinner: {
+      icon: Moon,
+      time: "7:00 PM",
+      name: "Light Kerala Dinner",
+      items: [
+        { name: "Idiyappam (2)", calories: 160, protein: 4 },
+        { name: "Egg Curry (1 Egg, Less Oil)", calories: 140, protein: 10 },
+        { name: "Steamed Veg Thoran", calories: 80, protein: 3 },
+        { name: "Buttermilk (Sambaram)", calories: 35, protein: 2 },
+      ],
+      totalCalories: 415,
+      totalProtein: 19,
+    },
+    snacks: {
+      icon: Coffee,
+      time: "Between Meals",
+      name: "Kerala Snacks",
+      items: [
+        { name: "Roasted Kadala", calories: 100, protein: 8 },
+        { name: "Banana (Small)", calories: 90, protein: 1 },
+        { name: "Curd", calories: 60, protein: 4 },
+        { name: "Tender Coconut Water", calories: 45, protein: 0 },
+      ],
+      totalCalories: 295,
+      totalProtein: 13,
+    },
+  },
+  maintain: {
+    breakfast: {
+      icon: Sun,
+      time: "7:30 AM",
+      name: "Traditional Kerala Breakfast",
+      items: [
+        { name: "Appam (2)", calories: 240, protein: 6 },
+        { name: "Egg Curry", calories: 180, protein: 13 },
+        { name: "Banana", calories: 110, protein: 1 },
+        { name: "Kattan Chaya (Light Tea)", calories: 30, protein: 0 },
+      ],
+      totalCalories: 560,
+      totalProtein: 20,
+    },
+    lunch: {
+      icon: Cloud,
+      time: "1:00 PM",
+      name: "Kerala Sadya-Style Meal",
+      items: [
+        { name: "Matta Rice", calories: 280, protein: 6 },
+        { name: "Fish Curry", calories: 200, protein: 32 },
+        { name: "Avial", calories: 150, protein: 5 },
+        { name: "Sambar", calories: 120, protein: 6 },
+      ],
+      totalCalories: 750,
+      totalProtein: 49,
+    },
+    dinner: {
+      icon: Moon,
+      time: "7:30 PM",
+      name: "Wholesome Kerala Dinner",
+      items: [
+        { name: "Dosa (2)", calories: 260, protein: 8 },
+        { name: "Chicken Curry", calories: 300, protein: 34 },
+        { name: "Beans Thoran", calories: 90, protein: 4 },
+        { name: "Curd", calories: 80, protein: 5 },
+      ],
+      totalCalories: 730,
+      totalProtein: 51,
+    },
+    snacks: {
+      icon: Coffee,
+      time: "Between Meals",
+      name: "Kerala Snacks",
+      items: [
+        { name: "Roasted Kadala", calories: 120, protein: 9 },
+        { name: "Banana", calories: 110, protein: 1 },
+        { name: "Nuts (Handful)", calories: 170, protein: 6 },
+        { name: "Buttermilk", calories: 45, protein: 3 },
+      ],
+      totalCalories: 445,
+      totalProtein: 19,
+    },
+  },
+  gain: {
+    breakfast: {
+      icon: Sun,
+      time: "7:00 AM",
+      name: "Muscle Building Kerala Start",
+      items: [
+        { name: "Appam (3)", calories: 360, protein: 9 },
+        { name: "Chicken Stew", calories: 320, protein: 30 },
+        { name: "Boiled Eggs (2)", calories: 140, protein: 12 },
+        { name: "Banana Shake", calories: 280, protein: 10 },
+      ],
+      totalCalories: 1100,
+      totalProtein: 61,
+    },
+    lunch: {
+      icon: Cloud,
+      time: "1:00 PM",
+      name: "Heavy Kerala Meal",
+      items: [
+        { name: "Matta Rice (Large)", calories: 420, protein: 9 },
+        { name: "Fish Molee", calories: 340, protein: 34 },
+        { name: "Beef/Chicken Ularthiyathu", calories: 380, protein: 36 },
+        { name: "Avial", calories: 180, protein: 6 },
+      ],
+      totalCalories: 1320,
+      totalProtein: 85,
+    },
+    dinner: {
+      icon: Moon,
+      time: "8:00 PM",
+      name: "Growth Kerala Dinner",
+      items: [
+        { name: "Idiyappam (4)", calories: 320, protein: 8 },
+        { name: "Egg Curry (2 Eggs)", calories: 260, protein: 18 },
+        { name: "Chicken Curry", calories: 340, protein: 38 },
+        { name: "Curd", calories: 100, protein: 6 },
+      ],
+      totalCalories: 1020,
+      totalProtein: 70,
+    },
+    snacks: {
+      icon: Coffee,
+      time: "Between Meals",
+      name: "High Calorie Kerala Snacks",
+      items: [
+        { name: "Roasted Kadala", calories: 180, protein: 13 },
+        { name: "Dry Fruit & Nut Mix", calories: 300, protein: 10 },
+        { name: "Banana (2)", calories: 220, protein: 2 },
+        { name: "Full Milk", calories: 160, protein: 8 },
+      ],
+      totalCalories: 860,
+      totalProtein: 33,
     },
   },
 }
@@ -782,7 +949,7 @@ export function DailyPlan({ onSignUpClick }: DailyPlanProps) {
 
         // Map the food preference to the closest available cuisine plan.
         const cuisineMap: Record<string, CuisineType> = {
-          "Kerala Food": "indian",
+          "Kerala Food": "kerala",
           "South Indian": "indian",
           "North Indian": "indian",
           "Vegetarian": "indian",
@@ -813,6 +980,7 @@ export function DailyPlan({ onSignUpClick }: DailyPlanProps) {
   const getMealPlan = () => {
     switch (selectedCuisine) {
       case "indian": return indianMealPlans[selectedGoal]
+      case "kerala": return keralaMealPlans[selectedGoal]
       case "arabic": return arabicMealPlans[selectedGoal]
       case "asian": return asianMealPlans[selectedGoal]
       case "european": return europeanMealPlans[selectedGoal]
@@ -899,6 +1067,7 @@ export function DailyPlan({ onSignUpClick }: DailyPlanProps) {
           <div className="flex gap-1 p-1 bg-card border border-border rounded-lg sm:rounded-2xl w-full sm:w-auto justify-center">
             {[
               { value: "indian" as CuisineType, label: "Indian", flag: "🇮🇳" },
+              { value: "kerala" as CuisineType, label: "Kerala", flag: "🌴" },
               { value: "arabic" as CuisineType, label: "Arabic", flag: "🇸🇦" },
               { value: "asian" as CuisineType, label: "Asian", flag: "🇯🇵" },
               { value: "european" as CuisineType, label: "Europe", flag: "🇪🇺" },
@@ -934,7 +1103,7 @@ export function DailyPlan({ onSignUpClick }: DailyPlanProps) {
                 {goalInfo[selectedGoal].label} Plan
               </h3>
               <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5">
-                {selectedCuisine === "indian" ? "Indian" : selectedCuisine === "arabic" ? "Arabic" : selectedCuisine === "asian" ? "Asian" : "European"} Cuisine
+                {selectedCuisine === "indian" ? "Indian" : selectedCuisine === "kerala" ? "Kerala" : selectedCuisine === "arabic" ? "Arabic" : selectedCuisine === "asian" ? "Asian" : "European"} Cuisine
               </p>
             </div>
             <div className="flex justify-center gap-3 sm:gap-6 py-2 sm:py-0 flex-wrap">

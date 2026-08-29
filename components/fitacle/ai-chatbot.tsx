@@ -7,6 +7,7 @@ import { motion, AnimatePresence, useDragControls } from "framer-motion"
 import { MessageCircle, X, Send, Sparkles, Bot, User, GripVertical } from "lucide-react"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
+import { buildAiProfileContext } from "@/lib/profile-completion"
 
 // Rotating welcome greetings shown inside the chat window (never as popups).
 const WELCOME_GREETINGS = [
@@ -137,18 +138,14 @@ export function AIChatbot() {
         if (!user) return
         const { data: p } = await supabase
           .from("fitness_partners")
-          .select("goal, food_preference, weight_kg, height_cm, age, experience_level, body_fat_percentage")
+          .select(
+            "full_name, age, country, city, fitness_focus, usual_gym_time, gym_name, schedule_preference, weight_kg, height_cm, experience_level, goal, food_preference, body_fat_percentage",
+          )
           .eq("user_id", user.id)
           .maybeSingle()
         if (!p) return
-        const parts: string[] = []
-        if (p.goal) parts.push(`goal=${p.goal}`)
-        if (p.food_preference && p.food_preference !== "No Preference") parts.push(`food=${p.food_preference}`)
-        if (p.weight_kg && p.height_cm) parts.push(`${p.weight_kg}kg/${p.height_cm}cm`)
-        if (p.age) parts.push(`age ${p.age}`)
-        if (p.body_fat_percentage) parts.push(`bf ${p.body_fat_percentage}%`)
-        if (p.experience_level) parts.push(`exp ${p.experience_level}`)
-        profileSummaryRef.current = parts.join("; ")
+        // Compact, deterministic context (macros pre-computed) via the shared util.
+        profileSummaryRef.current = buildAiProfileContext(p)
       } catch {
         // ignore - personalization is best-effort
       }
