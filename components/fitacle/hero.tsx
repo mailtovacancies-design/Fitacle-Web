@@ -474,7 +474,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
 
           {/* Main Heading */}
           <div className="mb-5 sm:mb-10">
-            <h1 className="text-[2.5rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight leading-[1]">
+            <h1 className="text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight leading-[1.05] sm:leading-[1]">
               <div className="overflow-hidden">
                 <motion.span 
                   className="block text-foreground"
@@ -572,7 +572,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                 {/* Email Sign Up */}
                 <MagneticButton 
                   onClick={() => openAuth("signup")}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3.5 sm:py-4 bg-background/90 text-foreground border border-border rounded-full font-semibold text-sm sm:text-base"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3.5 sm:py-4 bg-background/90 text-muted-foreground border border-border rounded-full font-medium text-sm sm:text-base"
                 >
                   <Mail size={16} className="sm:w-[18px] sm:h-[18px]" />
                   Sign up with Email

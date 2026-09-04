@@ -614,8 +614,8 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
                         </div>
                       </div>
                       
-                      {/* Sign Up CTA */}
-                      <div className="mt-8 p-6 bg-gradient-to-r from-foreground/5 to-foreground/10 rounded-2xl border border-border text-center">
+                      {/* Sign Up CTA — hidden per request */}
+                      <div className="hidden mt-8 p-6 bg-gradient-to-r from-foreground/5 to-foreground/10 rounded-2xl border border-border text-center">
                         <Lock size={24} className="mx-auto mb-3 text-muted-foreground" />
                         <h4 className="text-lg font-semibold text-foreground mb-2">Track Your Progress Daily</h4>
                         <p className="text-sm text-muted-foreground mb-4">

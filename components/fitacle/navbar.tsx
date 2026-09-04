@@ -223,7 +223,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
             </motion.div>
             
             <Image
-              src="/images/fitacle-logo.png"
+              src="/images/fitacle-mark-2025.png"
               alt="FITACLE Logo"
               width={60}
               height={60}
