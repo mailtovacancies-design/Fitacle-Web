@@ -3,7 +3,7 @@
 import { useState } from "react"
 import useSWR from "swr"
 import { motion, AnimatePresence } from "framer-motion"
-import { Bell, Loader2, MailOpen } from "lucide-react"
+import { Bell, Loader2, MailOpen, X } from "lucide-react"
 import {
   fetchCurrentUserId,
   fetchNotifications,
@@ -96,14 +96,23 @@ export function NotificationsBell() {
               >
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                   <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
-                  {unread > 0 && (
+                  <div className="flex items-center gap-1">
+                    {unread > 0 && (
+                      <button
+                        onClick={handleMarkAll}
+                        className="text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+                      >
+                        Mark all read
+                      </button>
+                    )}
                     <button
-                      onClick={handleMarkAll}
-                      className="text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+                      onClick={() => setOpen(false)}
+                      aria-label="Close notifications"
+                      className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent transition-colors"
                     >
-                      Mark all read
+                      <X size={16} />
                     </button>
-                  )}
+                  </div>
                 </div>
 
                 <div className="max-h-96 overflow-y-auto">

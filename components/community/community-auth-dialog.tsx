@@ -15,7 +15,8 @@ type Mode = "signin" | "signup" | "reset"
 
 export function CommunityAuthDialog({ open, onClose, onSignedIn }: CommunityAuthDialogProps) {
   const [mode, setMode] = useState<Mode>("signin")
-  const [fullName, setFullName] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
@@ -78,13 +79,21 @@ export function CommunityAuthDialog({ open, onClose, onSignedIn }: CommunityAuth
     setLoading(true)
     try {
       if (mode === "signup") {
+        const first = firstName.trim()
+        const last = lastName.trim()
+        const combined = [first, last].filter(Boolean).join(" ")
         const { error: signUpError } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
             emailRedirectTo:
               process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? `${window.location.origin}/auth/callback`,
-            data: { full_name: fullName.trim() || undefined },
+            data: {
+              first_name: first || undefined,
+              last_name: last || undefined,
+              // Keep full_name in sync so existing readers keep working.
+              full_name: combined || undefined,
+            },
           },
         })
         if (signUpError) throw signUpError
@@ -203,23 +212,40 @@ export function CommunityAuthDialog({ open, onClose, onSignedIn }: CommunityAuth
 
                   <form onSubmit={mode === "reset" ? handleForgotPassword : handleSubmit} className="space-y-4">
                     {mode === "signup" && (
-                      <div>
-                        <label htmlFor="auth-name" className="sr-only">
-                          Full name
-                        </label>
-                        <div className="relative">
-                          <UserIcon
-                            size={16}
-                            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-                          />
-                          <input
-                            id="auth-name"
-                            type="text"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            placeholder="Full name (optional)"
-                            className="w-full pl-10 pr-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition"
-                          />
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label htmlFor="auth-first-name" className="sr-only">
+                            First name
+                          </label>
+                          <div className="relative">
+                            <UserIcon
+                              size={16}
+                              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                            />
+                            <input
+                              id="auth-first-name"
+                              type="text"
+                              value={firstName}
+                              onChange={(e) => setFirstName(e.target.value)}
+                              placeholder="First name"
+                              className="w-full pl-10 pr-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label htmlFor="auth-last-name" className="sr-only">
+                            Last name
+                          </label>
+                          <div className="relative">
+                            <input
+                              id="auth-last-name"
+                              type="text"
+                              value={lastName}
+                              onChange={(e) => setLastName(e.target.value)}
+                              placeholder="Last name"
+                              className="w-full px-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition"
+                            />
+                          </div>
                         </div>
                       </div>
                     )}

@@ -1,7 +1,19 @@
 import { updateSession } from '@/lib/supabase/middleware'
-import { type NextRequest } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // Canonical domain enforcement: permanently redirect the bare apex host
+  // (fitacle.com) to the preferred www host so Google sees a single canonical
+  // URL. Only fires for the exact non-www production host, so preview
+  // deployments, localhost and all other hosts are untouched.
+  const host = request.headers.get('host')
+  if (host === 'fitacle.com') {
+    const url = request.nextUrl.clone()
+    url.protocol = 'https:'
+    url.host = 'www.fitacle.com'
+    return NextResponse.redirect(url, 308)
+  }
+
   return await updateSession(request)
 }
 

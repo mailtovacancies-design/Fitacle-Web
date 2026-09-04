@@ -6,6 +6,8 @@ import { DefaultChatTransport, type UIMessage } from "ai"
 import { motion, AnimatePresence, useDragControls } from "framer-motion"
 import { MessageCircle, X, Send, Sparkles, Bot, User, GripVertical } from "lucide-react"
 import Image from "next/image"
+import { createClient } from "@/lib/supabase/client"
+import { buildAiProfileContext } from "@/lib/profile-completion"
 
 // Rotating welcome greetings shown inside the chat window (never as popups).
 const WELCOME_GREETINGS = [
@@ -21,9 +23,12 @@ const STARTER_PROMPTS = [
   "Best exercises for fat loss?",
   "Indian diet for muscle gain",
   "How to stay motivated?",
+  "Build me a free AI fitness plan",
   "Looking for a gym buddy or someone to join my fitness journey?",
   "I keep training alone - can you help?",
   "How do I find a workout partner?",
+  "Find me a walking partner",
+  "Anyone to walk my dog with?",
   "Beginner full-body workout plan",
   "Ready to stop training alone?",
   "Find me an accountability partner",
@@ -35,6 +40,105 @@ function pickRandom<T>(arr: T[], count: number): T[] {
   return shuffled.slice(0, count)
 }
 
+// Lightweight inline markdown so TACLE AI never shows raw ** or * characters.
+// Converts **bold** / __bold__ to <strong> and *italic* / _italic_ to <em>,
+// preserving newlines (rendered inside a whitespace-pre-wrap container).
+function renderInlineMarkdown(text: string): React.ReactNode[] {
+  const nodes: React.ReactNode[] = []
+  const regex = /\*\*([^*]+)\*\*|__([^_]+)__|\*([^*]+)\*|_([^_]+)_/g
+  let lastIndex = 0
+  let key = 0
+  let match: RegExpExecArray | null
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) nodes.push(text.slice(lastIndex, match.index))
+    const bold = match[1] ?? match[2]
+    const italic = match[3] ?? match[4]
+    if (bold != null) nodes.push(<strong key={key++}>{bold}</strong>)
+    else if (italic != null) nodes.push(<em key={key++}>{italic}</em>)
+    lastIndex = regex.lastIndex
+  }
+  if (lastIndex < text.length) nodes.push(text.slice(lastIndex))
+  return nodes
+}
+
+// First name only, for a friendly personal greeting.
+function firstNameOf(fullName: string): string {
+  return (fullName || "").trim().split(/\s+/)[0] || ""
+}
+
+// Build the empty-state greeting; personalized when we know the user's name.
+function buildGreeting(name: string): string {
+  if (name) {
+    const personalized = [
+      `Hi ${name}, I'm TACLE. Tell me what you're working towards and we'll take it from there.`,
+      `Hey ${name}! Ready to tackle your fitness goals? Ask me anything.`,
+      `Welcome back, ${name}! What should we work on today?`,
+    ]
+    return personalized[Math.floor(Math.random() * personalized.length)]
+  }
+  return WELCOME_GREETINGS[Math.floor(Math.random() * WELCOME_GREETINGS.length)]
+}
+
+// Proactive teaser bubbles shown above the chat button to spark engagement.
+// Each carries a `prompt` that is auto-sent into the chat when tapped.
+type Teaser = { text: string; prompt: string }
+const TEASERS: Teaser[] = [
+  { text: "Want a workout that fits your schedule?", prompt: "Build me a workout plan that fits a busy schedule" },
+  { text: "Not sure what to eat for your goal?", prompt: "What should I eat to reach my fitness goal?" },
+  { text: "Struggling to stay consistent? Let's fix that.", prompt: "How do I stay consistent with my fitness routine?" },
+  { text: "Want a free AI fitness plan in seconds?", prompt: "Create a personalized AI fitness plan for me" },
+  { text: "Training alone? Find your Fitness Partner.", prompt: "How do I find a fitness partner on Fitacle?" },
+  { text: "Curious how many calories you need?", prompt: "How many calories should I eat per day?" },
+]
+
+// Non-spam timing: gentle nudges that can repeat during a session with a
+// comfortable gap between them. Snooze is SESSION-scoped (sessionStorage) so the
+// popups reliably return on each new visit instead of being silenced for hours.
+const TEASER_STORAGE_KEY = "fitacle_chat_teaser_v3"
+const TEASER_FIRST_DELAY_MS = 8_000 // first nudge 8s after load
+const TEASER_REPEAT_GAP_MS = 45_000 // wait ~45s after one hides before the next
+const TEASER_AUTO_HIDE_MS = 12_000 // auto-dismiss if ignored
+const TEASER_MAX_PER_SESSION = 4 // cap so it never feels spammy
+const TEASER_DISMISS_SNOOZE_MS = 15 * 60_000 // 15 min after manual dismiss (this session)
+const TEASER_OPEN_SNOOZE_MS = 30 * 60_000 // 30 min once they engage (this session)
+
+type TeaserState = { snoozeUntil?: number }
+function readTeaserState(): TeaserState {
+  if (typeof window === "undefined") return {}
+  try {
+    return JSON.parse(sessionStorage.getItem(TEASER_STORAGE_KEY) || "{}") as TeaserState
+  } catch {
+    return {}
+  }
+}
+function writeTeaserState(next: TeaserState) {
+  try {
+    // Session-scoped: clears when the tab/session ends, so a returning visitor
+    // sees the engagement nudges again on their next visit.
+    sessionStorage.setItem(TEASER_STORAGE_KEY, JSON.stringify(next))
+  } catch {
+    /* ignore private-mode/quota errors */
+  }
+}
+
+// In-conversation follow-up suggestions. These appear inside the chat (never as
+// popups), rotate randomly, and gently promote Fitacle features so the assistant
+// keeps the conversation going naturally.
+const IN_CHAT_SUGGESTIONS = [
+  "Build me a free AI fitness plan",
+  "Find my fitness partner",
+  "I don't want to train alone",
+  "Find me a walking partner",
+  "Anyone to walk my dog with?",
+  "I need an accountability partner",
+  "What should I eat for my goal?",
+  "How do I stay consistent?",
+  "A workout that fits a busy schedule",
+  "How many calories should I eat?",
+  "Best exercises for fat loss",
+  "Match me with a running partner",
+]
+
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -42,10 +146,22 @@ export function AIChatbot() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const dragControls = useDragControls()
   const constraintsRef = useRef<HTMLDivElement>(null)
-  
+
+  const [teaser, setTeaser] = useState<Teaser | null>(null)
+  const teaserCountRef = useRef(0)
+  const teaserLastIndexRef = useRef(-1)
+  const teaserStoppedRef = useRef(false)
+  const teaserHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const teaserNextTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const [input, setInput] = useState("")
   const [greeting, setGreeting] = useState(WELCOME_GREETINGS[0])
   const [starters, setStarters] = useState<string[]>(() => STARTER_PROMPTS.slice(0, 3))
+  // Signed-in user's first name (empty for guests) used to personalize the greeting.
+  const [firstName, setFirstName] = useState("")
+  // Compact, low-token profile summary sent alongside each message so TACLE AI
+  // can personalize advice (goals, body, food preference) without bloating tokens.
+  const profileSummaryRef = useRef<string>("")
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
   })
@@ -53,10 +169,36 @@ export function AIChatbot() {
   const isLoading = status === "submitted" || status === "streaming"
   const hasError = !!error
 
+  // Load the signed-in user's profile once and build a tiny summary string.
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const supabase = createClient()
+        if (!supabase) return
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data: p } = await supabase
+          .from("fitness_partners")
+          .select(
+            "full_name, age, country, city, fitness_focus, usual_gym_time, gym_name, schedule_preference, weight_kg, height_cm, experience_level, goal, food_preference, body_fat_percentage",
+          )
+          .eq("user_id", user.id)
+          .maybeSingle()
+        if (!p) return
+        // Compact, deterministic context (macros pre-computed) via the shared util.
+        profileSummaryRef.current = buildAiProfileContext(p)
+        if (p.full_name) setFirstName(firstNameOf(p.full_name))
+      } catch {
+        // ignore - personalization is best-effort
+      }
+    }
+    loadProfile()
+  }, [])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || isLoading) return
-    sendMessage({ text: input })
+    sendMessage({ text: input }, { body: { profile: profileSummaryRef.current } })
     setInput("")
   }
 
@@ -67,13 +209,14 @@ export function AIChatbot() {
       .map((part) => part.text)
       .join("") ?? ""
   
-  // Shuffle greeting + starters each time the chat opens on an empty conversation
+  // Shuffle greeting + starters each time the chat opens on an empty conversation.
+  // Uses the user's name when available for a personal first impression.
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      setGreeting(WELCOME_GREETINGS[Math.floor(Math.random() * WELCOME_GREETINGS.length)])
+      setGreeting(buildGreeting(firstName))
       setStarters(pickRandom(STARTER_PROMPTS, 3))
     }
-  }, [isOpen, messages.length])
+  }, [isOpen, messages.length, firstName])
 
   // Check if desktop on mount and resize
   useEffect(() => {
@@ -95,11 +238,129 @@ export function AIChatbot() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  // Stop any pending teaser activity for the rest of this session.
+  const stopTeaserCycle = () => {
+    teaserStoppedRef.current = true
+    if (teaserHideTimer.current) clearTimeout(teaserHideTimer.current)
+    if (teaserNextTimer.current) clearTimeout(teaserNextTimer.current)
+    setTeaser(null)
+  }
+
+  // Open the chat, optionally auto-sending a starter prompt.
+  const openChat = (prompt?: string) => {
+    stopTeaserCycle()
+    writeTeaserState({ snoozeUntil: Date.now() + TEASER_OPEN_SNOOZE_MS })
+    setIsOpen(true)
+    if (prompt && !isLoading) {
+      // small delay so the window mounts before the message appears
+      setTimeout(() => sendMessage({ text: prompt }, { body: { profile: profileSummaryRef.current } }), 250)
+    }
+  }
+
+  // Show proactive teasers that CAN repeat during a session (non-spam). Each one
+  // waits, auto-hides if ignored, never appears while the chat is open, avoids
+  // repeating the previous message, is capped per session, and respects snoozes.
+  useEffect(() => {
+    const state = readTeaserState()
+    if (state.snoozeUntil && Date.now() < state.snoozeUntil) return
+
+    const pickNextTeaser = (): Teaser => {
+      if (TEASERS.length <= 1) return TEASERS[0]
+      let idx = Math.floor(Math.random() * TEASERS.length)
+      while (idx === teaserLastIndexRef.current) {
+        idx = Math.floor(Math.random() * TEASERS.length)
+      }
+      teaserLastIndexRef.current = idx
+      return TEASERS[idx]
+    }
+
+    const scheduleNext = (delay: number) => {
+      teaserNextTimer.current = setTimeout(() => {
+        // Skip (but keep the cycle alive) if the chat is open right now.
+        if (teaserStoppedRef.current) return
+        if (isOpen) {
+          scheduleNext(TEASER_REPEAT_GAP_MS)
+          return
+        }
+        if (teaserCountRef.current >= TEASER_MAX_PER_SESSION) return
+
+        teaserCountRef.current += 1
+        setTeaser(pickNextTeaser())
+        teaserHideTimer.current = setTimeout(() => {
+          setTeaser(null)
+          if (!teaserStoppedRef.current && teaserCountRef.current < TEASER_MAX_PER_SESSION) {
+            scheduleNext(TEASER_REPEAT_GAP_MS)
+          }
+        }, TEASER_AUTO_HIDE_MS)
+      }, delay)
+    }
+
+    scheduleNext(TEASER_FIRST_DELAY_MS)
+
+    return () => {
+      if (teaserHideTimer.current) clearTimeout(teaserHideTimer.current)
+      if (teaserNextTimer.current) clearTimeout(teaserNextTimer.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Hide the teaser the moment the chat opens.
+  useEffect(() => {
+    if (isOpen) setTeaser(null)
+  }, [isOpen])
+
+  const dismissTeaser = () => {
+    stopTeaserCycle()
+    writeTeaserState({ snoozeUntil: Date.now() + TEASER_DISMISS_SNOOZE_MS })
+  }
+
+  // Rotating in-chat suggestions shown after the assistant replies.
+  const [suggestions, setSuggestions] = useState<string[]>(() => pickRandom(IN_CHAT_SUGGESTIONS, 3))
+  useEffect(() => {
+    if (!isLoading && messages.length > 0) {
+      setSuggestions(pickRandom(IN_CHAT_SUGGESTIONS, 3))
+    }
+  }, [isLoading, messages.length])
+
   return (
     <>
       {/* Drag constraints container */}
       <div ref={constraintsRef} className="fixed inset-0 pointer-events-none z-40" />
-      
+
+      {/* Proactive engagement teaser (one gentle, dismissible nudge) */}
+      <AnimatePresence>
+        {teaser && !isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 12, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.9 }}
+            transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            className="fixed bottom-36 right-4 sm:bottom-24 sm:right-6 z-40 w-[calc(100vw-5rem)] max-w-[250px]"
+          >
+            <div className="relative rounded-2xl rounded-br-md bg-card border border-border shadow-xl p-3 pr-8">
+              <button
+                onClick={dismissTeaser}
+                aria-label="Dismiss message"
+                className="absolute top-1.5 right-1.5 p-1 rounded-md text-muted-foreground hover:bg-accent transition-colors"
+              >
+                <X size={13} />
+              </button>
+              <button
+                onClick={() => openChat(teaser.prompt)}
+                className="flex items-start gap-2 text-left w-full"
+              >
+                <span className="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 grid place-items-center">
+                  <Sparkles size={13} />
+                </span>
+                <span className="text-[13px] leading-snug text-foreground text-pretty">{teaser.text}</span>
+              </button>
+            </div>
+            {/* little pointer toward the chat button */}
+            <div className="absolute -bottom-1 right-6 w-3 h-3 rotate-45 bg-card border-b border-r border-border" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Floating Chat Button - Draggable */}
       <motion.button
         drag
@@ -115,7 +376,7 @@ export function AIChatbot() {
           scale: { delay: 1, type: "spring", damping: 15 },
           y: { delay: 1.6, duration: 3.5, repeat: Infinity, ease: "easeInOut" },
         }}
-        onClick={() => setIsOpen(true)}
+        onClick={() => openChat()}
         className={`fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 w-14 h-14 rounded-full bg-emerald-500 text-white shadow-lg hover:bg-emerald-600 transition-colors flex items-center justify-center cursor-grab active:cursor-grabbing ${isOpen ? "hidden" : ""}`}
       >
         {/* Soft expanding glow rings (GPU transform/opacity only) */}
@@ -215,7 +476,7 @@ export function AIChatbot() {
                         key={q}
                         onClick={() => {
                           if (isLoading) return
-                          sendMessage({ text: q })
+                          sendMessage({ text: q }, { body: { profile: profileSummaryRef.current } })
                         }}
                         className="text-xs px-3 py-2 bg-accent rounded-full text-foreground hover:bg-accent/80 active:scale-95 transition-all"
                       >
@@ -248,7 +509,9 @@ export function AIChatbot() {
                       : "bg-accent text-foreground rounded-tl-md"
                   }`}>
                     <div className="text-sm whitespace-pre-wrap">
-                      {getMessageText(message)}
+                      {message.role === "assistant"
+                        ? renderInlineMarkdown(getMessageText(message))
+                        : getMessageText(message)}
                     </div>
                   </div>
                 </motion.div>
@@ -283,7 +546,30 @@ export function AIChatbot() {
                   <p className="text-sm text-red-500">Something went wrong. Please try again.</p>
                 </div>
               )}
-              
+
+              {/* In-conversation suggestions (never popups) - keep the chat flowing */}
+              {messages.length > 0 && !isLoading && !hasError && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex flex-wrap gap-2 pt-1"
+                >
+                  <span className="w-full text-[11px] text-muted-foreground flex items-center gap-1">
+                    <Sparkles size={11} className="text-emerald-500" /> You might also ask
+                  </span>
+                  {suggestions.map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => { if (!isLoading) sendMessage({ text: q }, { body: { profile: profileSummaryRef.current } }) }}
+                      className="text-xs px-3 py-1.5 bg-emerald-500/10 text-emerald-700 rounded-full hover:bg-emerald-500/20 active:scale-95 transition-all"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+
               <div ref={messagesEndRef} />
             </div>
 

@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Privacy Policy | Fitacle",
   description:
     "How Fitacle collects, uses, stores, and protects your personal data, including your rights under the UK/EU GDPR and India's DPDP Act.",
+  alternates: {
+    canonical: "/privacy",
+  },
 }
 
 export default function PrivacyPage() {

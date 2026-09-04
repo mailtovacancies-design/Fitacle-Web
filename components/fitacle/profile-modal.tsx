@@ -24,6 +24,7 @@ const activityOptions = [
 const locationOptions = ["Gym", "Home", "Park", "Track", "Pool"]
 const workoutTimeOptions = ["Morning", "Afternoon", "Evening", "Flexible"]
 const goalOptions = ["Weight Loss", "Muscle Gain", "Strength", "Endurance", "General Fitness", "Stay Active"]
+const foodOptions = ["No Preference", "Kerala Food", "South Indian", "North Indian", "Vegetarian", "Vegan", "Non-Vegetarian", "Keto", "High Protein"]
 
 // Proper Case (Excel style): trim, collapse spaces, capitalize each word.
 function toProperCase(value: string) {
@@ -32,6 +33,14 @@ function toProperCase(value: string) {
     .replace(/\s+/g, " ")
     .toLowerCase()
     .replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+// Split an existing combined name into first + last for editing.
+// First token is the first name; everything after is the last name.
+function splitFullName(value: string): { first: string; last: string } {
+  const parts = (value || "").trim().replace(/\s+/g, " ").split(" ").filter(Boolean)
+  if (parts.length === 0) return { first: "", last: "" }
+  return { first: parts[0], last: parts.slice(1).join(" ") }
 }
 
 // Accept "@handle" or "handle", strip spaces and leading @.
@@ -57,7 +66,8 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
 
   // Form state
   const [formData, setFormData] = useState({
-    full_name: "",
+    first_name: "",
+    last_name: "",
     instagram_id: "",
     age: "",
     country: "",
@@ -71,6 +81,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
     experience_level: "Beginner",
     schedule_preference: "Flexible",
     goal: "General Fitness",
+    food_preference: "No Preference",
     is_visible: true,
     is_trainer: false,
   })
@@ -96,8 +107,10 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
 
           if (profile) {
             setHasProfile(true)
+            const { first, last } = splitFullName(profile.full_name || "")
             setFormData({
-              full_name: profile.full_name || "",
+              first_name: first,
+              last_name: last,
               instagram_id: profile.instagram_id || "",
               age: profile.age?.toString() || "",
               country: profile.country || "",
@@ -120,6 +133,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                 ? profile.schedule_preference
                 : "Flexible",
               goal: goalOptions.includes(profile.goal) ? profile.goal : "General Fitness",
+              food_preference: foodOptions.includes(profile.food_preference) ? profile.food_preference : "No Preference",
               is_visible: profile.is_visible,
               is_trainer: profile.is_trainer || false,
             })
@@ -137,8 +151,15 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {}
 
-    if (!formData.full_name.trim() || formData.full_name.trim().length < 2) {
-      errors.full_name = "Please enter your full name (min 2 characters)"
+    if (!formData.first_name.trim() || formData.first_name.trim().length < 2) {
+      errors.first_name = "Please enter your first name (min 2 characters)"
+    } else if (!TEXT_ONLY.test(formData.first_name.trim())) {
+      errors.first_name = "First name must contain letters only"
+    }
+
+    // Last name is optional, but if provided it must be letters only.
+    if (formData.last_name.trim() && !TEXT_ONLY.test(formData.last_name.trim())) {
+      errors.last_name = "Last name must contain letters only"
     }
 
     // Instagram is optional. Validate only if provided.
@@ -217,7 +238,11 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
     setFieldErrors({})
 
     try {
-      const properName = toProperCase(formData.full_name)
+      // Combine first + last into the canonical full_name so all existing
+      // readers (members showcase, navbar, messaging) keep working unchanged.
+      const properName = [toProperCase(formData.first_name), toProperCase(formData.last_name)]
+        .filter(Boolean)
+        .join(" ")
       const isGym = formData.preferred_location === "Gym"
 
       const profileData = {
@@ -237,6 +262,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
         experience_level: formData.experience_level,
         schedule_preference: formData.schedule_preference,
         goal: formData.goal,
+        food_preference: formData.food_preference,
         is_visible: formData.is_visible,
         is_trainer: formData.is_trainer,
         avatar_initial: properName.charAt(0).toUpperCase(),
@@ -307,19 +333,34 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                 {/* Basic Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1.5">Full Name *</label>
+                    <label className="block text-xs font-medium text-foreground mb-1.5">First Name *</label>
                     <input
                       type="text"
-                      value={formData.full_name}
+                      value={formData.first_name}
                       onChange={(e) => {
-                        setFormData({ ...formData, full_name: e.target.value })
-                        if (fieldErrors.full_name) setFieldErrors({ ...fieldErrors, full_name: "" })
+                        setFormData({ ...formData, first_name: e.target.value })
+                        if (fieldErrors.first_name) setFieldErrors({ ...fieldErrors, first_name: "" })
                       }}
-                      onBlur={(e) => setFormData({ ...formData, full_name: toProperCase(e.target.value) })}
-                      placeholder="Nithin Francis"
-                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.full_name ? "border-red-500" : "border-border"}`}
+                      onBlur={(e) => setFormData({ ...formData, first_name: toProperCase(e.target.value) })}
+                      placeholder="Nithin"
+                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.first_name ? "border-red-500" : "border-border"}`}
                     />
-                    {fieldErrors.full_name && <p className="text-xs text-red-500 mt-1">{fieldErrors.full_name}</p>}
+                    {fieldErrors.first_name && <p className="text-xs text-red-500 mt-1">{fieldErrors.first_name}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-foreground mb-1.5">Last Name</label>
+                    <input
+                      type="text"
+                      value={formData.last_name}
+                      onChange={(e) => {
+                        setFormData({ ...formData, last_name: e.target.value })
+                        if (fieldErrors.last_name) setFieldErrors({ ...fieldErrors, last_name: "" })
+                      }}
+                      onBlur={(e) => setFormData({ ...formData, last_name: toProperCase(e.target.value) })}
+                      placeholder="Francis"
+                      className={`w-full px-3 py-2.5 bg-input border rounded-lg text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all ${fieldErrors.last_name ? "border-red-500" : "border-border"}`}
+                    />
+                    {fieldErrors.last_name && <p className="text-xs text-red-500 mt-1">{fieldErrors.last_name}</p>}
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-foreground mb-1.5">Instagram (Optional)</label>
@@ -543,6 +584,21 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                         </option>
                       ))}
                     </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-foreground mb-1.5">Food Preference</label>
+                    <select
+                      value={formData.food_preference}
+                      onChange={(e) => setFormData({ ...formData, food_preference: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                    >
+                      {foodOptions.map((food) => (
+                        <option key={food} value={food}>
+                          {food}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-[11px] text-muted-foreground mt-1">Personalizes your diet plan and Fitacle AI meal suggestions.</p>
                   </div>
                 </div>
 

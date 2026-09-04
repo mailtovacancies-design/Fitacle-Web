@@ -4,6 +4,9 @@ import { LegalPage } from "@/components/legal/legal-page"
 export const metadata: Metadata = {
   title: "Help Center | Fitacle",
   description: "Find answers to common questions about Fitacle — your account, Fitacle Score, messaging, finding partners, privacy, and more.",
+  alternates: {
+    canonical: "/help",
+  },
 }
 
 export default function HelpPage() {

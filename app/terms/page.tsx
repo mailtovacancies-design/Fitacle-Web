@@ -4,6 +4,9 @@ import { LegalPage, LegalSection } from "@/components/legal/legal-page"
 export const metadata: Metadata = {
   title: "Terms of Service | Fitacle",
   description: "The terms and conditions that govern your use of Fitacle.",
+  alternates: {
+    canonical: "/terms",
+  },
 }
 
 export default function TermsPage() {

@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ArrowRight, LogOut, User, Edit2, Instagram, Mail, Dumbbell, Heart, Apple, Flame, Zap, Target, Users, LayoutDashboard } from "lucide-react"
+import { Menu, X, ArrowRight, LogOut, User, Edit2, Instagram, Mail, Dumbbell, Heart, Apple, Flame, Zap, Target, Users, LayoutDashboard, Download } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { ProfileModal } from "@/components/fitacle/profile-modal"
 import { NotificationsBell } from "@/components/fitacle/notifications-bell"
+import { usePWA } from "@/components/pwa/pwa-context"
+import { isProfileComplete } from "@/lib/profile-completion"
 
 interface NavbarProps {
   onSignIn?: () => void
@@ -21,6 +23,9 @@ export function Navbar({ onSignIn }: NavbarProps) {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
+  const [profileIncomplete, setProfileIncomplete] = useState(false)
+  const [reminderDismissed, setReminderDismissed] = useState(false)
+  const { isStandalone, promptInstall } = usePWA()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,19 +60,32 @@ export function Navbar({ onSignIn }: NavbarProps) {
     }
   }, [mobileMenuOpen])
 
-  // Check for logged in user
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const supabase = createClient()
-        if (!supabase) return
-        const { data: { user } } = await supabase.auth.getUser()
-        setUser(user)
-      } catch {
-        // Supabase not configured yet
+  // Check for logged in user + whether their profile is complete
+  const refreshProfileStatus = async () => {
+    try {
+      const supabase = createClient()
+      if (!supabase) return
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      if (!user) {
+        setProfileIncomplete(false)
+        return
       }
+      const { data: p } = await supabase
+        .from("fitness_partners")
+        .select(
+          "full_name, age, country, city, fitness_focus, usual_gym_time, gym_name, schedule_preference, weight_kg, height_cm, experience_level, goal",
+        )
+        .eq("user_id", user.id)
+        .maybeSingle()
+      setProfileIncomplete(!isProfileComplete(p))
+    } catch {
+      // Supabase not configured yet
     }
-    checkUser()
+  }
+
+  useEffect(() => {
+    refreshProfileStatus()
   }, [])
 
   const handleSignOut = async () => {
@@ -226,19 +244,42 @@ export function Navbar({ onSignIn }: NavbarProps) {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link, index) => (
-            <motion.a
-              key={link.href}
-              href={link.href}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
-              className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 group"
-            >
-              {link.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300" />
-            </motion.a>
-          ))}
+          {navLinks.map((link, index) =>
+            link.href === "#members" ? (
+              <motion.a
+                key={link.href}
+                href={link.href}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                className="group relative inline-flex items-center gap-1.5 pl-3.5 pr-3.5 py-2 text-sm font-semibold text-white rounded-full bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/25 hover:shadow-md hover:shadow-emerald-500/30 transition-all duration-300 overflow-hidden"
+              >
+                {/* subtle shimmer sweep */}
+                <motion.span
+                  aria-hidden
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent"
+                  animate={{ x: ["-150%", "150%"] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 3.5 }}
+                />
+                <Heart size={14} className="relative fill-white/90 group-hover:scale-110 transition-transform duration-300" />
+                <span className="relative">{link.label}</span>
+              </motion.a>
+            ) : (
+              <motion.a
+                key={link.href}
+                href={link.href}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
+                className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 group"
+              >
+                {link.label}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300" />
+              </motion.a>
+            )
+          )}
 
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -247,13 +288,51 @@ export function Navbar({ onSignIn }: NavbarProps) {
           >
             <Link
               href="/community"
-              className="relative inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors duration-300 group"
+              className="group relative inline-flex items-center gap-1.5 pl-3.5 pr-4 py-2 text-sm font-semibold text-emerald-700 rounded-full bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/15 hover:border-emerald-500/50 transition-all duration-300 overflow-hidden"
             >
-              <Users size={15} />
-              Community
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-300" />
+              {/* subtle shimmer sweep */}
+              <motion.span
+                aria-hidden
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400/25 to-transparent"
+                animate={{ x: ["-150%", "150%"] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 3 }}
+              />
+              {/* pulsing live dot badge */}
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+              <Users size={15} className="relative" />
+              <span className="relative">Community</span>
             </Link>
           </motion.div>
+
+          {!isStandalone && (
+            <motion.button
+              onClick={() => promptInstall()}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 + navLinks.length * 0.1 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              className="group relative inline-flex items-center gap-1.5 pl-3.5 pr-4 py-2 text-sm font-semibold text-emerald-700 rounded-full bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/15 hover:border-emerald-500/50 transition-all duration-300 overflow-hidden"
+            >
+              {/* subtle shimmer sweep */}
+              <motion.span
+                aria-hidden
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400/25 to-transparent"
+                animate={{ x: ["-150%", "150%"] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 3 }}
+              />
+              {/* pulsing dot badge */}
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+              <Download size={15} className="relative transition-transform duration-300 group-hover:translate-y-0.5" />
+              <span className="relative">Download App</span>
+            </motion.button>
+          )}
         </div>
 
         <div className="hidden md:flex items-center gap-3">
@@ -485,41 +564,105 @@ export function Navbar({ onSignIn }: NavbarProps) {
             <div className="flex-1 overflow-y-auto p-4">
               {/* Navigation Links */}
               <div className="space-y-1">
-                {navLinks.map((link, index) => (
-                  <motion.a
-                    key={link.href}
-                    href={link.href}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.2, delay: index * 0.03 }}
-                    className="flex items-center text-foreground hover:text-primary transition-colors py-2.5 font-medium rounded-lg hover:bg-accent/50 px-3"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      setMobileMenuOpen(false)
-                      const target = document.querySelector(link.href)
-                      if (target) {
-                        setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
-                      }
-                    }}
-                  >
-                    {link.label}
-                  </motion.a>
-                ))}
+                {navLinks.map((link, index) => {
+                  const handleNavClick = (e: React.MouseEvent) => {
+                    e.preventDefault()
+                    setMobileMenuOpen(false)
+                    const target = document.querySelector(link.href)
+                    if (target) {
+                      setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
+                    }
+                  }
+                  return link.href === "#members" ? (
+                    <motion.a
+                      key={link.href}
+                      href={link.href}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2, delay: index * 0.03 }}
+                      className="relative flex items-center gap-2.5 text-white py-3 font-semibold rounded-xl bg-emerald-600 shadow-sm shadow-emerald-600/25 px-3.5 my-1 min-h-12 overflow-hidden active:scale-[0.98] transition-transform"
+                      onClick={handleNavClick}
+                    >
+                      <motion.span
+                        aria-hidden
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                        animate={{ x: ["-150%", "150%"] }}
+                        transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 3.5 }}
+                      />
+                      <Heart size={18} className="relative fill-white/90" />
+                      <span className="relative">{link.label}</span>
+                      <span className="relative ml-auto text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-white/20 text-white">
+                        New
+                      </span>
+                    </motion.a>
+                  ) : (
+                    <motion.a
+                      key={link.href}
+                      href={link.href}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2, delay: index * 0.03 }}
+                      className="flex items-center text-foreground hover:text-primary transition-colors py-2.5 font-medium rounded-lg hover:bg-accent/50 px-3 min-h-11"
+                      onClick={handleNavClick}
+                    >
+                      {link.label}
+                    </motion.a>
+                  )
+                })}
 
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.2, delay: navLinks.length * 0.03 }}
+                  className="pt-1"
                 >
                   <Link
                     href="/community"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 transition-colors py-2.5 font-semibold rounded-lg hover:bg-emerald-500/5 px-3"
+                    className="relative flex items-center gap-2.5 text-emerald-700 py-3 font-semibold rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3.5 overflow-hidden"
                   >
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                    </span>
                     <Users size={18} />
                     Community
+                    <span className="ml-auto text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-500 text-white">
+                      Join
+                    </span>
                   </Link>
                 </motion.div>
+
+                {!isStandalone && (
+                  <motion.button
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2, delay: (navLinks.length + 1) * 0.03 }}
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      promptInstall()
+                    }}
+                    className="relative flex w-full items-center gap-2.5 text-emerald-700 py-3 font-semibold rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3.5 min-h-12 active:scale-[0.98] transition-transform overflow-hidden"
+                  >
+                    {/* subtle shimmer sweep */}
+                    <motion.span
+                      aria-hidden
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400/25 to-transparent"
+                      animate={{ x: ["-150%", "150%"] }}
+                      transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 3 }}
+                    />
+                    {/* pulsing dot badge */}
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 animate-ping" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                    </span>
+                    <Download size={18} className="relative" />
+                    <span className="relative">Download App</span>
+                    <span className="relative ml-auto text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-500 text-white">
+                      Free
+                    </span>
+                  </motion.button>
+                )}
               </div>
               
               {/* Social Links Row */}
@@ -623,6 +766,14 @@ export function Navbar({ onSignIn }: NavbarProps) {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md"
           >
+            <button
+              type="button"
+              onClick={() => setShowLogoutSuccess(false)}
+              aria-label="Close"
+              className="absolute right-4 top-4 p-2 rounded-full text-muted-foreground hover:bg-accent transition-colors"
+            >
+              <X size={20} />
+            </button>
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -697,8 +848,48 @@ export function Navbar({ onSignIn }: NavbarProps) {
         )}
       </AnimatePresence>
 
+      {/* Incomplete-profile reminder */}
+      <AnimatePresence>
+        {user && profileIncomplete && !reminderDismissed && !showProfileModal && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3 }}
+            className="mx-auto mt-2 max-w-7xl px-4"
+          >
+            <div className="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 backdrop-blur-sm">
+              <Target className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <p className="flex-1 text-xs sm:text-sm text-foreground text-pretty">
+                Complete your profile to unlock personalized diet plans and smarter Fitacle AI recommendations.
+              </p>
+              <button
+                onClick={() => setShowProfileModal(true)}
+                className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                Complete profile
+              </button>
+              <button
+                onClick={() => setReminderDismissed(true)}
+                aria-label="Dismiss reminder"
+                className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Profile Create/Edit Modal */}
-      <ProfileModal open={showProfileModal} onClose={() => setShowProfileModal(false)} />
+      <ProfileModal
+        open={showProfileModal}
+        onClose={() => {
+          setShowProfileModal(false)
+          // Re-evaluate completeness so the reminder disappears once saved.
+          refreshProfileStatus()
+        }}
+      />
     </motion.nav>
   )
 }

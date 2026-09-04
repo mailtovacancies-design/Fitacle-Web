@@ -16,7 +16,12 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
 
-  // On load, establish the recovery session from the URL (PKCE code or hash tokens).
+  // On load, establish the recovery session from the URL. Supabase can deliver the
+  // recovery link in three different shapes depending on project/email-template config:
+  //   1. ?token_hash=...&type=recovery  -> verifyOtp (works cross-device, no PKCE verifier needed)
+  //   2. ?code=...                      -> exchangeCodeForSession (PKCE; needs same browser)
+  //   3. #access_token=...&type=recovery -> handled automatically by detectSessionInUrl + PASSWORD_RECOVERY event
+  // We try them in order so the link works regardless of which flow the project uses.
   useEffect(() => {
     const supabase = createClient()
     if (!supabase) {
@@ -28,22 +33,53 @@ export default function ResetPasswordPage() {
     const init = async () => {
       try {
         const url = new URL(window.location.href)
-        const code = url.searchParams.get("code")
-        if (code) {
+        const params = url.searchParams
+        const hashParams = new URLSearchParams(url.hash.replace(/^#/, ""))
+
+        // Surface an error Supabase may have appended to the URL (expired/used link).
+        const urlError =
+          params.get("error_description") ||
+          params.get("error") ||
+          hashParams.get("error_description") ||
+          hashParams.get("error")
+        if (urlError) {
+          setError(decodeURIComponent(urlError.replace(/\+/g, " ")))
+        }
+
+        const tokenHash = params.get("token_hash")
+        const type = params.get("type")
+        const code = params.get("code")
+
+        if (tokenHash && type) {
+          // Preferred, cross-device-safe flow.
+          await supabase.auth.verifyOtp({
+            type: type as "recovery",
+            token_hash: tokenHash,
+          })
+        } else if (code) {
           await supabase.auth.exchangeCodeForSession(code)
         }
+        // Hash-token flow (#access_token) is picked up automatically by the client.
       } catch {
-        // If exchange fails, we fall back to checking for an existing session below.
+        // Fall through to the session check below and show the friendly "invalid link" state.
       }
 
       const { data } = await supabase.auth.getSession()
       setHasSession(!!data.session)
       setReady(true)
+
+      // Clean sensitive tokens out of the address bar once consumed.
+      if (typeof window !== "undefined" && (window.location.search || window.location.hash)) {
+        window.history.replaceState({}, "", window.location.pathname)
+      }
     }
 
     // onAuthStateChange fires PASSWORD_RECOVERY when arriving via the hash flow.
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY" || session) setHasSession(true)
+      if (event === "PASSWORD_RECOVERY" || session) {
+        setHasSession(true)
+        setReady(true)
+      }
     })
 
     init()
@@ -84,7 +120,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background px-4 py-16">
+    <main className="min-h-dvh flex items-center justify-center bg-background px-4 py-16">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -121,7 +157,9 @@ export default function ResetPasswordPage() {
             </div>
             <h1 className="text-xl font-bold text-foreground mb-2">Link expired or invalid</h1>
             <p className="text-sm text-muted-foreground mb-6 text-pretty">
-              This password reset link is no longer valid. Please request a new one from the sign-in screen.
+              {error
+                ? error
+                : "This password reset link is no longer valid. Password reset links can only be used once and expire after 60 minutes. Please request a new one from the sign-in screen."}
             </p>
             <Link
               href="/"

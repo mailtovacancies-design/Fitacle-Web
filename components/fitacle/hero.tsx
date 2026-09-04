@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from "framer-motion"
-import { Instagram, Play, ArrowDown, Sparkles, ChevronRight, Mail, ArrowRight, Heart, Dumbbell, Apple, Leaf, Flame, Timer, Zap, Target, TrendingUp, Footprints, Bike, Salad, Droplets, Activity, Trophy, Loader2, Check, AlertCircle } from "lucide-react"
+import { Instagram, Play, ArrowDown, Sparkles, ChevronRight, Mail, ArrowRight, Heart, Dumbbell, Apple, Leaf, Flame, Timer, Zap, Target, TrendingUp, Footprints, Bike, Salad, Droplets, Activity, Trophy, Loader2, Check, AlertCircle, X } from "lucide-react"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
+import { useStats } from "@/lib/use-stats"
+import { isProfileComplete } from "@/lib/profile-completion"
 
 // Floating fitness element data - positioned around the main headline on mobile
 const floatingElements = [
@@ -99,7 +101,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [authSuccess, setAuthSuccess] = useState<string | null>(null)
-  const [formData, setFormData] = useState({ fullName: "", email: "", password: "" })
+  const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", password: "" })
   const [supabaseClient, setSupabaseClient] = useState<ReturnType<typeof createClient> | null>(null)
   const [userAuthProvider, setUserAuthProvider] = useState<"google" | "email" | null>(null)
   const [isSignedIn, setIsSignedIn] = useState(false)
@@ -167,13 +169,20 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
       ? `${window.location.origin}/auth/callback` 
       : 'https://fitacle.com/auth/callback'
     
+    const firstName = formData.firstName.trim()
+    const lastName = formData.lastName.trim()
+    const fullName = [firstName, lastName].filter(Boolean).join(" ")
+
     const { error } = await supabaseClient.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
         emailRedirectTo: emailRedirectUrl,
         data: {
-          full_name: formData.fullName,
+          first_name: firstName,
+          last_name: lastName,
+          // Keep full_name in sync so all existing readers (navbar, profile, etc.) still work.
+          full_name: fullName,
         },
       },
     })
@@ -184,7 +193,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
       setAuthError(error.message)
     } else {
       setAuthSuccess("signup")
-      setFormData({ fullName: "", email: "", password: "" })
+      setFormData({ firstName: "", lastName: "", email: "", password: "" })
     }
   }
 
@@ -209,10 +218,21 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
       setAuthError(error.message)
     } else {
       setAuthSuccess("login")
-      // Check if profile is incomplete, redirect to partner section
-      const metadata = data.user?.user_metadata || {}
-      const hasCompleteProfile = metadata.weight && metadata.height && metadata.age && metadata.fitness_goal
-      
+      // A profile is "complete" only when every REQUIRED field is saved. Users
+      // with missing details are sent to the completion flow; complete users
+      // are never nudged.
+      let hasCompleteProfile = false
+      if (data.user) {
+        const { data: partner } = await supabaseClient
+          .from("fitness_partners")
+          .select(
+            "full_name, age, country, city, fitness_focus, usual_gym_time, gym_name, schedule_preference, weight_kg, height_cm, experience_level, goal",
+          )
+          .eq("user_id", data.user.id)
+          .maybeSingle()
+        hasCompleteProfile = isProfileComplete(partner)
+      }
+
       setTimeout(() => {
         setShowAuthModal(false)
         if (!hasCompleteProfile) {
@@ -265,8 +285,18 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
   const resetAuthState = () => {
     setAuthError(null)
     setAuthSuccess(null)
-    setFormData({ fullName: "", email: "", password: "" })
+    setFormData({ firstName: "", lastName: "", email: "", password: "" })
   }
+
+  // Safety net: never show the sign in / sign up form to a logged-in user.
+  // Other sections (Daily Plan, Fitacle Score) can request the modal directly,
+  // so if that happens while signed in we close it and route to the dashboard.
+  useEffect(() => {
+    if (showAuthModal && isSignedIn) {
+      setShowAuthModal?.(false)
+      window.location.href = "/#score"
+    }
+  }, [showAuthModal, isSignedIn])
   
   const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 }
   const y = useSpring(useTransform(scrollY, [0, 800], [0, 100]), springConfig)
@@ -299,11 +329,12 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     }
   }, [])
 
-// Realistic stats for early stage startup
+// Live stats derived from the real registered-user count (see /api/stats).
+  const liveStats = useStats()
   const stats = [
-  { value: 347, suffix: "+", label: "Beta Users" },
-  { value: 2, suffix: "K+", label: "Workouts Tracked" },
-  { value: 92, suffix: "%", label: "Satisfaction" },
+  { value: liveStats.users, suffix: "+", label: "Users" },
+  { value: liveStats.workoutsTracked, suffix: "+", label: "Workouts Tracked" },
+  { value: liveStats.satisfaction, suffix: "%", label: "Satisfaction" },
   ]
 
   return (
@@ -575,7 +606,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.8 }}
-            className="grid grid-cols-3 gap-4 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-10 md:gap-16 mb-8 sm:mb-16 max-w-sm sm:max-w-none mx-auto"
+            className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-10 md:gap-16 mb-8 sm:mb-16 w-full max-w-xs sm:max-w-none mx-auto px-2"
           >
             {stats.map((stat, index) => (
               <motion.div
@@ -717,8 +748,16 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm bg-card rounded-2xl border border-border shadow-2xl overflow-hidden"
+              className="relative w-full max-w-sm bg-card rounded-2xl border border-border shadow-2xl overflow-hidden"
             >
+              <button
+                type="button"
+                onClick={() => { setShowAuthModal(false); resetAuthState(); }}
+                aria-label="Close"
+                className="absolute right-3 top-3 z-10 p-2 rounded-full text-muted-foreground hover:bg-accent transition-colors"
+              >
+                <X size={18} />
+              </button>
               <div className="p-6">
                 {/* Logo with animated effects */}
                 <div className="flex justify-center mb-4">
@@ -764,6 +803,16 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                     transition={{ type: "spring", damping: 15, stiffness: 300 }}
                     className="p-6 mb-4 bg-gradient-to-br from-emerald-500/10 via-green-500/5 to-teal-500/10 border border-emerald-500/20 rounded-2xl text-center relative overflow-hidden"
                   >
+                    {/* Close button - works on mobile and desktop */}
+                    <button
+                      type="button"
+                      onClick={() => setAuthSuccess(null)}
+                      aria-label="Close"
+                      className="absolute top-2 right-2 z-20 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-foreground/10 active:bg-foreground/20 transition-colors"
+                    >
+                      <X size={18} />
+                    </button>
+
                     {/* Sparkle effects */}
                     <motion.div
                       animate={{ rotate: 360 }}
@@ -951,16 +1000,28 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
                   }
                 >
                   {authMode === "signup" && (
-                    <div>
-                      <label className="block text-xs font-medium text-foreground mb-1.5">Full Name</label>
-                      <input
-                        type="text"
-                        placeholder="John Doe"
-                        value={formData.fullName}
-                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
-                        required
-                      />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-foreground mb-1.5">First Name</label>
+                        <input
+                          type="text"
+                          placeholder="John"
+                          value={formData.firstName}
+                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                          className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-foreground mb-1.5">Last Name</label>
+                        <input
+                          type="text"
+                          placeholder="Doe"
+                          value={formData.lastName}
+                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                          className="w-full px-3 py-2.5 bg-input border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+                        />
+                      </div>
                     </div>
                   )}
                   <div>
@@ -1076,6 +1137,14 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md"
           >
+            <button
+              type="button"
+              onClick={() => setShowGoogleAuthSuccess(null)}
+              aria-label="Close"
+              className="absolute right-4 top-4 p-2 rounded-full text-muted-foreground hover:bg-accent transition-colors"
+            >
+              <X size={20} />
+            </button>
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
