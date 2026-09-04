@@ -90,6 +90,8 @@ function toActivityLevel(exp?: string | null): ActivityLevel {
 export function buildAiProfileContext(p: PartnerProfile | null | undefined): string {
   if (!p) return ""
   const parts: string[] = []
+  // First name so the assistant can address the user naturally.
+  if (p.full_name) parts.push(`name ${p.full_name.trim().split(/\s+/)[0]}`)
   if (p.weight_kg) parts.push(`${p.weight_kg}kg`)
   if (p.height_cm) parts.push(`${p.height_cm}cm`)
   if (p.age) parts.push(`age${p.age}`)

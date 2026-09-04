@@ -6,6 +6,7 @@ import { Instagram, Play, ArrowDown, Sparkles, ChevronRight, Mail, ArrowRight, H
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { useStats } from "@/lib/use-stats"
+import { isProfileComplete } from "@/lib/profile-completion"
 
 // Floating fitness element data - positioned around the main headline on mobile
 const floatingElements = [
@@ -217,17 +218,19 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
       setAuthError(error.message)
     } else {
       setAuthSuccess("login")
-      // A profile is "complete" when the user has a fitness_partners row (the
-      // profile form). Only nudge users who haven't completed it yet; users
-      // with an existing profile are never sent to the completion flow.
+      // A profile is "complete" only when every REQUIRED field is saved. Users
+      // with missing details are sent to the completion flow; complete users
+      // are never nudged.
       let hasCompleteProfile = false
       if (data.user) {
         const { data: partner } = await supabaseClient
           .from("fitness_partners")
-          .select("user_id")
+          .select(
+            "full_name, age, country, city, fitness_focus, usual_gym_time, gym_name, schedule_preference, weight_kg, height_cm, experience_level, goal",
+          )
           .eq("user_id", data.user.id)
           .maybeSingle()
-        hasCompleteProfile = !!partner
+        hasCompleteProfile = isProfileComplete(partner)
       }
 
       setTimeout(() => {

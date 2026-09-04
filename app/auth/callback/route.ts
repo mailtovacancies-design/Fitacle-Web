@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { isProfileComplete } from '@/lib/profile-completion'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
@@ -21,17 +22,19 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     
     if (!error && data.user) {
-      // A profile is "complete" when the user has a fitness_partners row (the
-      // profile form). Only users without one are routed to the completion flow;
-      // users who already completed their profile go straight home.
+      // A profile is "complete" only when every REQUIRED field is saved (not
+      // merely when a row exists). Google sign-in users with missing details
+      // are routed to the existing profile-completion experience.
       const { data: partner } = await supabase
         .from('fitness_partners')
-        .select('user_id')
+        .select(
+          'full_name, age, country, city, fitness_focus, usual_gym_time, gym_name, schedule_preference, weight_kg, height_cm, experience_level, goal',
+        )
         .eq('user_id', data.user.id)
         .maybeSingle()
 
-      if (!partner) {
-        // Redirect to Join the Network section to complete profile
+      if (!isProfileComplete(partner)) {
+        // Send to the existing Join the Network / profile completion section
         return NextResponse.redirect(`${origin}/#partner`)
       }
 

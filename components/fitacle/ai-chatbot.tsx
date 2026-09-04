@@ -40,6 +40,45 @@ function pickRandom<T>(arr: T[], count: number): T[] {
   return shuffled.slice(0, count)
 }
 
+// Lightweight inline markdown so TACLE AI never shows raw ** or * characters.
+// Converts **bold** / __bold__ to <strong> and *italic* / _italic_ to <em>,
+// preserving newlines (rendered inside a whitespace-pre-wrap container).
+function renderInlineMarkdown(text: string): React.ReactNode[] {
+  const nodes: React.ReactNode[] = []
+  const regex = /\*\*([^*]+)\*\*|__([^_]+)__|\*([^*]+)\*|_([^_]+)_/g
+  let lastIndex = 0
+  let key = 0
+  let match: RegExpExecArray | null
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) nodes.push(text.slice(lastIndex, match.index))
+    const bold = match[1] ?? match[2]
+    const italic = match[3] ?? match[4]
+    if (bold != null) nodes.push(<strong key={key++}>{bold}</strong>)
+    else if (italic != null) nodes.push(<em key={key++}>{italic}</em>)
+    lastIndex = regex.lastIndex
+  }
+  if (lastIndex < text.length) nodes.push(text.slice(lastIndex))
+  return nodes
+}
+
+// First name only, for a friendly personal greeting.
+function firstNameOf(fullName: string): string {
+  return (fullName || "").trim().split(/\s+/)[0] || ""
+}
+
+// Build the empty-state greeting; personalized when we know the user's name.
+function buildGreeting(name: string): string {
+  if (name) {
+    const personalized = [
+      `Hi ${name}, I'm TACLE. Tell me what you're working towards and we'll take it from there.`,
+      `Hey ${name}! Ready to tackle your fitness goals? Ask me anything.`,
+      `Welcome back, ${name}! What should we work on today?`,
+    ]
+    return personalized[Math.floor(Math.random() * personalized.length)]
+  }
+  return WELCOME_GREETINGS[Math.floor(Math.random() * WELCOME_GREETINGS.length)]
+}
+
 // Proactive teaser bubbles shown above the chat button to spark engagement.
 // Each carries a `prompt` that is auto-sent into the chat when tapped.
 type Teaser = { text: string; prompt: string }
@@ -118,6 +157,8 @@ export function AIChatbot() {
   const [input, setInput] = useState("")
   const [greeting, setGreeting] = useState(WELCOME_GREETINGS[0])
   const [starters, setStarters] = useState<string[]>(() => STARTER_PROMPTS.slice(0, 3))
+  // Signed-in user's first name (empty for guests) used to personalize the greeting.
+  const [firstName, setFirstName] = useState("")
   // Compact, low-token profile summary sent alongside each message so TACLE AI
   // can personalize advice (goals, body, food preference) without bloating tokens.
   const profileSummaryRef = useRef<string>("")
@@ -146,6 +187,7 @@ export function AIChatbot() {
         if (!p) return
         // Compact, deterministic context (macros pre-computed) via the shared util.
         profileSummaryRef.current = buildAiProfileContext(p)
+        if (p.full_name) setFirstName(firstNameOf(p.full_name))
       } catch {
         // ignore - personalization is best-effort
       }
@@ -167,13 +209,14 @@ export function AIChatbot() {
       .map((part) => part.text)
       .join("") ?? ""
   
-  // Shuffle greeting + starters each time the chat opens on an empty conversation
+  // Shuffle greeting + starters each time the chat opens on an empty conversation.
+  // Uses the user's name when available for a personal first impression.
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      setGreeting(WELCOME_GREETINGS[Math.floor(Math.random() * WELCOME_GREETINGS.length)])
+      setGreeting(buildGreeting(firstName))
       setStarters(pickRandom(STARTER_PROMPTS, 3))
     }
-  }, [isOpen, messages.length])
+  }, [isOpen, messages.length, firstName])
 
   // Check if desktop on mount and resize
   useEffect(() => {
@@ -466,7 +509,9 @@ export function AIChatbot() {
                       : "bg-accent text-foreground rounded-tl-md"
                   }`}>
                     <div className="text-sm whitespace-pre-wrap">
-                      {getMessageText(message)}
+                      {message.role === "assistant"
+                        ? renderInlineMarkdown(getMessageText(message))
+                        : getMessageText(message)}
                     </div>
                   </div>
                 </motion.div>
