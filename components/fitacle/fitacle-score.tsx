@@ -369,10 +369,21 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
           ) : isLoggedIn ? (
             <div className="space-y-4">
               <motion.button
-                onClick={() => setShowCalculator(!showCalculator)}
+                type="button"
+                onClick={() => {
+                  const opening = !showCalculator
+                  setShowCalculator(opening)
+                  if (opening) {
+                    setTimeout(() => {
+                      document.getElementById("score-calculator")?.scrollIntoView({ behavior: "smooth", block: "start" })
+                    }, 150)
+                  }
+                }}
+                aria-expanded={showCalculator}
+                aria-controls="score-calculator"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-foreground text-background rounded-full font-bold text-base shadow-lg hover:shadow-xl hover:bg-foreground/90 transition-all"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-foreground text-background rounded-full font-bold text-base shadow-lg hover:shadow-xl hover:bg-foreground/90 transition-all cursor-pointer"
               >
                 <Sparkles size={18} />
                 <span>
@@ -409,11 +420,12 @@ export function FitacleScore({ onSignUpClick }: FitacleScoreProps) {
         <AnimatePresence>
           {showCalculator && isLoggedIn && (
             <motion.div
+              id="score-calculator"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.5 }}
-              className="mb-12 overflow-hidden"
+              className="mb-12 overflow-hidden scroll-mt-24"
             >
               <div className="bg-card rounded-2xl sm:rounded-3xl border border-border p-4 sm:p-8 shadow-lg">
                 <div className="text-center mb-8">
