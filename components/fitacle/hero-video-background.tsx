@@ -34,13 +34,13 @@ export function HeroVideoBackground() {
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
       {reducedMotion ? (
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-[0.14]"
+          className="absolute inset-0 bg-cover bg-center opacity-[0.45]"
           style={{ backgroundImage: "url('/videos/hero-fitness-poster.jpg')" }}
         />
       ) : (
         <video
           ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover opacity-[0.14]"
+          className="absolute inset-0 h-full w-full object-cover opacity-[0.45]"
           src="/videos/hero-fitness.mp4"
           poster="/videos/hero-fitness-poster.jpg"
           autoPlay
@@ -50,8 +50,9 @@ export function HeroVideoBackground() {
           preload="metadata"
         />
       )}
-      {/* Dark tint keeps hero copy high-contrast over the footage. */}
-      <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/35 via-neutral-950/15 to-neutral-950/40" />
+      {/* Light scrim keeps the near-black hero copy high-contrast while the
+          footage still reads as subtle texture behind it. */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/30 to-background/60" />
     </div>
   )
 }

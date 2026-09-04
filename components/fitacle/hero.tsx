@@ -478,7 +478,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
 
           {/* Main Heading */}
           <div className="mb-5 sm:mb-10">
-            <h1 className="text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight leading-[1.05] sm:leading-[1]">
+            <h1 className="text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight leading-[1.05] sm:leading-[1] [text-shadow:0_1px_20px_rgb(255_255_255_/_0.9)]">
               <div className="overflow-hidden">
                 <motion.span 
                   className="block text-foreground"
@@ -517,7 +517,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
             initial={{ opacity: 0, y: 20 }}
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.7 }}
-            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-4 sm:mb-6 px-2"
+            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-4 sm:mb-6 px-2 [text-shadow:0_1px_14px_rgb(255_255_255_/_0.85)]"
           >
             Real fitness is not motivation. It is identity built through daily repetition.
           </motion.p>
@@ -527,7 +527,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
             initial={{ opacity: 0, y: 20 }}
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.85 }}
-            className="text-sm sm:text-base text-muted-foreground/70 max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-14 px-2"
+            className="text-sm sm:text-base text-muted-foreground/70 max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-14 px-2 [text-shadow:0_1px_12px_rgb(255_255_255_/_0.8)]"
           >
             An AI-powered fitness system that understands your habits, adapts to your lifestyle, and builds the future version of you — step by step.
           </motion.p>
