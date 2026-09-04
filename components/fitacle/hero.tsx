@@ -7,6 +7,7 @@ import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { useStats } from "@/lib/use-stats"
 import { isProfileComplete } from "@/lib/profile-completion"
+import { HeroVideoBackground } from "@/components/fitacle/hero-video-background"
 
 // Floating fitness element data - positioned around the main headline on mobile
 const floatingElements = [
@@ -347,6 +348,9 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
         >
           {/* Base gradient background */}
           <div className="absolute inset-0 bg-gradient-to-br from-neutral-100 via-neutral-50 to-neutral-200" />
+
+          {/* Subtle motivational fitness video (behind all hero content) */}
+          <HeroVideoBackground />
           
           {/* Smooth gradient animations - GPU optimized */}
           <motion.div
