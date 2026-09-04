@@ -58,12 +58,21 @@ export const metadata: Metadata = {
     type: 'website',
     url: SITE_URL,
     siteName: SITE_NAME,
+    images: [
+      {
+        url: '/images/fitacle-logo.png',
+        width: 1170,
+        height: 912,
+        alt: 'Fitacle logo',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Fitacle | Find a Fitness Partner & AI Fitness Platform',
     description:
       'Find a fitness partner near you — gym buddy, workout partner, running or walking companion. Never train alone.',
+    images: ['/images/fitacle-logo.png'],
   },
 }
 
