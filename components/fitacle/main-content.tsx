@@ -9,6 +9,8 @@ import { DailyPlan } from "@/components/fitacle/daily-plan"
 import { Transformation } from "@/components/fitacle/transformation"
 import { MembersShowcase } from "@/components/fitacle/members-showcase"
 import { FitacleScore } from "@/components/fitacle/fitacle-score"
+// TEMPORARY PREVIEW: surfaces the previously hidden/disabled FinalCTA section for review only. Remove this import to revert.
+import { FinalCTA } from "@/components/fitacle/final-cta"
 
 import { Footer } from "@/components/fitacle/footer"
 import { AIChatbot } from "@/components/fitacle/ai-chatbot"
@@ -26,6 +28,8 @@ export function MainContent() {
       <MembersShowcase />
       <FitacleScore onSignUpClick={() => setShowAuthModal(true)} />
       <EmotionalHook />
+      {/* TEMPORARY PREVIEW: previously hidden/disabled FinalCTA section, shown for review only. Remove this line to revert. */}
+      <FinalCTA onStartTransformation={() => setShowAuthModal(true)} />
       <Footer />
       <AIChatbot />
     </main>
