@@ -19,7 +19,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 })
   }
 
-  const subscription = body?.subscription
+  // The client posts the raw PushSubscription JSON (endpoint + keys at top level).
+  const subscription = body?.subscription ?? body
   const endpoint: string | undefined = subscription?.endpoint
   const p256dh: string | undefined = subscription?.keys?.p256dh
   const auth: string | undefined = subscription?.keys?.auth

@@ -105,10 +105,10 @@ export function Navbar({ onSignIn }: NavbarProps) {
   }
 
   const navLinks = [
-    { href: "#begin", label: "Begin" },
+    { href: "#score", label: "Life, Quantified" },
     { href: "#analyzer", label: "Body Intelligence" },
     { href: "#plan", label: "AI Plan" },
-    { href: "#transformation", label: "Progress" },
+    { href: "#score", label: "AI Recommendations" },
     { href: "#members", label: "Find a Training Partner" },
   ]
 
@@ -247,7 +247,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
           {navLinks.map((link, index) =>
             link.href === "#members" ? (
               <motion.a
-                key={link.href}
+                key={link.label}
                 href={link.href}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -268,7 +268,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
               </motion.a>
             ) : (
               <motion.a
-                key={link.href}
+                key={link.label}
                 href={link.href}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -575,7 +575,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
                   }
                   return link.href === "#members" ? (
                     <motion.a
-                      key={link.href}
+                      key={link.label}
                       href={link.href}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -597,7 +597,7 @@ export function Navbar({ onSignIn }: NavbarProps) {
                     </motion.a>
                   ) : (
                     <motion.a
-                      key={link.href}
+                      key={link.label}
                       href={link.href}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}

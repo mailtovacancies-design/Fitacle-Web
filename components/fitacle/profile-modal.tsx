@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Instagram, Star, X, Loader2, CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react"
+import { Instagram, Star, X, Loader2, CheckCircle2, AlertCircle, Eye, EyeOff, Bell, Lock, Users } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
+import { usePush } from "@/lib/use-push"
 
 const experienceLevels = ["Beginner", "Intermediate", "Advanced"]
 const activityOptions = [
@@ -84,8 +85,11 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
     food_preference: "No Preference",
     is_visible: true,
     is_trainer: false,
+    instagram_private: false,
+    notifications_enabled: true,
   })
   const [showTrainerNote, setShowTrainerNote] = useState(false)
+  const { supported: pushSupported, subscribe: subscribePush, unsubscribe: unsubscribePush } = usePush()
 
   // Check user and load existing profile
   useEffect(() => {
@@ -99,6 +103,13 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
         setUser(user)
 
         if (user) {
+          // Notifications preference lives on the profiles table (keyed by auth id).
+          const { data: accountProfile } = await supabase
+            .from("profiles")
+            .select("notifications_enabled")
+            .eq("id", user.id)
+            .maybeSingle()
+
           const { data: profile } = await supabase
             .from("fitness_partners")
             .select("*")
@@ -136,7 +147,14 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
               food_preference: foodOptions.includes(profile.food_preference) ? profile.food_preference : "No Preference",
               is_visible: profile.is_visible,
               is_trainer: profile.is_trainer || false,
+              instagram_private: profile.instagram_private ?? false,
+              notifications_enabled: accountProfile?.notifications_enabled ?? true,
             })
+          } else if (accountProfile) {
+            setFormData((prev) => ({
+              ...prev,
+              notifications_enabled: accountProfile.notifications_enabled ?? true,
+            }))
           }
         }
       } catch {
@@ -249,6 +267,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
         user_id: user.id,
         full_name: properName,
         instagram_id: formData.instagram_id.trim() ? cleanInstagram(formData.instagram_id) : null,
+        instagram_private: formData.instagram_private,
         age: formData.age ? parseInt(formData.age) : null,
         country: formData.country.trim(),
         city: formData.city.trim(),
@@ -279,6 +298,18 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
         if (error) throw error
         setHasProfile(true)
         setSuccess("Welcome to the Fitness Partner Network!")
+      }
+
+      // Persist the notifications preference on the account profile.
+      await supabase.from("profiles").update({ notifications_enabled: formData.notifications_enabled }).eq("id", user.id)
+
+      // Register/unregister real device push to match the preference.
+      if (pushSupported) {
+        if (formData.notifications_enabled) {
+          await subscribePush()
+        } else {
+          await unsubscribePush()
+        }
       }
 
       onClose()
@@ -318,9 +349,21 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                   <X size={20} className="text-muted-foreground" />
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground mb-5">
+              <p className="text-xs text-muted-foreground mb-4">
                 Used to improve partner matching and personalised recommendations.
               </p>
+
+              <div className="mb-4 flex items-start gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-700">
+                <Users size={14} className="mt-0.5 flex-shrink-0" />
+                <span>Complete your profile to improve your training partner matches.</span>
+              </div>
+
+              {!formData.is_visible && (
+                <div className="mb-4 flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-700">
+                  <EyeOff size={14} className="mt-0.5 flex-shrink-0" />
+                  <span>Make your profile visible to find a training partner.</span>
+                </div>
+              )}
 
               {error && (
                 <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2 text-red-600 text-sm">
@@ -379,6 +422,18 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                       />
                     </div>
                     {fieldErrors.instagram_id && <p className="text-xs text-red-500 mt-1">{fieldErrors.instagram_id}</p>}
+                    <label className="mt-2 flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={formData.instagram_private}
+                        onChange={(e) => setFormData({ ...formData, instagram_private: e.target.checked })}
+                        className="h-3.5 w-3.5 rounded border-border text-emerald-600 focus:ring-emerald-500/30 accent-emerald-600"
+                      />
+                      <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <Lock size={11} />
+                        Make my Instagram private
+                      </span>
+                    </label>
                   </div>
                 </div>
 
@@ -679,6 +734,30 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                   >
                     <span
                       className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.is_visible ? "left-7" : "left-1"}`}
+                    />
+                  </button>
+                </div>
+
+                {/* Notifications Toggle */}
+                <div className="flex items-center justify-between p-4 bg-accent rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <Bell size={18} className={formData.notifications_enabled ? "text-emerald-500" : "text-muted-foreground"} />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Notifications</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formData.notifications_enabled
+                          ? "Daily reminders and AI recommendations are on"
+                          : "You won't receive daily reminders"}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, notifications_enabled: !formData.notifications_enabled })}
+                    className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${formData.notifications_enabled ? "bg-emerald-500" : "bg-muted"}`}
+                  >
+                    <span
+                      className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${formData.notifications_enabled ? "left-7" : "left-1"}`}
                     />
                   </button>
                 </div>

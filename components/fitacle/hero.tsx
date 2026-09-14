@@ -456,7 +456,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
 
 {/* Main Content */}
         <div
-          className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 pt-24 pb-12 sm:py-28 md:py-32 text-center"
+          className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 pt-20 pb-10 sm:py-20 md:py-24 text-center"
         >
           {/* Premium Badge */}
           <motion.div
@@ -474,7 +474,7 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
 
           {/* Main Heading */}
           <div className="mb-5 sm:mb-10">
-            <h1 className="text-[2.5rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight leading-[1]">
+            <h1 className="text-[2.25rem] sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold tracking-tight leading-[1]">
               <div className="overflow-hidden">
                 <motion.span 
                   className="block text-foreground"

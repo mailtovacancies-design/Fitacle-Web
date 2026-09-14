@@ -28,6 +28,7 @@ interface Partner {
   user_id: string | null
   full_name: string
   instagram_id: string | null
+  instagram_private: boolean
   country: string | null
   city: string | null
   gym_name: string | null
@@ -98,7 +99,7 @@ const fetcher = async (): Promise<Partner[]> => {
   const { data, error } = await supabase
     .from("fitness_partners")
     .select(
-      "id, user_id, full_name, instagram_id, country, city, gym_name, fitness_focus, experience_level, schedule_preference, usual_gym_time, goal, is_trainer, is_premium, is_featured, avatar_initial, created_at",
+      "id, user_id, full_name, instagram_id, instagram_private, country, city, gym_name, fitness_focus, experience_level, schedule_preference, usual_gym_time, goal, is_trainer, is_premium, is_featured, avatar_initial, created_at",
     )
     .eq("is_visible", true)
     .order("created_at", { ascending: false })
@@ -194,7 +195,7 @@ function MemberCard({
       </div>
 
       <div className="flex-shrink-0 flex items-center gap-1">
-        {partner.instagram_id && (
+        {partner.instagram_id && !partner.instagram_private && (
           <a
             href={`https://instagram.com/${partner.instagram_id.replace(/^@/, "")}`}
             target="_blank"
