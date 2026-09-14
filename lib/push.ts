@@ -23,4 +23,43 @@ export function configureWebPush() {
   return true
 }
 
+/**
+ * True when the VAPID keypair is present and web-push can be configured.
+ */
+export function isPushConfigured() {
+  return configureWebPush()
+}
+
+type PushPayload = {
+  title: string
+  body: string
+  url?: string
+  tag?: string
+}
+
+type PushSubscriptionInput = {
+  endpoint: string
+  keys: { p256dh: string; auth: string }
+}
+
+/**
+ * Send a single push message. Returns { ok, stale } so the caller can prune
+ * expired subscriptions (410 Gone / 404 Not Found) without throwing.
+ */
+export async function sendPushToSubscription(
+  subscription: PushSubscriptionInput,
+  payload: PushPayload,
+): Promise<{ ok: boolean; stale: boolean }> {
+  if (!configureWebPush()) return { ok: false, stale: false }
+
+  try {
+    await webpush.sendNotification(subscription, JSON.stringify(payload))
+    return { ok: true, stale: false }
+  } catch (error) {
+    const statusCode = (error as { statusCode?: number })?.statusCode
+    const stale = statusCode === 404 || statusCode === 410
+    return { ok: false, stale }
+  }
+}
+
 export { webpush }
