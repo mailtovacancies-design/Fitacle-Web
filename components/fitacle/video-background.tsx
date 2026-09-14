@@ -62,7 +62,7 @@ export function VideoBackground() {
       className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
     >
       {/* Video / poster layer kept at low opacity so it reads as a subtle backdrop. */}
-      <div className="absolute inset-0 opacity-100">
+      <div className="absolute inset-0 opacity-55">
         {playClips ? (
           <AnimatePresence mode="sync">
             <motion.video
@@ -89,9 +89,9 @@ export function VideoBackground() {
       </div>
 
       {/* Light veils tuned for the hero's light theme so all existing text stays readable. */}
-      <div className="absolute inset-0 bg-background/10" />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/25 via-background/10 to-background/75" />
-      <div className="absolute inset-0 bg-gradient-to-r from-background/15 via-transparent to-background/15" />
+      <div className="absolute inset-0 bg-background/40" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/35 to-background/85" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-background/40" />
     </div>
   )
 }
