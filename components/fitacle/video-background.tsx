@@ -18,20 +18,17 @@ const CLIP_DURATION_MS = 6500
 export function VideoBackground() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [index, setIndex] = useState(0)
-  // Play clips only on larger screens with motion allowed; otherwise show the poster.
+  // Play clips on all screen sizes, as long as motion is allowed; otherwise show the poster.
   const [playClips, setPlayClips] = useState(false)
   const [inView, setInView] = useState(true)
 
   useEffect(() => {
     if (typeof window === "undefined") return
-    const desktop = window.matchMedia("(min-width: 768px)")
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const update = () => setPlayClips(desktop.matches && !reduceMotion.matches)
+    const update = () => setPlayClips(!reduceMotion.matches)
     update()
-    desktop.addEventListener("change", update)
     reduceMotion.addEventListener("change", update)
     return () => {
-      desktop.removeEventListener("change", update)
       reduceMotion.removeEventListener("change", update)
     }
   }, [])
