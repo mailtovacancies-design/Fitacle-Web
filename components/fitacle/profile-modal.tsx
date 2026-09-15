@@ -6,6 +6,7 @@ import { Instagram, Star, X, Loader2, CheckCircle2, AlertCircle, Eye, EyeOff, Be
 import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 import { usePush } from "@/lib/use-push"
+import { usePWA } from "@/components/pwa/pwa-context"
 
 const experienceLevels = ["Beginner", "Intermediate", "Advanced"]
 const activityOptions = [
@@ -90,6 +91,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
   })
   const [showTrainerNote, setShowTrainerNote] = useState(false)
   const { supported: pushSupported, subscribe: subscribePush, unsubscribe: unsubscribePush } = usePush()
+  const { isIOS, isStandalone, openInstallHelp } = usePWA()
 
   // Check user and load existing profile
   useEffect(() => {
@@ -754,6 +756,13 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                   <button
                     type="button"
                     onClick={async () => {
+                      // iOS requires the app to be installed on the Home Screen before
+                      // push can work. Reuse the existing install instructions first.
+                      if (isIOS && !isStandalone && !pushSupported) {
+                        openInstallHelp()
+                        return
+                      }
+
                       const newValue = !formData.notifications_enabled
                       setFormData({ ...formData, notifications_enabled: newValue })
 
