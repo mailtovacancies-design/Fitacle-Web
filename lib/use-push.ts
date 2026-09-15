@@ -95,10 +95,14 @@ export function usePush() {
           applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
         }))
 
+      // Include the browser's IANA timezone so daily notifications can be
+      // scheduled at 8am/6pm in each user's own local time.
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
       const res = await fetch("/api/push/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(sub.toJSON()),
+        body: JSON.stringify({ ...sub.toJSON(), timezone }),
       })
 
       if (!res.ok) {
@@ -138,4 +142,57 @@ export function usePush() {
   }, [])
 
   return { ...state, subscribe, unsubscribe }
+}
+
+/**
+ * Best-effort, silent re-registration of push for users who already granted
+ * browser notification permission in the past (e.g. before the timezone
+ * field existed, or before their device's push subscription was ever
+ * persisted). Never prompts — only runs when permission is already
+ * "granted" — so it's safe to call on every app load.
+ */
+export async function silentPushResync(): Promise<void> {
+  try {
+    if (typeof window === "undefined") return
+    const supported = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window
+    if (!supported || Notification.permission !== "granted") return
+
+    const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+    if (!vapidPublicKey) return
+
+    const { createClient } = await import("@/lib/supabase/client")
+    const supabase = createClient()
+    if (!supabase) return
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("notifications_enabled")
+      .eq("id", user.id)
+      .maybeSingle()
+    if (profile?.notifications_enabled === false) return
+
+    const reg = await navigator.serviceWorker.ready
+    const existing = await reg.pushManager.getSubscription()
+    const sub =
+      existing ??
+      (await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+      }))
+
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+    await fetch("/api/push/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...sub.toJSON(), timezone }),
+    })
+  } catch (err) {
+    console.log("[v0] silentPushResync error:", (err as Error).message)
+  }
 }

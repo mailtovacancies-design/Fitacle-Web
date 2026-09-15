@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js"
 import { sendPushToSubscription, isPushConfigured } from "@/lib/push"
+import { kvGet } from "@/lib/kv"
 
 export const dynamic = "force-dynamic"
 
@@ -25,11 +26,32 @@ function buildMessage(timeOfDay: TimeOfDay, firstName: string) {
   }
 }
 
-function resolveTimeOfDay(param: string | null): TimeOfDay {
-  if (param === "morning" || param === "evening") return param
-  // Fallback: decide by server hour (before 15:00 UTC => morning)
-  const hour = new Date().getUTCHours()
-  return hour < 15 ? "morning" : "evening"
+// Cron runs every 15 minutes (UTC). For each subscription we look at what
+// time it currently is in THAT USER's own local timezone, and only send
+// when it's their ~8:00am (morning) or ~6:00pm (evening) window.
+function localHourMinute(timeZone: string): { hour: number; minute: number } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date())
+  const rawHour = Number(parts.find((p) => p.type === "hour")?.value ?? "0")
+  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? "0")
+  // Intl can report hour "24" for midnight in some locales.
+  const hour = rawHour === 24 ? 0 : rawHour
+  return { hour, minute }
+}
+
+function resolveTimeOfDayForZone(timeZone: string): TimeOfDay | null {
+  try {
+    const { hour, minute } = localHourMinute(timeZone)
+    if (hour === 8 && minute < 15) return "morning"
+    if (hour === 18 && minute < 15) return "evening"
+    return null
+  } catch {
+    return null
+  }
 }
 
 export async function GET(request: Request) {
@@ -60,7 +82,11 @@ export async function GET(request: Request) {
     return Response.json({ error: "Server not configured." }, { status: 500 })
   }
 
-  const timeOfDay = resolveTimeOfDay(url.searchParams.get("timeOfDay"))
+  // Optional manual override for testing (e.g. ?timeOfDay=morning forces that
+  // message for everyone regardless of their local time). Cron omits this and
+  // lets each subscription's own timezone decide.
+  const forcedTimeOfDay = url.searchParams.get("timeOfDay")
+  const forced: TimeOfDay | null = forcedTimeOfDay === "morning" || forcedTimeOfDay === "evening" ? forcedTimeOfDay : null
 
   const admin = createClient(supabaseUrl, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
@@ -96,15 +122,25 @@ export async function GET(request: Request) {
 
   let sent = 0
   let failed = 0
+  let skipped = 0
   const staleEndpoints: string[] = []
 
   await Promise.all(
     (subs ?? []).map(async (sub) => {
+      const endpoint = sub.endpoint as string
+      const timezone = (await kvGet(`push_tz:${endpoint}`)) ?? "UTC"
+      const timeOfDay = forced ?? resolveTimeOfDayForZone(timezone)
+
+      if (!timeOfDay) {
+        skipped += 1
+        return
+      }
+
       const firstName = firstNameFrom(nameById.get(sub.user_id as string) ?? null)
       const message = buildMessage(timeOfDay, firstName)
       const result = await sendPushToSubscription(
         {
-          endpoint: sub.endpoint as string,
+          endpoint,
           keys: { p256dh: sub.p256dh as string, auth: sub.auth as string },
         },
         {
@@ -118,7 +154,7 @@ export async function GET(request: Request) {
         sent += 1
       } else {
         failed += 1
-        if (result.stale) staleEndpoints.push(sub.endpoint as string)
+        if (result.stale) staleEndpoints.push(endpoint)
       }
     }),
   )
@@ -128,5 +164,5 @@ export async function GET(request: Request) {
     await admin.from("push_subscriptions").delete().in("endpoint", staleEndpoints)
   }
 
-  return Response.json({ sent, failed, timeOfDay, cleaned: staleEndpoints.length })
+  return Response.json({ sent, failed, skipped, cleaned: staleEndpoints.length })
 }

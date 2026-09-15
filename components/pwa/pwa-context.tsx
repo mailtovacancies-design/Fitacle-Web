@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { StartupSplash } from "./startup-splash"
 import { InstallPopup } from "./install-popup"
 import { IosInstallSheet } from "./ios-install-sheet"
+import { silentPushResync } from "@/lib/use-push"
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>
@@ -97,6 +98,10 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
         navigator.serviceWorker.register("/sw.js").catch(() => {
           /* registration is best-effort */
         })
+        // Silently (re)register push for users who already granted
+        // notification permission, so their timezone stays fresh and
+        // existing users get backfilled without any action on their part.
+        silentPushResync()
       })
     }
 

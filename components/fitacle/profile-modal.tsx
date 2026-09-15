@@ -753,7 +753,27 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, notifications_enabled: !formData.notifications_enabled })}
+                    onClick={async () => {
+                      const newValue = !formData.notifications_enabled
+                      setFormData({ ...formData, notifications_enabled: newValue })
+
+                      // Trigger subscribe/unsubscribe immediately on this tap, so the
+                      // browser's permission prompt fires on a direct user gesture
+                      // instead of waiting for the whole form to be submitted later.
+                      if (pushSupported) {
+                        if (newValue) {
+                          await subscribePush()
+                        } else {
+                          await unsubscribePush()
+                        }
+                      }
+
+                      // Persist the preference right away too, independent of form submit.
+                      if (user) {
+                        const supabase = createClient()
+                        await supabase?.from("profiles").update({ notifications_enabled: newValue }).eq("id", user.id)
+                      }
+                    }}
                     className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${formData.notifications_enabled ? "bg-emerald-500" : "bg-muted"}`}
                   >
                     <span
