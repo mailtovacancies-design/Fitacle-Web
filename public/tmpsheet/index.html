@@ -1,0 +1,10 @@
+<body style="margin:0;background:#000;width:1600px">
+<script>
+const ids=[40526,40167,26096,44025,43248,40957,40961,40974,24312,45881,40260,40950];window.done=0;
+ids.forEach(id=>{const row=document.createElement('div');row.style.cssText='display:flex';document.body.append(row);
+[0.15,0.4,0.65,0.9].forEach(f=>{const d=document.createElement('div');d.style.cssText='position:relative;width:400px;height:200px';
+const v=document.createElement('video');v.src=id+'.mp4';v.muted=true;v.preload='auto';v.style.cssText='width:400px;height:200px;object-fit:cover';
+v.addEventListener('loadeddata',()=>{v.currentTime=v.duration*f});v.addEventListener('seeked',()=>{window.done++});
+const l=document.createElement('div');l.textContent=id;l.style.cssText='position:absolute;left:4px;top:4px;color:#ff0;font:bold 16px sans-serif;background:#000a';
+d.append(v,l);row.append(d)})});
+</script>
