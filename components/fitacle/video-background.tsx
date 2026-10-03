@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 
 const CLIPS = [
   { name: "battle-ropes", src: "/videos/battle-ropes.mp4", poster: "/videos/battle-ropes-poster.jpg" },
-  { name: "gym-partners", src: "/videos/gym-partners.mp4", poster: "/videos/gym-partners-poster.jpg" },
+  { name: "workout-duo", src: "/videos/workout-duo.mp4", poster: "/videos/workout-duo-poster.jpg" },
   { name: "barbell-swing", src: "/videos/barbell-swing.mp4", poster: "/videos/barbell-swing-poster.jpg" },
   { name: "healthy-meal", src: "/videos/healthy-meal.mp4", poster: "/videos/healthy-meal-poster.jpg" },
   { name: "wall-ball", src: "/videos/wall-ball.mp4", poster: "/videos/wall-ball-poster.jpg" },
