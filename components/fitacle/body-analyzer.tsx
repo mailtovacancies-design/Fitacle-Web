@@ -5,12 +5,56 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Calculator, Scale, Target, Flame, Dumbbell, Heart, TrendingUp, Sparkles, Lock } from "lucide-react"
 
 interface FormData {
-  gender: "male" | "female"
-  age: number
-  height: number
-  weight: number
+  gender: "male" | "female" | ""
+  age: string
+  height: string
+  weight: string
   activityLevel: string
   goal: string
+}
+
+type MetricKey = "gender" | "age" | "height" | "weight"
+
+const METRIC_RULES = {
+  age: { label: "Age", unit: "years", min: 16, max: 100, decimals: false, maxLength: 3 },
+  height: { label: "Height", unit: "cm", min: 100, max: 250, decimals: true, maxLength: 5 },
+  weight: { label: "Weight", unit: "kg", min: 30, max: 300, decimals: true, maxLength: 5 },
+} as const
+
+function sanitizeNumericInput(raw: string, allowDecimal: boolean, maxLength: number): string {
+  let value = raw.replace(allowDecimal ? /[^0-9.]/g : /[^0-9]/g, "")
+  if (allowDecimal) {
+    const firstDot = value.indexOf(".")
+    if (firstDot !== -1) {
+      const whole = value.slice(0, firstDot)
+      const fraction = value.slice(firstDot + 1).replace(/\./g, "").slice(0, 1)
+      value = `${whole === "" ? "0" : whole}.${fraction}`
+    }
+  }
+  const [whole, fraction] = value.split(".")
+  const trimmedWhole = whole.replace(/^0+/, "")
+  if (fraction !== undefined) {
+    value = `${trimmedWhole === "" ? "0" : trimmedWhole}.${fraction}`
+  } else {
+    value = trimmedWhole
+  }
+  return value.slice(0, maxLength)
+}
+
+function validateMetric(key: MetricKey, formData: FormData): string {
+  if (key === "gender") {
+    return formData.gender === "" ? "Please select your gender" : ""
+  }
+  const rule = METRIC_RULES[key]
+  const raw = formData[key]
+  if (raw === "") return `${rule.label} is required`
+  const num = Number(raw)
+  if (!Number.isFinite(num) || raw.endsWith(".")) return `Enter a valid ${rule.label.toLowerCase()}`
+  if (num <= 0) return `${rule.label} must be greater than 0`
+  if (num < rule.min || num > rule.max) {
+    return `${rule.label} must be between ${rule.min} and ${rule.max} ${rule.unit}`
+  }
+  return ""
 }
 
 interface Results {
@@ -104,13 +148,14 @@ function CircularProgress({ score, size = 160 }: { score: number; size?: number 
 
 export function BodyAnalyzer() {
   const [formData, setFormData] = useState<FormData>({
-    gender: "male",
-    age: 25,
-    height: 175,
-    weight: 75,
+    gender: "",
+    age: "",
+    height: "",
+    weight: "",
     activityLevel: "moderate",
     goal: "maintain",
   })
+  const [touched, setTouched] = useState<Partial<Record<MetricKey, boolean>>>({})
   const [results, setResults] = useState<Results | null>(null)
   const [showResults, setShowResults] = useState(false)
   const [isCalculating, setIsCalculating] = useState(false)
@@ -129,12 +174,30 @@ export function BodyAnalyzer() {
     { value: "gain", label: "Muscle Gain", icon: Dumbbell },
   ]
 
+  const metricKeys: MetricKey[] = ["gender", "age", "height", "weight"]
+  const metricErrors = metricKeys.reduce(
+    (acc, key) => ({ ...acc, [key]: validateMetric(key, formData) }),
+    {} as Record<MetricKey, string>,
+  )
+  const isFormValid = metricKeys.every((key) => metricErrors[key] === "")
+  const visibleErrors = metricKeys
+    .filter((key) => touched[key] && metricErrors[key])
+    .map((key) => metricErrors[key])
+
   const calculateResults = () => {
+    if (!isFormValid) {
+      setTouched({ gender: true, age: true, height: true, weight: true })
+      return
+    }
     setIsCalculating(true)
     
     // Simulate AI processing with a dramatic delay
     setTimeout(() => {
-      const { gender, age, height, weight, activityLevel, goal } = formData
+      const { activityLevel, goal } = formData
+      const gender = formData.gender
+      const age = Number(formData.age)
+      const height = Number(formData.height)
+      const weight = Number(formData.weight)
     
       const heightM = height / 100
       const bmi = weight / (heightM * heightM)
@@ -258,7 +321,10 @@ export function BodyAnalyzer() {
                   {["male", "female"].map((g) => (
                     <button
                       key={g}
-                      onClick={() => setFormData({ ...formData, gender: g as "male" | "female" })}
+                      onClick={() => {
+                        setFormData({ ...formData, gender: g as "male" | "female" })
+                        setTouched((t) => ({ ...t, gender: true }))
+                      }}
                       className={`py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl font-medium transition-all duration-300 text-xs sm:text-base ${
                         formData.gender === g
                           ? "bg-foreground text-background shadow-md"
@@ -273,32 +339,50 @@ export function BodyAnalyzer() {
 
               {/* Age, Height, Weight */}
               <div className="grid grid-cols-3 gap-2 sm:gap-4">
-                {[
-                  { label: "Age", key: "age", suffix: "yrs", min: 16, max: 80 },
-                  { label: "Height", key: "height", suffix: "cm", min: 140, max: 220 },
-                  { label: "Weight", key: "weight", suffix: "kg", min: 40, max: 200 },
-                ].map((field) => (
-                  <div key={field.key}>
-                    <label className="block text-[11px] sm:text-sm text-muted-foreground mb-1 sm:mb-2">{field.label}</label>
-                    <div className="relative flex items-center">
-                      <input
-                        type="number"
-                        inputMode="numeric"
-                        value={formData[field.key as keyof FormData] as number}
-                        onChange={(e) =>
-                          setFormData({ ...formData, [field.key]: Number(e.target.value) })
-                        }
-                        min={field.min}
-                        max={field.max}
-                        className="w-full py-2.5 sm:py-3 px-2 sm:px-4 pr-9 sm:pr-14 bg-secondary border border-border rounded-lg sm:rounded-xl text-foreground text-center font-medium focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all text-sm sm:text-base"
-                      />
-                      <span className="absolute right-1.5 sm:right-3 top-1/2 -translate-y-1/2 text-[9px] sm:text-xs text-muted-foreground">
-                        {field.suffix}
-                      </span>
+                {([
+                  { label: "Age", key: "age", suffix: "yrs", inputMode: "numeric" },
+                  { label: "Height", key: "height", suffix: "cm", inputMode: "decimal" },
+                  { label: "Weight", key: "weight", suffix: "kg", inputMode: "decimal" },
+                ] as const).map((field) => {
+                  const rule = METRIC_RULES[field.key]
+                  const hasError = Boolean(touched[field.key] && metricErrors[field.key])
+                  return (
+                    <div key={field.key}>
+                      <label htmlFor={`metric-${field.key}`} className="block text-[11px] sm:text-sm text-muted-foreground mb-1 sm:mb-2">{field.label}</label>
+                      <div className="relative flex items-center">
+                        <input
+                          id={`metric-${field.key}`}
+                          type="text"
+                          inputMode={field.inputMode}
+                          autoComplete="off"
+                          value={formData[field.key]}
+                          aria-invalid={hasError}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              [field.key]: sanitizeNumericInput(e.target.value, rule.decimals, rule.maxLength),
+                            })
+                          }
+                          onBlur={() => setTouched((t) => ({ ...t, [field.key]: true }))}
+                          className={`w-full py-2.5 sm:py-3 px-2 sm:px-4 pr-9 sm:pr-14 bg-secondary border rounded-lg sm:rounded-xl text-foreground text-center font-medium focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all text-sm sm:text-base ${hasError ? "border-red-500" : "border-border"}`}
+                        />
+                        <span className="absolute right-1.5 sm:right-3 top-1/2 -translate-y-1/2 text-[9px] sm:text-xs text-muted-foreground">
+                          {field.suffix}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
+              {visibleErrors.length > 0 && (
+                <ul role="alert" className="space-y-1">
+                  {visibleErrors.map((message) => (
+                    <li key={message} className="text-xs text-red-500">
+                      {message}
+                    </li>
+                  ))}
+                </ul>
+              )}
 
               {/* Activity Level */}
               <div>
