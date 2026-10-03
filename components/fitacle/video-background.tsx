@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react"
 
 const CLIPS = [
-  { name: "running-bridge", src: "/videos/running-bridge.mp4", poster: "/videos/running-bridge-poster.jpg" },
   { name: "strength-pushups", src: "/videos/strength-pushups.mp4", poster: "/videos/strength-pushups-poster.jpg" },
+  { name: "battle-ropes", src: "/videos/battle-ropes.mp4", poster: "/videos/battle-ropes-poster.jpg" },
   { name: "boxing-ring", src: "/videos/boxing-ring.mp4", poster: "/videos/boxing-ring-poster.jpg" },
   { name: "runner-sunset", src: "/videos/runner-sunset.mp4", poster: "/videos/runner-sunset-poster.jpg" },
   { name: "stretch-sunset", src: "/videos/stretch-sunset.mp4", poster: "/videos/stretch-sunset-poster.jpg" },
