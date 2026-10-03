@@ -298,7 +298,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-foreground/20 backdrop-blur-sm overflow-y-auto"
+          className="fixed inset-0 z-[60] flex items-start sm:items-center justify-center p-3 sm:p-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-foreground/20 backdrop-blur-sm overflow-y-auto overscroll-contain"
           onClick={onClose}
         >
           <motion.div
@@ -307,14 +307,14 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg bg-card rounded-2xl border border-border shadow-2xl overflow-hidden my-8"
+            className="w-full max-w-lg bg-card rounded-2xl border border-border shadow-2xl overflow-x-hidden my-2 sm:my-8 min-w-0"
           >
             <div className="p-5 sm:p-6">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-lg sm:text-xl font-bold text-foreground">
                   {hasProfile ? "Edit Your Profile" : "Create Your Profile"}
                 </h2>
-                <button onClick={onClose} className="p-2 hover:bg-accent rounded-lg transition-colors">
+                <button type="button" aria-label="Close" onClick={onClose} className="p-2 hover:bg-accent rounded-lg transition-colors">
                   <X size={20} className="text-muted-foreground" />
                 </button>
               </div>
@@ -329,7 +329,7 @@ export function ProfileModal({ open, onClose }: ProfileModalProps) {
                 </div>
               )}
 
-              <form onSubmit={handleSubmitProfile} className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+              <form onSubmit={handleSubmitProfile} className="space-y-4 sm:max-h-[60vh] sm:overflow-y-auto sm:pr-2">
                 {/* Basic Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
