@@ -48,7 +48,7 @@ export function VideoBackground() {
       <img
         src={CLIPS[0].poster || "/placeholder.svg"}
         alt=""
-        className="absolute inset-0 h-full w-full object-cover opacity-25"
+        className="absolute inset-0 h-full w-full object-cover opacity-60"
         fetchPriority="high"
       />
       {playClips &&
@@ -65,7 +65,7 @@ export function VideoBackground() {
             preload={i === 0 ? "auto" : "metadata"}
             onEnded={() => setActive((current) => (current + 1) % CLIPS.length)}
             className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
-              i === active ? "opacity-30" : "opacity-0"
+              i === active ? "opacity-70" : "opacity-0"
             }`}
           />
         ))}
