@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react"
 
 const CLIPS = [
   { name: "battle-ropes", src: "/videos/battle-ropes.mp4", poster: "/videos/battle-ropes-poster.jpg" },
-  { name: "workout-partners", src: "/videos/workout-partners.mp4", poster: "/videos/workout-partners-poster.jpg" },
+  { name: "gym-partners", src: "/videos/gym-partners.mp4", poster: "/videos/gym-partners-poster.jpg" },
   { name: "barbell-swing", src: "/videos/barbell-swing.mp4", poster: "/videos/barbell-swing-poster.jpg" },
-  { name: "healthy-partners", src: "/videos/healthy-partners.mp4", poster: "/videos/healthy-partners-poster.jpg" },
+  { name: "healthy-meal", src: "/videos/healthy-meal.mp4", poster: "/videos/healthy-meal-poster.jpg" },
   { name: "wall-ball", src: "/videos/wall-ball.mp4", poster: "/videos/wall-ball-poster.jpg" },
   { name: "deck-stretch", src: "/videos/deck-stretch.mp4", poster: "/videos/deck-stretch-poster.jpg" },
 ]
