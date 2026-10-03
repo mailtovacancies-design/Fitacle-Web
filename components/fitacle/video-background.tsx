@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from "react"
 
 const CLIPS = [
-  { name: "strength-pushups", src: "/videos/strength-pushups.mp4", poster: "/videos/strength-pushups-poster.jpg" },
   { name: "battle-ropes", src: "/videos/battle-ropes.mp4", poster: "/videos/battle-ropes-poster.jpg" },
-  { name: "boxing-ring", src: "/videos/boxing-ring.mp4", poster: "/videos/boxing-ring-poster.jpg" },
-  { name: "runner-sunset", src: "/videos/runner-sunset.mp4", poster: "/videos/runner-sunset-poster.jpg" },
-  { name: "stretch-sunset", src: "/videos/stretch-sunset.mp4", poster: "/videos/stretch-sunset-poster.jpg" },
+  { name: "dumbbell-silhouette", src: "/videos/dumbbell-silhouette.mp4", poster: "/videos/dumbbell-silhouette-poster.jpg" },
+  { name: "barbell-swing", src: "/videos/barbell-swing.mp4", poster: "/videos/barbell-swing-poster.jpg" },
+  { name: "wall-ball", src: "/videos/wall-ball.mp4", poster: "/videos/wall-ball-poster.jpg" },
+  { name: "sunset-stretch", src: "/videos/sunset-stretch.mp4", poster: "/videos/sunset-stretch-poster.jpg" },
 ]
 
 export function VideoBackground() {
