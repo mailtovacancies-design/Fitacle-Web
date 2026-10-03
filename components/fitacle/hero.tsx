@@ -315,7 +315,11 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
     const params = new URLSearchParams(window.location.search)
     const authType = params.get('auth')
     
-    if (authType === 'google_signup') {
+    if (authType === 'signin') {
+      window.history.replaceState({}, '', window.location.pathname + window.location.hash)
+      setAuthMode('signin')
+      setShowAuthModal(true)
+    } else if (authType === 'google_signup') {
       setShowGoogleAuthSuccess('signup')
       // Clean up URL
       window.history.replaceState({}, '', window.location.pathname + window.location.hash)

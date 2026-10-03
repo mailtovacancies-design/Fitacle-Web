@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 const CLIPS = [
   { name: "battle-ropes", src: "/videos/battle-ropes.mp4", poster: "/videos/battle-ropes-poster.jpg" },
@@ -12,15 +12,20 @@ const CLIPS = [
 ]
 
 export function VideoBackground() {
-  const [playClips, setPlayClips] = useState(false)
+  const [allowMotion, setAllowMotion] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(false)
   const [active, setActive] = useState(0)
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([])
 
-  // Desktop (>= 768px) plays the clips; mobile and reduced-motion users get the poster only.
+  // Respect reduced-motion; otherwise play on every device. Desktop keeps all clips
+  // mounted for crossfades, small screens mount only the active clip to save data.
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 768px)")
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const update = () => setPlayClips(desktop.matches && !reduced.matches)
+    const update = () => {
+      setIsDesktop(desktop.matches)
+      setAllowMotion(!reduced.matches)
+    }
     update()
     desktop.addEventListener("change", update)
     reduced.addEventListener("change", update)
@@ -30,18 +35,42 @@ export function VideoBackground() {
     }
   }, [])
 
+  const playActive = useCallback(() => {
+    const video = videoRefs.current[active]
+    if (!video) return
+    // The poster stays visible underneath if the browser blocks autoplay (e.g. Low Power Mode).
+    video.play().catch(() => {})
+  }, [active])
+
   useEffect(() => {
-    if (!playClips) return
+    if (!allowMotion) return
     videoRefs.current.forEach((video, i) => {
       if (!video) return
       if (i === active) {
         video.currentTime = 0
-        video.play().catch(() => {})
       } else {
         video.pause()
       }
     })
-  }, [active, playClips])
+    playActive()
+  }, [active, allowMotion, isDesktop, playActive])
+
+  // Retry playback when autoplay was blocked: first touch/click, and when the tab becomes visible again.
+  useEffect(() => {
+    if (!allowMotion) return
+    const retry = () => playActive()
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") playActive()
+    }
+    window.addEventListener("touchstart", retry, { passive: true, once: true })
+    window.addEventListener("click", retry, { once: true })
+    document.addEventListener("visibilitychange", onVisibility)
+    return () => {
+      window.removeEventListener("touchstart", retry)
+      window.removeEventListener("click", retry)
+      document.removeEventListener("visibilitychange", onVisibility)
+    }
+  }, [allowMotion, playActive])
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
@@ -52,24 +81,31 @@ export function VideoBackground() {
         className="absolute inset-0 h-full w-full object-cover opacity-60"
         fetchPriority="high"
       />
-      {playClips &&
-        CLIPS.map((clip, i) => (
-          <video
-            key={clip.name}
-            ref={(el) => {
-              videoRefs.current[i] = el
-            }}
-            src={clip.src}
-            poster={clip.poster}
-            muted
-            playsInline
-            preload={i === 0 ? "auto" : "metadata"}
-            onEnded={() => setActive((current) => (current + 1) % CLIPS.length)}
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
-              i === active ? "opacity-70" : "opacity-0"
-            }`}
-          />
-        ))}
+      {allowMotion &&
+        CLIPS.map((clip, i) => {
+          if (!isDesktop && i !== active) return null
+          return (
+            <video
+              key={clip.name}
+              ref={(el) => {
+                videoRefs.current[i] = el
+              }}
+              src={clip.src}
+              poster={clip.poster}
+              muted
+              autoPlay
+              playsInline
+              disablePictureInPicture
+              disableRemotePlayback
+              preload={i === active ? "auto" : "metadata"}
+              onCanPlay={i === active ? playActive : undefined}
+              onEnded={() => setActive((current) => (current + 1) % CLIPS.length)}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
+                i === active ? "opacity-70" : "opacity-0"
+              }`}
+            />
+          )
+        })}
     </div>
   )
 }

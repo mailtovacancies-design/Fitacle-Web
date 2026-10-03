@@ -119,7 +119,7 @@ export default function ResetPasswordPage() {
       await supabase.auth.signOut()
       setDone(true)
       setTimeout(() => {
-        window.location.href = "/"
+        window.location.href = "/?auth=signin"
       }, 2500)
     }
   }
