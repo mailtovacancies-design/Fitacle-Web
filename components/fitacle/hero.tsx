@@ -7,6 +7,7 @@ import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { useStats } from "@/lib/use-stats"
 import { isProfileComplete } from "@/lib/profile-completion"
+import { VideoBackground } from "./video-background"
 
 // Floating fitness element data - positioned around the main headline on mobile
 const floatingElements = [
@@ -347,6 +348,9 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
         >
           {/* Base gradient background */}
           <div className="absolute inset-0 bg-gradient-to-br from-neutral-100 via-neutral-50 to-neutral-200" />
+
+          {/* Faded fitness video background (poster-only on mobile) */}
+          <VideoBackground />
           
           {/* Smooth gradient animations - GPU optimized */}
           <motion.div
@@ -366,9 +370,9 @@ export function Hero({ showAuthModal: externalShowAuthModal, setShowAuthModal: e
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_60%,_rgba(16,185,129,0.08)_0%,_transparent_50%)]" />
           
           {/* Premium layered overlays for light theme */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/60 to-background" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-background/70" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/15 to-background/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/35 via-transparent to-background/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
           
           
           

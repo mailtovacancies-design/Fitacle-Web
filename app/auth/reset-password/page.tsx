@@ -52,12 +52,14 @@ export default function ResetPasswordPage() {
 
         if (tokenHash && type) {
           // Preferred, cross-device-safe flow.
-          await supabase.auth.verifyOtp({
+          const { error: otpError } = await supabase.auth.verifyOtp({
             type: type as "recovery",
             token_hash: tokenHash,
           })
+          if (otpError) setError(otpError.message)
         } else if (code) {
-          await supabase.auth.exchangeCodeForSession(code)
+          const { error: codeError } = await supabase.auth.exchangeCodeForSession(code)
+          if (codeError) setError(codeError.message)
         }
         // Hash-token flow (#access_token) is picked up automatically by the client.
       } catch {
@@ -88,6 +90,7 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (submitting) return
     setError(null)
 
     if (password.length < 6) {
@@ -112,6 +115,8 @@ export default function ResetPasswordPage() {
     if (updateError) {
       setError(updateError.message)
     } else {
+      // End the temporary recovery session so the user logs in with the new password.
+      await supabase.auth.signOut()
       setDone(true)
       setTimeout(() => {
         window.location.href = "/"
@@ -120,7 +125,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <main className="min-h-dvh flex items-center justify-center bg-background px-4 py-16">
+    <main className="min-h-dvh flex items-start sm:items-center justify-center bg-background px-4 py-8 sm:py-16 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))]">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -143,7 +148,7 @@ export default function ResetPasswordPage() {
               <Check className="text-emerald-600" size={28} />
             </div>
             <h1 className="text-xl font-bold text-foreground mb-1">Password updated</h1>
-            <p className="text-sm text-muted-foreground">Redirecting you to Fitacle…</p>
+            <p className="text-sm text-muted-foreground">Please sign in with your new password. Redirecting…</p>
           </div>
         ) : !ready ? (
           <div className="flex flex-col items-center gap-3 py-8">
@@ -186,7 +191,7 @@ export default function ResetPasswordPage() {
                   autoComplete="new-password"
                   minLength={6}
                   required
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition"
+                  className="w-full text-base pl-10 pr-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition"
                 />
               </div>
               <div className="relative">
@@ -199,7 +204,7 @@ export default function ResetPasswordPage() {
                   autoComplete="new-password"
                   minLength={6}
                   required
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition"
+                  className="w-full text-base pl-10 pr-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition"
                 />
               </div>
 
